@@ -1,0 +1,154 @@
+Protection from arrows on self
+FilterSendClientMessage: SEND Input.12 - 28:
+55 03 00 00 00 00 00 00 00 00 03 6e ff ff ff 75 U..........n...u
+03 5a 43 35 47 12 43 d6 35 26 3e 70             .ZC5G.C.5&>p
+
+Light on self
+FilterSendClientMessage: SEND Input.12 - 28:
+64 00 00 00 00 00 00 00 00 00 03 6e ff ff ff 75 d..........n...u
+03 5a 43 35 47 12 43 d6 35 26 3e 70             .ZC5G.C.5&>p
+
+Light
+FilterSendClientMessage: SEND Input.12 - 28:
+64 00 00 00 00 00 00 00 00 00 03 6e ff ff ff 5e d..........n...^
+a9 58 43 35 47 12 43 b8 a6 74 bd 60             .XC5G.C..t.`
+
+PfA
+FilterSendClientMessage: SEND Input.12 - 28:
+55 03 00 00 00 00 00 00 00 00 03 6e ff ff ff 5e U..........n...^
+a9 58 43 35 47 12 43 b8 a6 74 bd 60             .XC5G.C..t.`
+
+PfA
+FilterSendClientMessage: SEND Input.12 - 28:
+00 00 03 6e ff ff ff fb U..........n....
+d8 58 43 35 47 12 43 18 dc 4b bd 60             .XC5G.C..K.`
+
+(ULONG)     Spell
+(ULONG)     Unknown
+(UCHAR[3])  Unknown
+(ULONG)     TargetId
+(ULONG[3])  Position
+UCHAR       Trailer
+
+
+FilterSendClientMessage: SEND Input.12 - 28:
+55 03 00 00 00 00 00 00 00 00 03 6e ff ff ff fb U..........n....
+d8 58 43 35 47 12 43 18 dc 4b bd 60             .XC5G.C..K.`
+FilterClientTextInput: Casting 64 on ffffff8d at (1,2,3).
+64 00 00 00 00 00 00 00 00 03 8d ff ff ff 01 00 d...............
+00 00 02 00 00 00 03 00 00 00 00 00             ............
+
+355 FFFFFF6E 4358d8fb 43124735  bd4bdc18 
+
+FilterSendClientMessage: SEND Input.27 - 5:
+3f 02 00 80 60                                  ?...`
+
+FilterSendClientMessage: SEND Input.12 - 28:
+0a 00 00 00 00 00 00 00 00 00 03 95 17 00 80 00 ................
+00 10 41 df 9a 49 41 9a 99 99 3e 60             ..A..IA...>`
+
+Magic Missile          0000006b
+Light                  00000064
+Burning Hands          0000000a
+Protection from Arrows 00000355
+Power Word Weaken      000003f1
+Invisibility Sphere    0000005c
+Stoneskin              000000ac
+Confusion              0000001a
+Polymorph Self         00000082
+Greater Invisibility   00000058	
+Acid Splash            000001a8
+
+		BurningHands              = 0x0000000a,
+		DominatePerson            = 0x0000002d,
+		Identify                  = 0x00000056,
+		GreaterInvisibility       = 0x00000058,
+		InvisibilitySphere        = 0x0000005c,
+		Light                     = 0x00000064,
+		MagicMissile              = 0x0000006b,
+		PolymorphSelf             = 0x00000082,
+		Stoneskin                 = 0x000000ac,
+		PolymorphSelfBladeSpider  = 0x00000183,
+		AcidSplash                = 0x000001a8,
+		BigbysInterposingHand     = 0x000001cb,
+		ProtectionFromArrows      = 0x00000355,
+		PowerWordWeaken           = 0x000003f1,
+		WallOfDispelMagic         = 0x00000409,
+		GlassDoppleganger         = 0x0000046d,
+		
+Blade Spider
+
+FilterSendClientMessage: SEND Input.12 - 28:
+83 01 00 00 00 00 00 00 00 00 03 6e ff ff ff d8 ...........n....
+af 2d 41 5d e7 4f 41 9c 99 99 3e 64             .-A].OA...>d
+
+Learn maximized acid splash
+
+FilterSendClientMessage: SEND Input.10 - 12:
+00 a8 01 00 00 03 00 04 00 00 00 64             ...........d
+
+Use door open
+
+FilterSendClientMessage: SEND Input.03 - 7:
+95 17 00 80 15 00 64                            ......d
+
+Use door close
+
+FilterSendClientMessage: SEND Input.03 - 7:
+95 17 00 80 16 00 64                            ......d
+
+ff
+
+
+FilterSendClientMessage: SEND Input.30 - 37:
+0f 00 00 00 67 75 69 5f 68 73 73 5f 70 63 5f 74 ....gui_hss_pc_t
+6f 6f 6c 03 00 00 00 00 01 00 00 00 35 03 00 00 ool.........5...
+00 36 2e 30 60                                  .6.0`
+FilterSendClientMessage: SEND Input.30 - 37:
+0f 00 00 00 67 75 69 5f 68 73 73 5f 70 63 5f 74 ....gui_hss_pc_t
+6f 6f 6c 03 00 00 00 00 01 00 00 00 38 03 00 00 ool.........8...
+00 36 2e 30 60                                  .6.0`
+FilterSendClientMessage: SEND Input.30 - 28:
+0f 00 00 00 67 75 69 5f 64 6d 66 69 5f 64 6d 74 ....gui_dmfi_dmt
+6f 6f 6c 01 03 00 00 00 2e 75 69 60             ool......ui`
+FilterSendClientMessage: SEND Input.30 - 43:
+0f 00 00 00 67 75 69 5f 68 73 73 5f 70 63 5f 74 ....gui_hss_pc_t
+6f 6f 6c 03 05 00 00 00 63 6c 69 63 6b 02 00 00 ool.....click...
+00 32 30 03 00 00 00 36 2e 30 60                .20....6.0`
+
+
+Send and receive a tell.
+FilterSendClientMessage: SEND Chat.04 - 29:
+01 00 00 00 14 00 00 00 54 65 73 74 20 69 6e 62 ........Test inb
+6f 75 6e 64 20 77 68 69 73 70 65 72 80          ound whisper.
+FilterRecvClientMessage: RECV Chat.04 - 63:
+bc ff ff ff 14 00 00 00 54 65 73 74 20 69 6e 62 ........Test inb
+6f 75 6e 64 20 77 68 69 73 70 65 72 b8 e1 97 42 ound whisper...B
+dd eb 42 41 00 00 00 80 08 00 00 00 56 61 73 69 ..BA........Vasi
+74 68 72 61 06 00 00 00 4b 69 6c 61 6e 69 a0    thra....Kilani.
+
+FilterRecvClientMessage: RECV Chat.04 - 57:
+4c 26 00 80 1c 00 00 00 77 69 67 67 6c 65 20 77 L&......wiggle w
+6f 67 67 6c 65 2c 20 49 20 68 61 73 20 6e 6f 20 oggle, I has no
+6e 61 6d 65 bc 32 1f 43 d9 e2 2e 43 ce bf 6c bd name.2.C...C..l.
+00 00 00 00 00 00 00 00 a3                      .........
+
+Send and receive a whisper.
+FilterSendClientMessage: SEND Chat.03 - 19:
+0e 00 00 00 28 28 20 74 65 73 74 77 68 69 73 70 ....(( testwhisp
+65 72 60                                        er`
+FilterRecvClientMessage: RECV Chat.03 - 23:
+bc ff ff ff 0e 00 00 00 28 28 20 74 65 73 74 77 ........(( testw
+68 69 73 70 65 72 6a                            hisperj
+
+Send and receive a say.
+FilterSendClientMessage: SEND Chat.01 - 15:
+0a 00 00 00 28 28 20 74 65 73 74 73 61 79 60    ....(( testsay`
+FilterRecvClientMessage: RECV Chat.01 - 19:
+bc ff ff ff 0a 00 00 00 28 28 20 74 65 73 74 73 ........(( tests
+61 79 62                                        ayb
+
+FilterRecvClientMessage: RECV Chat.04 - 47:
+95 26 00 80 0e 00 00 00 50 72 65 73 65 6e 74 2c .&......Present,
+20 68 75 6d 61 6e b1 1d 3c 43 63 a2 cc 42 83 8c  human..<Cc..B..
+05 b2 04 00 00 00 58 65 65 6e 00 00 00 00 a3    ......Xeen.....
