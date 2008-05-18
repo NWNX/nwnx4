@@ -1,0 +1,490 @@
+ProfileTime   32421 hits, 65536 events per hit --------
+ Module                                Hits   msec  %Total  Events/Sec
+32Bit nwn2server                      16085     133098    49 %     7920078
+nwn2server                            16085     133098    49 %     7920078
+32Bit MSVCR80                           109     133098     0 %       53670
+32Bit ntdll                              77     133098     0 %       37913
+32Bit NWN2_MemoryMgr_amdxp               19     133098     0 %        9355
+wow64cpu                                 17     133098     0 %        8370
+32Bit kernel32                            8     133098     0 %        3939
+32Bit USER32                              7     133098     0 %        3446
+32Bit WS2HELP                             5     133098     0 %        2461
+wow64                                     4     133098     0 %        1969
+32Bit mswsock                             2     133113     0 %         984
+ntdll                                     2     133098     0 %         984
+32Bit WS2_32                              1     133098     0 %         492
+
+No Hits or No symbols found for 32Bit module nwn2server.exe
+
+----- Zoomed module nwn2server.exe (Bucket size = 4 bytes, Rounding Down) --------
+Percentage in the following table is based on the Total Hits for this Zoom Module
+
+ProfileTime   16085 hits, 65536 events per hit --------
+ Module                                Hits   msec  %Total  Events/Sec
+UNKNOWN_SYMBOL(s)@0x0000000000532FDC-0x0000000000532FE8       6823     133098    42 %     3359570
+UNKNOWN_SYMBOL(s)@0x00000000004EB21C-0x00000000004EB22C       1253     133098     7 %      616963
+UNKNOWN_SYMBOL(s)@0x0000000000532FF4-0x0000000000532FF8       1129     133098     7 %      555907
+UNKNOWN_SYMBOL(s)@0x0000000000532FC0-0x0000000000532FCC       1070     133098     6 %      526856
+UNKNOWN_SYMBOL(s)@0x00000000004EB23C-0x00000000004EB268        986     133098     6 %      485495
+UNKNOWN_SYMBOL(s)@0x00000000004157C8-0x00000000004157F8        677     133098     4 %      333347
+UNKNOWN_SYMBOL(s)@0x0000000000533180-0x000000000053319C        290     133098     1 %      142792
+UNKNOWN_SYMBOL(s)@0x00000000004EBB0C-0x00000000004EBB14        269     133098     1 %      132452
+UNKNOWN_SYMBOL(s)@0x00000000004CE574-0x00000000004CE578        227     133098     1 %      111772
+UNKNOWN_SYMBOL(s)@0x00000000004EB280-0x00000000004EB284        201     133098     1 %       98970
+UNKNOWN_SYMBOL(s)@0x0000000000532FD0-0x0000000000532FD8        199     133098     1 %       97985
+
+****
+
+
+UNKNOWN_SYMBOL(s)@0x0000000000532F80-0x0000000000533050       8285     113753    54 %     4773199
+
+UNKNOWN_SYMBOL(s)@0x0000000000532FDC-0x0000000000532FE8       6823     133098    42 %     3359570
+
+.text:00532FDC HotCodePath_Begin:
+.text:00532FDC                 mov     edx, [eax]
+.text:00532FDE                 mov     ecx, eax
+.text:00532FE0                 mov     eax, [edx+3Ch]
+.text:00532FE3                 call    eax ; 0044df20
+.text:00532FE5                 mov     esi, eax
+.text:00532FE7
+.text:00532FE7 HotCodePath_End:
+
+.text:0044DF20 ReturnThis_Stub0 proc near              ; DATA XREF: .rdata:007D5410o
+.text:0044DF20                                         ; .rdata:007D7C20o ...
+.text:0044DF20                 mov     eax, ecx
+.text:0044DF22                 retn
+.text:0044DF22 ReturnThis_Stub0 endp
+.text:0044DF22
+
+
+.text:0053308F
+.text:0053308F loc_53308F:                             ; CODE XREF: sub_532C80+30Bj
+.text:0053308F                                         ; sub_532C80+33Bj ...
+.text:0053308F                 add     edi, 1
+.text:00533092                 cmp     edi, [ebx+0Ch]
+.text:00533095                 jl      Slow_AI_Loop_0
+
+
+struct NwnString
+{
+	char  *buf; // can be NULL for empty string
+	size_t len; // includes terminating '\0', can be 0 bytes for empty string
+};
+
+
+typedef struct _GAME_AI_STATE
+{
+/*000*/ int            __vfn_table;
+/*004*/	unsigned long *ObjectIds;   // e.g. 0xb021, or other very large values
+/*008*/	unsigned long  NumObjectIds;
+/*00c*/ unsigned long  unk[ 0x20 ];
+/*02c*/ NwnString      PendingScripts;
+} GAME_AI_STATE, * PGAME_AI_STATE;
+
+enum { OBJECT_INVALID = 0x7F000000; }
+
+// unsigned long Index = (((ObjectId >> 0x1F) & 0x1) << 0x0C) + (ObjectId & 0x0FFF);
+
+#define ObjectIdToIndex( ObjectId ) (((((ObjectId) >> 0x1F) & 0x1) << 0x0C) + ((ObjectId) & 0x0FFF))
+
+
+struct _0x84BFAC
+{
+	void **__vfn_table;
+	struct _OBJECT_ARRAY *ObjectArray;
+};
+
+typedef struct _OBJECT_ARRAY
+{
+	void **__vfn_table;
+	int unk0;
+	struct _OBJECT_ENTRY Objects[];
+
+	void *sub_4122b0()
+	{
+		// unk0 is a this pointer for a subclass that we forward the
+		// call to (453590)
+		// Resolves ObjectId to an object and calls object->func17
+	}
+
+
+	bool
+	TranslateObjectId(
+		__in OBJECT_ID ObjectId,
+		__out POBJECT *Object
+		)
+	{
+		POBJECT_ENTRY       ObjEntry;
+		unsigned long       Idx;
+	
+		if (ObjectId == OBJECT_INVALID)
+		{
+			*Object = NULL;
+			return false;
+		}
+
+		//
+		// Search the object hashtable for our actual object.  Note that we may have
+		// overflow links to consider.
+		//
+
+		Idx       = ObjectIdToIndex( ObjectId );
+		ObjEntry  = Objects[ Idx ];
+		ObjectId &= 0x7FFFFFFF;
+
+
+		while (ObjEntry->RealObjectId != ObjectId)
+		{
+			if (!ObjEntry->OverflowLink)
+			{
+				*Object = NULL;
+				return false;
+			}
+
+			ObjEntry = ObjEntry->OverflowLink;
+		}
+
+		*Object = ObjEntry->Object;
+
+		return (*Object != NULL);
+	}
+} OBJECT_ARRAY, * POBJECT_ARRAY;
+
+struct _SOME_AI_STRUCT
+{
+};
+
+typedef char[ 32 ] RESREF;
+
+typedef struct _OBJECT
+{
+	// void **__vfn_table; // +0
+
+	//
+	// N.B. vtable for CNWSDoor follows, but assume common interface for
+	// all classes of object.
+	//
+
+	virtual void func0()=0;
+	virtual void func1()=0;
+	virtual void func2()=0;
+	virtual void func3()=0;
+	virtual void func4()=0;
+	virtual void func5()=0;
+	virtual void func6()=0;
+	virtual void func7()=0;
+	virtual void SetPosition(POSITION *pos)=0;
+	virtual struct OBJECT_SUBSTRUCT_1* GetSubStruct1()=0;
+	virtual struct OBJECT_SUBSTRUCT_1 *GetSubStruct2()=0;
+	virtual void DeleteSubStruct1()=0;
+	virtual void SetValueScriptTargetObjectId(OBJECT_ID ObjectId);
+	virtual void funcd(int, int)=0;
+	virtual void *funce()=0;
+	virtual struct _OBJECT* GetRealObject()=0; // 44df20
+	virtual void *func10()=0;
+	virtual void *func11()=0;
+	virtual struct _OBJECT *GetRealObject2()=0; // 516250
+	virtual struct _OBJECT *GetRealObject3()=0; // 516240
+	virtual void *func14()=0;
+	virtual void *func15()=0;
+	virtual void *func16()=0;
+	virtual void *func17()=0;
+	virtual void *func18()=0;
+	virtual void *func19()=0;
+	virtual void *func1a()=0;
+	virtual void *func1b()=0;
+	virtual void *func1c()=0;
+	virtual void *func1d()=0;
+	virtual void *func1e()=0;
+	virtual void *func1f()=0;
+	virtual void *func20()=0;
+	virtual void *func21()=0;
+	virtual void *func22()=0;
+	virtual void *func23()=0;
+	virtual void *func24()=0;
+	virtual void *func25()=0;
+	virtual void *func26()=0;
+	virtual void *func27()=0;
+	virtual void *func28()=0;
+	virtual void *func29()=0;
+	virtual void *func2a()=0;
+	virtual void *func2b()=0;
+	virtual void *func2c()=0;
+	virtual void *func2d()=0;
+	virtual void *func2e()=0;
+	virtual void *func2f()=0;
+	virtual void *func30()=0;
+	virtual void *func31()=0;
+	virtual void *func32()=0;
+	virtual void *func33()=0;
+	virtual void *func34()=0;
+	virtual void *func35()=0;
+	virtual void *func36()=0;
+	virtual void *func37()=0;
+	virtual void *func38()=0;
+	virtual void *func39()=0;
+	virtual void *func3a()=0;
+	virtual void SetValueA8(int val)=0; // 44d620
+	virtual float ReturnFloat0()=0; // 6f9bc0
+	virtual void *AIUpdate()=0; // 515cf0
+	virtual int ReturnZeroOr1By0xE(int val)=0; // 516290
+	virtual void FreePredefinedScriptNameArray(void *ScriptData)=0; // 5162b0
+	virtual NwnString *GetPredefinedScriptName(void *ScriptData)=0; // 005162e0 
+	virtual void *func42()=0;
+	virtual unsigned short func43()=0; // 44df70 // return 0xFFFF
+	virtual void func44(int)=0;
+	virtual unsigned short func45()=0; // 44df90 // return 0xFFFF
+	virtual void func46(int)=0;
+	virtual OBJECT_ID GetSomeObjectId()=0; // 44dfb0 // return OBJECT_INVALID
+	virtual void func48(int)=0;
+	virtual bool DoDecreaseNumCutsceneActionsPending(void*)=0; // 445f90
+	virtual void DoLotsaScriptThings(int, int, int, int, int, int)=0; // 517300
+	virtual void BlockSight(int, float, float, float, int)=0; // 517210
+	virtual void BlockSightOnCurrentPosition(int)=0; // 4487e0
+	virtual void DoSomethingWithMyObjId1()=0; // 515db0
+	virtual void DoPositionThings1()=0; // 447d30
+	virtual void Copy64Bytes(unsigned long p[8])=0; // 516260
+	virtual bool func50()=0; // 44dff0
+	virtual bool func51()=0; // 44e000 return g_7e6406
+	virtual int *GetValue2d4()=0; // 44e010
+	virtual int *GetValue2e4()=0; // 44e020
+	virtual int *GetValue2f4()=0; // 44e030
+	virtual void Increment11cAndUse2d4(int, int, int, int)=0; // 44e040
+	virtual void Increment11cAndUse2e4(int, int, int, int)=0; // 44e070
+	virtual void Increment11cAndUse2f4(int, int, int, int)=0; // 44e0a0
+	virtual unsigned long Return170Plus168()=0; // 44e0d0
+	virtual unsigned long Use180And164(unsigned long)=0; // 515ae0
+	virtual void *DoLotsaThings(int)=0; // 0044f3a0 
+	virtual void *PerformActions_(int)=0; // .text:0044B340
+	virtual void DoLotsaMultiply_(int)=0; // 004479c0 
+	virtual int GetDamageImmunity(unsigned char Immunity)=0; // 004410d0  
+	virtual int GetDamageImmunityByFlags(unsigned short flags)=0; // 00444ba0 
+	virtual unsigned long func5f()=0;
+	virtual void func60(int)=0;
+	virtual void func61(int)=0;
+	virtual OBJECT_ID GetSomeObjectId()=0;
+	virtual void GetSomeResRef2(RESREF SomeResRef)=0; // 0044e120 
+	virtual void SetSomeResRef2(RESREF SomeResRef)=0; // 0044e140 
+	virtual unsigned short GetPortraitId()=0; // 44e150
+	virtual void SetPortraitId(unsigned short PortraitId)=0; // 444a10
+	virtual void func67(int)=0;
+	virtual void func68(int)=0; // 004456d0 
+	virtual unsigned long GetValue3f0()=0; // 00516280 
+	virtual unsigned long GetValue3f0_2()=0; // 44e170
+	virtual unsigned long *GetValue414()=0; // 516310
+	virtual void func6c()=0;
+	virtual void func6d()=0;
+	virtual void func6e()=0;
+
+	int unk[0x140]; // +4
+	unsigned long ObjectId; // +144
+} OBJECT, * POBJECT;
+
+
+
+007db1f4  0044d610 nwn2server+0x4d610 func3a
+007db1f8  0044d620 nwn2server+0x4d620 func3b
+007db1fc  0044d630 nwn2server+0x4d630 SetValueA8 // func3c
+007db200  006f9bc0 nwn2server+0x2f9bc0 ReturnFloat0 func3d
+007db204  00515cf0 nwn2server+0x115cf0 RunPredefinedScriptOnObject // func3e
+007db208  00516290 nwn2server+0x116290 ReturnZeroOr1By0xE // func3f
+007db20c  005162b0 nwn2server+0x1162b0 func40
+007db210  005162e0 nwn2server+0x1162e0 GetPredefinedScriptName // func41
+007db214  0044df60 nwn2server+0x4df60 func42
+void OBJECT::DeleteSubStruct1()
+{
+	if (SubStruct1)
+	{
+		delete SubStruct1;
+
+		SubStruct1 = 0;
+	}
+}
+
+void OBJECT::SetValueA8( int val );
+{
+	ValueA8 = val;
+}
+
+typedef struct _OBJECT_ENTRY
+{
+	unsigned long         RealObjectId;
+	POBJECT               Object;
+	struct _OBJECT_ENTRY *OverflowLink;
+} OBJECT_ENTRY, * POBJECT_ENTRY;
+
+
+// globals:
+
+struct _0x84BFAC g_SomeGlobal;
+
+// locals:
+
+PGAME_AI_STATE AiState = ...; // ebx
+char localstring[ 64 ];
+
+for (unsigned long i = 0; ; i += 1)
+{
+	if (AiState->ObjectIds[ i ] == OBJECT_INVALID)
+		continue;
+
+	unsigned long Idx = ObjectIdToIndex( AiState->ObjectIds[ i ] );
+
+	POBJECT_ENTRY ObjectEntry = g_SomeGlobal.ObjectArray->Objects[ Idx ];
+
+	if (ObjectEntry == NULL)
+		continue;
+
+	if (ObjectEntry->RealObjectId != ( AiState->ObjectIds[ i ] & 0x7FFFFFFF ))
+		continue;
+
+	if (ObjectEntry->Object == NULL)
+		continue;
+
+	// 532FDC
+	POBJECT RealObject = ObjectEntry->Object->GetRealObject();
+
+	if (RealObject == NULL)
+		continue;
+
+	if (RealObject->ObjectId == OBJECT_INVALID)
+		continue;
+
+	void *Something = g_SomeGlobal.ObjectArray->sub_4122b0( RealObject->ObjectId );
+
+	if (!Something)
+		continue;
+
+	if (Something->func1())
+	{
+		ClearNwnString( &g_SomeGlobal.PendingScripts );
+		strncpy( localstring, "PROF_SERVERAIUPDATE", 64 );
+
+		if (sub_459a80())
+			sub_459a80();
+
+		//
+		// ... @533075
+		//
+	}
+	else
+	{
+		//
+		// ... @533024
+		//
+	}
+
+}
+
+0:000> dps 7db10c
+007db10c  0044d270 nwn2server+0x4d270 func0
+007db110  0044d360 nwn2server+0x4d360 func1
+007db114  0044e470 nwn2server+0x4e470 func2
+007db118  005171e0 nwn2server+0x1171e0 func3
+007db11c  0044df00 nwn2server+0x4df00 func4
+007db120  0044df10 nwn2server+0x4df10 func5
+007db124  006fe2a0 nwn2server+0x2fe2a0 func6
+007db128  00442410 nwn2server+0x42410 func7
+007db12c  00442640 nwn2server+0x42640 SetPosition
+007db130  0044e1a0 nwn2server+0x4e1a0 GetSubStruct1
+007db134  0044e190 nwn2server+0x4e190 GetSubStruct2
+007db138  00441220 nwn2server+0x41220 DeleteSubStruct1
+007db13c  0044d320 nwn2server+0x4d320 SetValueA0;
+007db140  0044d330 nwn2server+0x4d330 funcd
+007db144  0044d340 nwn2server+0x4d340 funce
+007db148  0044df20 nwn2server+0x4df20 GetRealObject
+007db14c  0044d370 nwn2server+0x4d370  func10
+007db150  0044d380 nwn2server+0x4d380 func11
+007db154  00516250 nwn2server+0x116250 GetRealObject2
+007db158  00516240 nwn2server+0x116240 GetRealObject3
+007db15c  0044d3b0 nwn2server+0x4d3b0 func14
+007db160  0044d3c0 nwn2server+0x4d3c0 func15
+007db164  0044d3d0 nwn2server+0x4d3d0 func16
+007db168  0044d3e0 nwn2server+0x4d3e0 func17
+007db16c  0044d3f0 nwn2server+0x4d3f0 func18
+007db170  0044d410 nwn2server+0x4d410 func19
+007db174  0044d400 nwn2server+0x4d400 func1a
+007db178  0044d420 nwn2server+0x4d420 func1b
+007db17c  0044d430 nwn2server+0x4d430 func1c
+007db180  0044d440 nwn2server+0x4d440 func1d
+007db184  0044d460 nwn2server+0x4d460 func1e
+007db188  0044d450 nwn2server+0x4d450 func1f
+007db18c  0044d470 nwn2server+0x4d470 func20
+007db190  0044d480 nwn2server+0x4d480 func21
+007db194  0044d4a0 nwn2server+0x4d4a0 func22
+007db198  0044d490 nwn2server+0x4d490 func23
+007db19c  0044d4b0 nwn2server+0x4d4b0 func24
+007db1a0  0044d4d0 nwn2server+0x4d4d0 func25
+007db1a4  0044d4c0 nwn2server+0x4d4c0 func26
+007db1a8  0044d4e0 nwn2server+0x4d4e0 func27
+007db1ac  0044d4f0 nwn2server+0x4d4f0 func28
+007db1b0  0044d510 nwn2server+0x4d510 func29
+007db1b4  0044d500 nwn2server+0x4d500 func2a
+007db1b8  0044d520 nwn2server+0x4d520 func2b
+007db1bc  0044d530 nwn2server+0x4d530 func2c
+007db1c0  0044d540 nwn2server+0x4d540 func2d
+007db1c4  0044d550 nwn2server+0x4d550 func2e
+007db1c8  0044d560 nwn2server+0x4d560 func2f
+007db1cc  0044d570 nwn2server+0x4d570 func30
+007db1d0  0044d580 nwn2server+0x4d580 func31
+007db1d4  0044d590 nwn2server+0x4d590 func32
+007db1d8  0044d5a0 nwn2server+0x4d5a0 func33
+007db1dc  0044d5b0 nwn2server+0x4d5b0 func34
+007db1e0  0044d5c0 nwn2server+0x4d5c0 func35
+007db1e4  0044d5d0 nwn2server+0x4d5d0 func36
+007db1e8  0044d5e0 nwn2server+0x4d5e0 func37
+007db1ec  0044d5f0 nwn2server+0x4d5f0 func38
+007db1f0  0044d600 nwn2server+0x4d600 func39
+007db1f4  0044d610 nwn2server+0x4d610 func3a
+007db1f8  0044d620 nwn2server+0x4d620 func3b
+007db1fc  0044d630 nwn2server+0x4d630 SetValueA8 // func3c
+007db200  006f9bc0 nwn2server+0x2f9bc0 ReturnFloat0 func3d
+007db204  00515cf0 nwn2server+0x115cf0 AIUpdate // func3e
+007db208  00516290 nwn2server+0x116290 ReturnZeroOr1By0xE // func3f
+007db20c  005162b0 nwn2server+0x1162b0 FreePredefinedScriptNameArray // func40
+007db210  005162e0 nwn2server+0x1162e0 GetPredefinedScriptName // func41
+007db214  0044df60 nwn2server+0x4df60 func42
+007db218  0044df70 nwn2server+0x4df70 func43
+007db21c  0044df80 nwn2server+0x4df80 func44
+007db220  0044df90 nwn2server+0x4df90 func45
+007db224  0044dfa0 nwn2server+0x4dfa0 func46
+007db228  0044dfb0 nwn2server+0x4dfb0 GetSomeObjectId // func47
+007db22c  0044dfc0 nwn2server+0x4dfc0 func48
+007db230  00445f90 nwn2server+0x45f90  DoDecreaseNumCutsceneActionsPending // func49
+007db234  00517300 nwn2server+0x117300 DoLotsaThings(int, int, int, int, int) // func4a
+007db238  00517210 nwn2server+0x117210 BlockSight // func4b
+007db23c  004487e0 nwn2server+0x487e0 BlockSightOnCurrentPosition // func4c
+007db240  00515db0 nwn2server+0x115db0 DoSomethingWithMyObjId0 // func4d
+007db244  00447d30 nwn2server+0x47d30 DoPositionThings1 // func4e
+007db248  00516260 nwn2server+0x116260 Copy64Bytes // func4f
+007db24c  0044dff0 nwn2server+0x4dff0 func50
+007db250  0044e000 nwn2server+0x4e000 func51
+007db254  0044e010 nwn2server+0x4e010 GetValue2d4 // func52
+007db258  0044e020 nwn2server+0x4e020 GetValue2e4 // func53
+007db25c  0044e030 nwn2server+0x4e030 GetValue2f4 // func54
+007db260  0044e040 nwn2server+0x4e040 Increment11cAndUse2d4 // func55
+007db264  0044e070 nwn2server+0x4e070 Increment11cAndUse2e4 // func56
+007db268  0044e0a0 nwn2server+0x4e0a0 Increment11cAndUse2f4 // func57
+007db26c  0044e0d0 nwn2server+0x4e0d0 Return170Plus168 // func58
+007db270  00515ea0 nwn2server+0x115ea0 Use180And164 // func59
+007db274  0044f3a0 nwn2server+0x4f3a0 DoLotsaThings // func5a
+007db278  0044b340 nwn2server+0x4b340 PerformActions_ // func5b
+007db27c  004479c0 nwn2server+0x479c0 DoLotsaMultiply_ // func5c
+007db280  004410d0 nwn2server+0x410d0 GetDamageImmunity // func5d
+007db284  00444ba0 nwn2server+0x44ba0 GetDamageImmunityByFlags // func5e
+007db288  0044e0e0 nwn2server+0x4e0e0 func5f
+007db28c  0044e0f0 nwn2server+0x4e0f0 func60
+007db290  0044e100 nwn2server+0x4e100 func61
+007db294  0044e110 nwn2server+0x4e110 GetSomeObjectId // func62
+007db298  0044e120 nwn2server+0x4e120 GetPortrait // func63
+007db29c  0044e140 nwn2server+0x4e140 SetPortrait // func64
+007db2a0  0044e150 nwn2server+0x4e150 GetPortraitId // func65
+007db2a4  00444a10 nwn2server+0x44a10 SetPortraitId // func66
+007db2a8  004411b0 nwn2server+0x411b0 func67
+007db2ac  004456d0 nwn2server+0x456d0 func68
+007db2b0  00516280 nwn2server+0x116280 GetValue3f0 // func69
+007db2b4  0044e170 nwn2server+0x4e170 GetValue3f0_2 // func6a
+007db2b8  00516310 nwn2server+0x116310 GetValue414 // func6b
+007db2bc  00515c20 nwn2server+0x115c20 func6c
+007db2c0  0044e1b0 nwn2server+0x4e1b0 func6d
+007db2c4  0044e1c0 nwn2server+0x4e1c0 func6e
