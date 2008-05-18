@@ -1,0 +1,3 @@
+LIBRARY   NWNX4_Hook
+EXPORTS
+   dummy   @1
