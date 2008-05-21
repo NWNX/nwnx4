@@ -122,7 +122,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\mysql\include&quot;;$(NOINHERIT)"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\mysql\include&quot;;&quot;$(SolutionDir)..\lib\detours\include&quot;;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;NDEBUG"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -141,10 +141,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="madCHook.lib wsock32.lib wxmsw28_core.lib wxbase28_net.lib wxbase28.lib mysqlclient.lib zlib.lib yassl.lib taocrypt.lib NWN2_MemoryMgr_amdxp.lib"
+				AdditionalDependencies="detours.lib wsock32.lib wxmsw28_core.lib wxbase28_net.lib wxbase28.lib mysqlclient.lib zlib.lib yassl.lib taocrypt.lib NWN2_MemoryMgr_amdxp.lib"
 				OutputFile="$(OutDir)\xp_mysql.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\mysql&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;&quot;$(SolutionDir)..\lib\NWN2&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\mysql&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;;&quot;$(SolutionDir)..\lib\NWN2&quot;"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"

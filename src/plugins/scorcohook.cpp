@@ -18,7 +18,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ***************************************************************************/
 
 #include "scorcohook.h"
-#include "madCHook.h"
 #include "dbplugin.h"
 #include "mysql/mysql.h" //This is a temporary design flaw workaround: see below
 
@@ -128,7 +127,9 @@ int HookSCORCO()
 	{
 		wxLogMessage(wxT("o SCO located at %x."), sco);
 		//odmbc.Log(0, "o SCO located at %x.\n", sco);
-		sco_success = HookCode((PVOID) sco, SCOHookProc, (PVOID*) &OriginalSCO);
+		//sco_success = HookCode((PVOID) sco, SCOHookProc, (PVOID*) &OriginalSCO);
+		*(DWORD*)&OriginalSCO = sco;
+		sco_success = DetourAttach(&(PVOID&)OriginalSCO, SCOHookProc);
 	}
 	else
 	{
@@ -140,7 +141,9 @@ int HookSCORCO()
 	if (rco)
 	{
 		wxLogMessage(wxT("o RCO located at %x."), rco);
-		rco_success = HookCode((PVOID) rco, RCOHookProc, (PVOID*) &OriginalRCO);
+		//rco_success = HookCode((PVOID) rco, RCOHookProc, (PVOID*) &OriginalRCO);
+		*(DWORD*)&OriginalRCO = rco;
+		rco_success = DetourAttach(&(PVOID&)OriginalRCO, RCOHookProc);
 	}
 	else
 	{
