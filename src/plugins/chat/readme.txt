@@ -5,6 +5,7 @@ NWNX4 Chat Plugin V.0.3.5
 Changelog:
 0.3.5 (22.05.2008)
 - Replaced MadCHook library with Detours
+- New scripting library - nwnx_chat.nss
 
 0.3.4 (28.01.2008)
 - Added 'loglevel' ini setting
