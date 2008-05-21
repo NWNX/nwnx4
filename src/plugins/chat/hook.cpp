@@ -234,7 +234,9 @@ int HookFunctions()
 	if(!(org_Chat&&org_Run&&org_Get))
 		return NULL;
 
-	success = HookCode((PVOID) org_Chat, ChatHookProc, (PVOID*) &ChatNextHook);
+	*(dword*)&ChatNextHook = org_Chat;
+	//success = HookCode((PVOID) org_Chat, ChatHookProc, (PVOID*) &ChatNextHook);
+	success = DetourAttach(&(PVOID&)ChatNextHook, ChatHookProc);
 
 	pServThis = *(dword*)(org_Chat + 0x33);
 	pScriptThis = pServThis - 8;

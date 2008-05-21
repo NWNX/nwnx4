@@ -1,8 +1,11 @@
-NWNX4 Chat Plugin V.0.3.4
+NWNX4 Chat Plugin V.0.3.5
 (c) 2005-2006 by dumbo (dumbo@nm.ru)
 (c) 2006-2008 by virusman (virusman@virusman.ru)
 
 Changelog:
+0.3.5 (22.05.2008)
+- Replaced MadCHook library with Detours
+
 0.3.4 (28.01.2008)
 - Added 'loglevel' ini setting
    0 = minimal logging

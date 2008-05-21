@@ -57,7 +57,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 Chat::Chat()
 {
 	header = _T(
-		"NWNX4 Chat Plugin V.0.3.4\n" \
+		"NWNX4 Chat Plugin V.0.3.5\n" \
 		"(c) 2005-2006 by dumbo (dumbo@nm.ru)\n" \
 		"(c) 2006-2007 by virusman (virusman@virusman.ru)\n" \
 		"visit us at http://www.nwnx.org\n");
@@ -66,7 +66,7 @@ Chat::Chat()
 		"This plugin provides chat event hook.");
 
 	subClass = _T("CHAT");
-	version = _T("0.3.4");
+	version = _T("0.3.5");
 }
 
 Chat::~Chat()

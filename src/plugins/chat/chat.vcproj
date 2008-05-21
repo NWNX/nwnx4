@@ -122,7 +122,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;$(NOINHERIT)"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\detours\include&quot;;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -141,11 +141,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="madCHook.lib wxmsw28_core.lib wxbase28_net.lib wxbase28.lib"
-				ShowProgress="1"
+				AdditionalDependencies="detours.lib wxmsw28_core.lib wxbase28_net.lib wxbase28.lib"
+				ShowProgress="0"
 				OutputFile="$(OutDir)\xp_chat.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;"
 				IgnoreAllDefaultLibraries="false"
 				GenerateDebugInformation="true"
 				SubSystem="2"
