@@ -127,6 +127,8 @@ void DBPlugin::SetString(char* sFunction, char* sParam1, int nParam2, char* sVal
 
 	if (function == wxT("EXEC"))
 		Execute(sParam1);
+	else if (function == wxT("SETSCORCOSQL"))
+		SetScorcoSQL(sParam1);
 }
 
 char* DBPlugin::GetString(char* sFunction, char* sParam1, int nParam2)
@@ -193,4 +195,22 @@ int DBPlugin::GetData(int iCol, char* buffer)
 
 void DBPlugin::GetEscapeString(char* str, char* buffer)
 {
+}
+
+BOOL DBPlugin::WriteScorcoData(BYTE* pData, int Length)
+{
+	return 0;
+}
+
+BYTE* DBPlugin::ReadScorcoData(char *param, int *size)
+{
+	return NULL;
+}
+
+void DBPlugin::SetScorcoSQL(char *request)
+{
+	if(strlen(request) < MAXSQL)
+		memcpy(scorcoSQL, request, strlen(request) + 1);
+	else
+		memcpy(scorcoSQL, request, MAXSQL);
 }

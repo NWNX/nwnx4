@@ -27,8 +27,10 @@
 #include "../misc/log.h"
 #include "wx/tokenzr.h"
 #include "wx/fileconf.h"
+#include "scorcohook.h"
 
 #define BUFFER_SIZE 1024*64
+#define MAXSQL 1024
 
 class DBPlugin : public Plugin
 {
@@ -44,6 +46,8 @@ public:
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue) {};
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue);
 	char* GetString(char* sFunction, char* sParam1, int nParam2);
+	virtual BOOL WriteScorcoData(BYTE* pData, int Length);
+	virtual BYTE* ReadScorcoData(char *param, int *size);
 
 	void GetFunctionClass(TCHAR* fClass);
 
@@ -51,12 +55,14 @@ protected:
 	wxLogNWNX* logger;
 	wxFileConfig *config;
 	int logLevel;
+	char scorcoSQL[MAXSQL];
 
 	virtual bool Execute(char* query);
 	virtual int Fetch(char* buffer);
 	virtual int GetData(int iCol, char* buffer);
 	virtual int GetAffectedRows();
 	virtual void GetEscapeString(char* str, char* buffer);
+	void SetScorcoSQL(char *request);
 };
 
 #endif
