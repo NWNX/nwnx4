@@ -18,6 +18,7 @@
  ***************************************************************************/
 
 #include "mysql.h"
+#include "nwn2heap.h"
 
 /***************************************************************************
     NWNX and DLL specific functions
@@ -55,8 +56,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 MySQL::MySQL()
 {
 	header = _T(
-		"NWNX MySQL Plugin V.0.0.8\n" \
+		"NWNX MySQL Plugin V.0.0.9\n" \
 		"(c) 2007 by Ingmar Stieger (Papillon)\n" \
+		"(c) 2008 by virusman\n" \
 		"visit us at http://www.nwnx.org\n" \
 		"(built using mysql-5.0.27 source)\n");
 
@@ -65,7 +67,7 @@ MySQL::MySQL()
 	    "MySQL 4 or 5 as database server.");
 
 	subClass = _T("MySQL");
-	version = _T("0.0.8");
+	version = _T("0.0.9");
 
 	result = NULL;
 	row = NULL;
@@ -79,6 +81,10 @@ MySQL::~MySQL()
 bool MySQL::Init(TCHAR* nwnxhome)
 {
 	SetupLogAndIniFile(nwnxhome);
+	if(HookSCORCO())
+		wxLogMessage(wxT("* Hooking successful"));
+	else
+		wxLogMessage(wxT("* Hooking failed"));
 
 	if (config->Read(wxT("server"), &server) )
 	{
@@ -388,4 +394,89 @@ void MySQL::GetEscapeString(char* str, char* buffer)
 	to_len = mysql_real_escape_string(&mysql, to, str, (unsigned long)len);
 	nwnxcpy(buffer, to, to_len);
 	free(to);
+}
+
+BOOL MySQL::WriteScorcoData(BYTE* pData, int Length)
+{
+	if (logLevel == 2)
+		wxLogMessage(wxT("* SCO query: %s"), scorcoSQL);
+	wxLogTrace(TRACE_VERBOSE, wxT("WriteScorcoData"));
+	int res;
+	unsigned long len;
+	char* Data = new char[Length * 2 + 1 + 2];
+	char* pSQL = new char[MAXSQL + Length * 2 + 1];
+
+	len = mysql_real_escape_string (&mysql, Data + 1, (const char*)pData, Length);
+	Data[0] = Data[len + 1] = 39; //'
+	Data[len + 2] = 0x0; 
+	sprintf(pSQL, scorcoSQL, Data);
+
+	MYSQL_RES *result = mysql_store_result (&mysql);
+	res = mysql_query(&mysql, (const char *) pSQL);
+
+	mysql_free_result(result);
+	delete[] pSQL;
+	delete[] Data;
+
+	if (res == 0)
+		return true;
+	else
+		return false;
+}
+
+BYTE* MySQL::ReadScorcoData(char *param, int *size)
+{
+	if (logLevel == 2)
+		wxLogMessage(wxT("* RCO query: %s"), scorcoSQL);
+	wxLogTrace(TRACE_VERBOSE, wxT("ReadScorcoData"));
+	BOOL pSqlError;
+	MYSQL_RES *rcoresult;
+	if (strcmp(param, "FETCHMODE") != 0)
+	{	
+		if (mysql_query(&mysql, (const char *) scorcoSQL) != 0)
+		{
+			pSqlError = true;
+			return NULL;
+		}
+
+		/*if (result)
+		{
+		mysql_free_result(result);
+		result = NULL;
+		}*/
+		rcoresult = mysql_store_result (&mysql);
+		if (!rcoresult)
+		{
+			pSqlError = true;
+			return NULL;
+		}
+	}
+	else rcoresult=result;
+
+	MYSQL_ROW row;
+	pSqlError = false;
+	row = mysql_fetch_row(rcoresult);
+	if (row)
+	{
+		unsigned long* length = mysql_fetch_lengths(rcoresult);
+		// allocate buf for result!
+		//char* buf = new char[*length];
+		NWN2_HeapMgr *pHeapMgr = NWN2_HeapMgr::Instance();
+		NWN2_Heap *pHeap = pHeapMgr->GetDefaultHeap();
+		char* buf = (char *) pHeap->Allocate(*length);
+
+		if (!buf) return NULL;
+
+		memcpy(buf, row[0], length[0]);
+		*size = length[0];
+		mysql_free_result(rcoresult);
+		return (BYTE*)buf;
+	}
+	else
+	{
+		if (logLevel == 2)
+			wxLogMessage(wxT("* Empty RCO resultset"));
+		mysql_free_result(rcoresult);
+		return NULL;
+	}
 }

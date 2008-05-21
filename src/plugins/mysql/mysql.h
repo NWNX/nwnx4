@@ -36,6 +36,9 @@ public:
 
 	bool Init(TCHAR* nwnxhome);  
 
+	BOOL WriteScorcoData(BYTE* pData, int Length);
+	BYTE* ReadScorcoData(char *param, int *size);
+
 private:
 	bool Connect();
 	void Disconnect();

@@ -61,10 +61,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wxmsw28d_core.lib wxbase28d_net.lib wxbase28d.lib mysqlclient.lib zlib.lib yassl.lib taocrypt.lib"
+				AdditionalDependencies="madCHook.lib wsock32.lib wxmsw28d_core.lib wxbase28d_net.lib wxbase28d.lib mysqlclient.lib zlib.lib yassl.lib taocrypt.lib NWN2_MemoryMgr_amdxp.lib"
 				OutputFile="$(OutDir)\xp_mysqld.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\mysql&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\mysql&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;&quot;$(SolutionDir)..\lib\NWN2&quot;"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
@@ -141,10 +141,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wxmsw28_core.lib wxbase28_net.lib wxbase28.lib mysqlclient.lib zlib.lib yassl.lib taocrypt.lib"
+				AdditionalDependencies="madCHook.lib wsock32.lib wxmsw28_core.lib wxbase28_net.lib wxbase28.lib mysqlclient.lib zlib.lib yassl.lib taocrypt.lib NWN2_MemoryMgr_amdxp.lib"
 				OutputFile="$(OutDir)\xp_mysql.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\mysql&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\mysql&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;&quot;$(SolutionDir)..\lib\NWN2&quot;"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -203,6 +203,10 @@
 				RelativePath="..\plugin.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\scorcohook.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -222,7 +226,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\nwn2heap.h"
+				>
+			</File>
+			<File
 				RelativePath="..\plugin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\scorcohook.h"
 				>
 			</File>
 		</Filter>
