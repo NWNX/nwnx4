@@ -1,0 +1,19 @@
+NWN2 check active users program and cacti graph templates
+---------------------------------------------------------
+
+The program (nwn2srvquery) should build under Windows or Linux.  It returns
+data on the current and maximum allowed online users for an NWN2 game server,
+and can be used to graph the results in cacti.  The templates assume that the
+program is placed in /usr/local/bin/nwn2srvquery.  You can edit the template if
+you wish to place it elsewhere.
+
+The program and templates allow an optional port number for the server, but
+will default to port 5121.  The template defaults to using the hostname of the
+associated cacti host, but you can override it in a data source instance if
+you need to.
+
+
+--
+
+- Skywing (skywing@valhallalegends.com)
+
