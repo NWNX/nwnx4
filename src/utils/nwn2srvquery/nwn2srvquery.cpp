@@ -8,6 +8,8 @@
 
 typedef int socklen_t;
 
+#pragma comment(lib, "ws2_32.lib")
+
 #else
 
 #include <unistd.h>
