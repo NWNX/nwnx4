@@ -206,9 +206,28 @@ VOID WINAPI NWNXServiceCtrlHandler(DWORD Opcode)
 	switch(Opcode) 
 	{ 
 		case SERVICE_CONTROL_STOP: 
-			// Kill the server process as well. 
-			// TODO: Graceful shutdown ?
-			controller->killServerProcess();
+
+			//
+			// Notify the SCM immediately that we received the request and are
+			// working on stopping.
+			//
+
+			NWNXServiceStatus.dwWin32ExitCode = 0; 
+			NWNXServiceStatus.dwCurrentState  = SERVICE_STOP_PENDING; 
+			NWNXServiceStatus.dwCheckPoint    = 0; 
+			NWNXServiceStatus.dwWaitHint      = controller->getGracefulShutdownTimeout() + 6000;
+
+			if (!SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus))
+			{ 
+				status = GetLastError(); 
+				wxLogError(wxT("* SetServiceStatus error %ld"), status); 
+			}
+
+			//
+			// Cleanly shutdown the server process.
+			//
+
+			controller->killServerProcess( );
 
 			NWNXServiceStatus.dwWin32ExitCode = 0; 
 			NWNXServiceStatus.dwCurrentState  = SERVICE_STOPPED; 
@@ -393,10 +412,6 @@ DWORD StopNWNXService(int serviceNo)
     }
 
 	wxLogMessage(wxT("* Stopping NWNX service %d..."), serviceNo); 
-
-	// Kill the server process as well. 
-	// TODO: Graceful shutdown ?
-	controller->killServerProcess();
 
     // Make sure the service is not already stopped
     if (!QueryServiceStatusEx( 

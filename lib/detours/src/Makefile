@@ -20,9 +20,12 @@ DETOURS_SOURCE_BROWSING = 0
 
 ############################################## Determine Processor Build Type.
 ##
-!IF "$(DETOURS_TARGET_PROCESSOR)" == ""
-DETOURS_TARGET_PROCESSOR = $(PROCESSOR_ARCHITEW6432)
-!ENDIF
+#
+# NWNX always uses 32-bit.
+#
+#!IF "$(DETOURS_TARGET_PROCESSOR)" == ""
+#DETOURS_TARGET_PROCESSOR = $(PROCESSOR_ARCHITEW6432)
+#!ENDIF
 !IF "$(DETOURS_TARGET_PROCESSOR)" == ""
 DETOURS_TARGET_PROCESSOR = $(PROCESSOR_ARCHITECTURE)
 !ENDIF
@@ -140,6 +143,7 @@ $(BIND)\detoured.dll: detoured.cpp detoured.res
 	cl /LD $(CFLAGS) /Fe$@ /Fd$(BIND)\detoured.pdb detoured.cpp \
 		/link $(LINKFLAGS) /base:0xf000000 /incremental:no /subsystem:console \
 		/entry:DllMain /implib:$(LIBD)\detoured.lib \
+		/dynamicbase /nxcompat \
 		/export:Detoured kernel32.lib detoured.res
 
 $(BIND)\detoured.bsc : detoured.obj

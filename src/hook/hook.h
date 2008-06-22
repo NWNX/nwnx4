@@ -1,6 +1,7 @@
 /***************************************************************************
     NWNX Hook - Responsible for the actual hooking
     Copyright (C) 2007 Ingmar Stieger (Papillon, papillon@nwnx.org)
+	Copyright (C) 2008 Skywing (skywing@valhallalegends.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +22,12 @@
 #if !defined(HOOK_H_INCLUDED)
 #define HOOK_H_INCLUDED
 
-#include "windows.h"
-#include "stdio.h"
-#include "tchar.h"
+#define _STRSAFE_NO_DEPRECATE
+
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+#include <strsafe.h>
 #include "wx/dir.h"
 #include "wx/hashset.h"
 #include "wx/tokenzr.h"
@@ -69,16 +73,34 @@ const unsigned char SET_NWNX_SETSTRING[] = {0xB4, 0x4E, 0xB4, 0x57, 0xB4, 0x4E, 
                                0xB4, 0x53, 0xB4, 0x54, 0xB4, 0x52, 0xB4, 0x49,
                                0xB4, 0x4E, 0xB4, 0x47, 0x00};
 
-SHARED_MEMORY *shmem;
+
+/*
+ * Version specific offsets
+ */
+
+/*
+ * nwn2server.exe 1.0.11.1153
+ */
+
+#define OFFS_ProcessServerMessage      0x004FC070
+#define OFFS_ProcessServerMessageHook  0x0045276F
+
+/*
+ * Version specific check data.
+ */
+#define CHECK_ProcessServerMessageHook 0x000A98FD
+
+
+extern SHARED_MEMORY *shmem;
 
 WX_DECLARE_STRING_HASH_MAP(Plugin*, PluginHashMap);
-PluginHashMap plugins;
+extern PluginHashMap plugins;
 
-wxLogNWNX* logger;
-wxString* nwnxhome;
-wxFileConfig *config;
+extern wxLogNWNX* logger;
+extern wxString* nwnxhome;
+extern wxFileConfig *config;
 
-char returnBuffer[MAX_BUFFER];
+extern char returnBuffer[MAX_BUFFER];
 
 int NWNXGetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2);
 void NWNXSetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2, int nValue);
@@ -96,5 +118,99 @@ void init();
 static int (WINAPI * TrueWinMain)(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow) = NULL;
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
+
+
+/*
+ * Types.
+ */
+
+typedef struct _CRASH_DUMP_SECTION
+{
+	HANDLE              CrashReportEvent;
+	HANDLE              CrashAckEvent;
+	EXCEPTION_POINTERS  ExceptionPointers;
+	PEXCEPTION_POINTERS ClientExceptionPointers;
+	ULONG               ThreadId;
+} CRASH_DUMP_SECTION, * PCRASH_DUMP_SECTION;
+
+#define MAX_LOGGED_PACKET_LENGTH ( 4096 )
+
+typedef struct _LOGGED_PACKET
+{
+	ULONG       Length;
+	FILETIME    RecvTime;
+	ULONG       ActualPacketLength;
+	ULONG       PacketLength;
+	UCHAR       PacketData[ MAX_LOGGED_PACKET_LENGTH ];
+} LOGGED_PACKET, * PLOGGED_PACKET;
+
+#define MAX_LOGGED_PACKETS ( 128 )
+
+/*
+ * Forwards.
+ */
+
+bool
+RegisterCrashDumpHandler(
+	);
+
+bool
+RegisterLogPacketHook(
+	);
+
+bool
+WaitForServerInitialization(
+	);
+
+bool
+DisableModuleCopy(
+	);
+
+
+void
+DebugPrint(
+	__in const char *Format,
+	...
+	);
+
+void
+DebugPrintV(
+	__in const char *Format,
+	__in va_list Ap
+	);
+
+BOOL
+__stdcall
+FilterRecvServerMessage(
+	__in char *Buf,
+	__in unsigned long Len,
+	__inout void *Server,
+	__out PBOOL CallClientHandler
+	);
+
+bool
+OpenLogPacketFile(
+	);
+
+bool
+RedirectImageImports(
+	__in HMODULE Module,
+	__in PVOID *Imports,
+	__in PVOID *DesiredAddresses,
+	__out_opt PULONG PatchCounts,
+	__in SIZE_T Count
+	);
+
+/*
+ * Globals
+ */
+
+extern HMODULE             g_Module;
+extern volatile LONG       g_InCrash;
+extern PCRASH_DUMP_SECTION g_CrashDumpSectionView;
+extern PLOGGED_PACKET      g_LogPacketView;
+extern ULONG               g_LogPacketIndex;
+extern wxString            g_LogPacketDir;
+extern bool                g_Initialized;
 
 #endif

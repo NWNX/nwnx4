@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="NWNX4 Controller"
 	ProjectGUID="{4187545D-C3EE-4B22-A6FD-47B8057200D1}"
 	RootNamespace="controller"
@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28d_core.lib wxbase28d.lib comctl32.lib wsock32.lib detours.lib detoured.lib"
+				AdditionalDependencies="wxmsw28d_core.lib wxbase28d.lib comctl32.lib wsock32.lib detoured.lib dbghelp.lib"
 				OutputFile="$(OutDir)\NWNX4_Controllerd.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;"
@@ -141,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28_core.lib wxbase28.lib comctl32.lib wsock32.lib detours.lib detoured.lib"
+				AdditionalDependencies="wxmsw28_core.lib wxbase28.lib comctl32.lib wsock32.lib detours.lib dbghelp.lib"
 				OutputFile="$(OutDir)\NWNX4_Controller.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;"
