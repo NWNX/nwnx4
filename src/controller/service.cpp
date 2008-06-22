@@ -227,7 +227,8 @@ VOID WINAPI NWNXServiceCtrlHandler(DWORD Opcode)
 			// Cleanly shutdown the server process.
 			//
 
-			controller->killServerProcess( );
+			controller->notifyServiceShutdown();
+			controller->killServerProcess();
 
 			NWNXServiceStatus.dwWin32ExitCode = 0; 
 			NWNXServiceStatus.dwCurrentState  = SERVICE_STOPPED; 
