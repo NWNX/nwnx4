@@ -35,6 +35,7 @@ int __stdcall SCOHookProc(char** database, char** key, char** player, int flags,
 
 	if (memcmp(*database, "NWNX", 4))
 	{
+		_asm {mov ecx, pThis}
 		_asm { leave }
 		_asm { jmp OriginalSCO }
 	}
@@ -52,6 +53,7 @@ unsigned char * __stdcall RCOHookProc(char** database, char** key, char** player
 
 	if (memcmp(*database, "NWNX", 4))
 	{
+		_asm {mov ecx, pThis}
 		_asm { leave }
 		_asm { jmp OriginalRCO }
 	}

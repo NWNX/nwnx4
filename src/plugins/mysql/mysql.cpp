@@ -56,7 +56,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 MySQL::MySQL()
 {
 	header = _T(
-		"NWNX MySQL Plugin V.0.1.0\n" \
+		"NWNX MySQL Plugin V.0.0.9\n" \
 		"(c) 2007 by Ingmar Stieger (Papillon)\n" \
 		"(c) 2008 by virusman\n" \
 		"visit us at http://www.nwnx.org\n" \
@@ -67,7 +67,7 @@ MySQL::MySQL()
 	    "MySQL 4 or 5 as database server.");
 
 	subClass = _T("MySQL");
-	version = _T("0.1.0");
+	version = _T("0.0.9");
 
 	result = NULL;
 	row = NULL;
