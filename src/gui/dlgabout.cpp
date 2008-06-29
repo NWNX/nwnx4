@@ -34,15 +34,13 @@ AboutDialog::AboutDialog(
 	: wxDialog(parent, id, title, position, size, style)
 {
 	wxString aboutText;
-	aboutText.append(wxT("NWNX4 GUI Version 0.0.8\n"));
+	aboutText.append(wxT("NWNX4 GUI Version 0.0.9\n"));
 	aboutText.append(wxT("Neverwinter Nights Extender for NWN2\n\n"));
-	aboutText.append(wxT("Copyright (C) 2007 Ingmar Stieger (Papillon)\n"));
+	aboutText.append(wxT("Copyright (C) 2008 Ingmar Stieger (Papillon)\n"));
 	aboutText.append(wxT("Visit us at http://www.nwnx.org/\n\n"));
-	aboutText.append(wxT("Contributions:\n\n"));
-	aboutText.append(wxT("Via Con Diablos: Installer\n"));
-	aboutText.append(wxT("Grinning Fool: Demo modules\n"));
-	aboutText.append(wxT("Caloup: Online documentation\n"));
-	aboutText.append(wxT("Countless other guys: Tips, motivation, bugfixes, gripes... THANKS!"));
+	aboutText.append(wxT("Contributors:\n\n"));
+	aboutText.append(wxT("Virusman, Grinning Fool, Skywing,\n"));
+	aboutText.append(wxT("and countless others: Tips, motivation, bugfixes, gripes... THANKS!"));
 
 	wxBoxSizer *vsizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *hsizer = new wxBoxSizer(wxHORIZONTAL);

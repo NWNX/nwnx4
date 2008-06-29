@@ -1,6 +1,7 @@
 /***************************************************************************
     NWNX Controller - Controls the server process
     Copyright (C) 2006 Ingmar Stieger (Papillon, papillon@nwnx.org)
+	Copyright (C) 2008 Skywing (skywing@valhallalegends.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +22,9 @@
 #if !defined(CONTROLLER_H_INCLUDED)
 #define CONTROLLER_H_INCLUDED
 
-#include "windows.h"
-#include "stdio.h"
-#include "tchar.h"
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
 #include "detours.h"
 #include "wx/fileconf.h"
 #include "udp.h"
@@ -31,6 +32,8 @@
 #include "../misc/shmem.h"
 
 #define arrayof(x)		(sizeof(x)/sizeof(x[0]))
+#define IDC_SENDMESSAGE_EDIT    0x3FC 
+#define IDC_SENDMESSAGE_BUTTON  0x400 
 
 class NWNXController
 {
@@ -39,18 +42,25 @@ public:
     ~NWNXController();
 
 	void startServerProcess();
-	void killServerProcess();
+	void notifyServiceShutdown();
+	void killServerProcess(bool graceful = true);
 	void restartServerProcess();
 	void shutdownServerProcess();
 	void ping();
+	int getGracefulShutdownTimeout() const {
+		return gracefulShutdownTimeout;
+    };
 
 	wxString parameters;
+	wxString gracefulShutdownMessage;
 	bool processWatchdog;
 	bool gamespyWatchdog;
 	int gamespyPort;
 	int gamespyInterval;
 	int gamespyRetries;
 	int gamespyTolerance;
+	int gracefulShutdownTimeout;
+	int gracefulShutdownMessageWait;
 	long restartDelay;
 	long gamespyDelay;
 
@@ -64,10 +74,23 @@ private:
 	unsigned long tick;
 	wxString nwnhome;
 	bool initialized;
+	bool shuttingDown;
 
+	bool startServerProcessInternal();
 	bool checkProcessActive();
 	void runProcessWatchdog();
 	void runGamespyWatchdog();
+
+	typedef struct _FIND_SERVER_GUI_WINDOW_PARAM
+	{
+		HWND hwnd;
+		ULONG processId;
+	} FIND_SERVER_GUI_WINDOW_PARAM, *PFIND_SERVER_GUI_WINDOW_PARAM;
+
+	static BOOL CALLBACK findServerGuiWindowEnumProc(HWND hwnd, LPARAM lParam);
+	static HWND findServerGuiWindow(ULONG processId);
+	bool performGracefulShutdown();
+	bool broadcastServerMessage(const TCHAR *message);
 };
 
 #endif

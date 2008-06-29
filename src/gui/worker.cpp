@@ -36,7 +36,7 @@ NWNXWorker::~NWNXWorker()
 void *NWNXWorker::Entry()
 {
 	int i = 0;
-	wxLogMessage(wxT("Worker thread started."));
+	wxLogTrace(TRACE_VERBOSE, wxT("Worker thread started."));
 
 	while (!TestDestroy())
 	{
@@ -45,21 +45,21 @@ void *NWNXWorker::Entry()
 		switch(m_action)
 		{
 			case ACTION_START:
-				wxLogMessage(wxT("Starting the NWN Server."));
+				wxLogMessage(wxT("* Starting the NWN Server."));
 				m_controller->startServerProcess();
 				wxPostEvent(m_mainFrame->GetEventHandler(), wxCommandEvent(wxEVT_SERVER_STARTED, m_mainFrame->GetId()) );
 				resetAction();
 				break;
 
 			case ACTION_STOP:
-				wxLogMessage(wxT("Stopping the NWN Server."));
-				m_controller->killServerProcess();
+				wxLogMessage(wxT("* Stopping the NWN Server."));
+				m_controller->killServerProcess(true);
 				wxPostEvent(m_mainFrame->GetEventHandler(), wxCommandEvent(wxEVT_SERVER_STOPPED, m_mainFrame->GetId()) );
 				resetAction();
 				break;
 
 			case ACTION_RESTART:
-				wxLogMessage(wxT("Restarting the NWN Server."));
+				wxLogMessage(wxT("* Restarting the NWN Server."));
 				m_controller->restartServerProcess();
 				wxPostEvent(m_mainFrame->GetEventHandler(), wxCommandEvent(wxEVT_SERVER_STARTED, m_mainFrame->GetId()) );
 				resetAction();

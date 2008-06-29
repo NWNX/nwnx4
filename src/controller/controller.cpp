@@ -1,6 +1,7 @@
 /***************************************************************************
     NWNX Controller - Controls the server process
     Copyright (C) 2006 Ingmar Stieger (Papillon, papillon@nwnx.org)
+	Copyright (C) 2008 Skywing (skywing@valhallalegends.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,6 +28,7 @@ NWNXController::NWNXController(wxFileConfig *config)
 
 	tick = 0;
 	initialized = false;
+	shuttingDown = false;
 	processWatchdog = true;
 	gamespyWatchdog = true;
 	gamespyPort = 5121;
@@ -35,6 +37,10 @@ NWNXController::NWNXController(wxFileConfig *config)
 	gamespyRetries = 0;
 	gamespyTolerance = 5;
 	gamespyDelay = 30;
+    gracefulShutdownTimeout = 10;
+	gracefulShutdownMessageWait = 5;
+	ZeroMemory(&si, sizeof(si));
+	ZeroMemory(&pi, sizeof(pi));
 
 	config->Read(wxT("restartDelay"), &restartDelay);
 	config->Read(wxT("processWatchdog"), &processWatchdog);
@@ -42,6 +48,9 @@ NWNXController::NWNXController(wxFileConfig *config)
 	config->Read(wxT("gamespyInterval"), &gamespyInterval);
 	config->Read(wxT("gamespyTolerance"), &gamespyTolerance);
 	config->Read(wxT("gamespyDelay"), &gamespyDelay);
+	config->Read(wxT("gracefulShutdownTimeout"), &gracefulShutdownTimeout);
+	config->Read(wxT("gracefulShutdownMessage"), &gracefulShutdownMessage);
+	config->Read(wxT("gracefulShutdownMessageWait"), &gracefulShutdownMessageWait);
 
 	if (!config->Read(wxT("parameters"), &parameters) )
 	{
@@ -52,7 +61,14 @@ NWNXController::NWNXController(wxFileConfig *config)
 	if (gamespyWatchdog)
 	{
 		config->Read(wxT("gamespyPort"), &gamespyPort);
-		udp = new CUDP("localhost", gamespyPort);
+		try
+		{
+			udp = new CUDP("localhost", gamespyPort);
+		}
+		catch (std::bad_alloc)
+		{
+			udp = NULL;
+		}
 	}
 
 	if (!config->Read(wxT("nwn2"), &nwnhome))
@@ -64,6 +80,10 @@ NWNXController::NWNXController(wxFileConfig *config)
 
 NWNXController::~NWNXController()
 {
+	killServerProcess();
+
+	if (udp)
+		delete udp;
 }
 
 
@@ -72,6 +92,23 @@ NWNXController::~NWNXController()
 ***************************************************************************/
 
 void NWNXController::startServerProcess()
+{
+	killServerProcess(false);
+
+	while (!shuttingDown && !startServerProcessInternal())
+	{
+		killServerProcess(false);
+		wxLogMessage(wxT( "! Error: Failed to start server process, retrying in 5000ms..." ));
+		Sleep(5000);
+	}
+}
+
+void NWNXController::notifyServiceShutdown()
+{
+	shuttingDown = true;
+}
+
+bool NWNXController::startServerProcessInternal()
 {
     SHARED_MEMORY shmem;
 	wxString nwnexe(wxT("\\nwn2server.exe"));
@@ -94,7 +131,7 @@ void NWNXController::startServerProcess()
 	if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart)) 
 	{
 		wxLogMessage(wxT("Error: %s could not be found."), pszHookDLLPath);
-		return;
+		return false;
 	}
 
 	SECURITY_ATTRIBUTES SecurityAttributes;
@@ -106,11 +143,11 @@ void NWNXController::startServerProcess()
 	if(!shmem.ready_event)
 	{ 
 		wxLogMessage(wxT("CreateEvent failed (%d)"), GetLastError());
-		return;
+		return false;
 	}
 
-	wxLogMessage(wxT("Starting: `%s'"), nwnhome + nwnexe);
-	wxLogMessage(wxT("with `%s'"),  szDllPath);
+	wxLogTrace(TRACE_VERBOSE, wxT("Starting: %s"), nwnhome + nwnexe);
+	wxLogTrace(TRACE_VERBOSE, wxT("with %s"), szDllPath);
 
 	DWORD dwFlags = CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED;
 	SetLastError(0);
@@ -119,8 +156,10 @@ void NWNXController::startServerProcess()
                                     NULL, NULL, TRUE, dwFlags, NULL, nwnhome,
                                     &si, &pi, szDllPath, NULL))   
 	{
-		wxLogMessage(wxT("DetourCreateProcessWithDll failed: %d\n"), GetLastError());
-		return;
+		wxLogMessage(wxT("DetourCreateProcessWithDll failed: %d"), GetLastError());
+		CloseHandle( shmem.ready_event );
+		ZeroMemory( &pi, sizeof( PROCESS_INFORMATION ) );
+		return false;
     }
 
 	GUID my_guid =
@@ -132,25 +171,36 @@ void NWNXController::startServerProcess()
 	};
 
 	GetCurrentDirectory(MAX_PATH, shmem.nwnx_home);
-	wxLogMessage(wxT("NWNX home directory set to %s"), shmem.nwnx_home);
-	//wxLogTrace(TRACE_VERBOSE, wxT("NWNX home directory set to %s"), shmem.nwnx_home);
+	wxLogTrace(TRACE_VERBOSE, wxT("NWNX home directory set to %s"), shmem.nwnx_home);
 
 	DetourCopyPayloadToProcess(pi.hProcess, my_guid, &shmem, sizeof(SHARED_MEMORY));
+
+	// Start the main thread running and wait for it to signal that it has read
+	// configuration data and started up it's end of any IPC mechanisms that we
+	// might rely on.
 
 	ResumeThread(pi.hThread);
 	switch(WaitForSingleObject(shmem.ready_event, 60000))
 	{
 		case WAIT_TIMEOUT:
-			wxLogMessage(wxT("! Error: Server did not initialize properly (timeout).\n"));
-			return;
+			wxLogMessage(wxT("! Error: Server did not initialize properly (timeout)."));
+			CloseHandle( shmem.ready_event );
+			CloseHandle( pi.hProcess );
+			CloseHandle( pi.hThread );
+			ZeroMemory( &pi, sizeof( PROCESS_INFORMATION ) );
+			return false;
 			break;
 		case WAIT_FAILED:
-			wxLogMessage(wxT("! Error: Server did not initialize properly (wait failed).\n"));
-			return;
+			wxLogMessage(wxT("! Error: Server did not initialize properly (wait failed)."));
+			CloseHandle( shmem.ready_event );
+			CloseHandle( pi.hProcess );
+			CloseHandle( pi.hThread );
+			ZeroMemory( &pi, sizeof( PROCESS_INFORMATION ) );
+			return false;
 			break;
 		case WAIT_OBJECT_0:
 			CloseHandle(shmem.ready_event);
-			wxLogMessage(wxT("Success: Server initialized properly.\n"));
+			wxLogMessage(wxT("* Success: Server initialized properly."));
 			break;
 	}
 
@@ -158,34 +208,46 @@ void NWNXController::startServerProcess()
     if (!GetExitCodeProcess(pi.hProcess, &dwResult)) 
 	{
 		wxLogMessage(wxT("GetExitCodeProcess failed: %d\n"), GetLastError());
-		return;
+		return false;
     }
 	
+	// Reset the count of ping probes to zero for purposes of initial load time
+	// GameSpy ping allowances.
+	tick = 0;
+
+	// Reset GameSpy failed response count.
+	gamespyRetries = 0;
+
 	wxLogMessage(wxT("* Hook installed and initialized successfully"));
 	initialized = true;
+
+	return true;
 }
 
 void NWNXController::restartServerProcess()
 {
 	// Kill any leftovers
 	if (checkProcessActive())
-		killServerProcess();
+		killServerProcess(true);
 	
 	// Run maintenance command
 	wxString restartCmd;
 	config->Read(wxT("restartCmd"), &restartCmd);
 	if (restartCmd != wxT(""))
 	{
-		//restartCmd.Prepend(wxT("/c "));
+		PROCESS_INFORMATION pi;
+		STARTUPINFO si;
+
 		ZeroMemory(&si,sizeof(si));
 		si.cb = sizeof(si);
 		wxLogMessage(wxT("* Starting maintenance file %s"), restartCmd);
 		restartCmd.Prepend(wxT("cmd.exe /c "));
-		CreateProcess(NULL, (LPTSTR)restartCmd.c_str(), NULL, NULL,FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
-
-		// Give the maintenance program time to finish
-		while(checkProcessActive())
-			Sleep(1000);
+		if (CreateProcess(NULL, (LPTSTR)restartCmd.c_str(), NULL, NULL,FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi))
+		{
+			WaitForSingleObject( pi.hProcess, INFINITE );
+			CloseHandle( pi.hProcess );
+			CloseHandle( pi.hThread );
+		}
 	}
 
 	// Finally restart the server
@@ -195,18 +257,30 @@ void NWNXController::restartServerProcess()
 	startServerProcess();
 }
 
-void NWNXController::killServerProcess()
+void NWNXController::killServerProcess(bool graceful)
 {
 	if (!pi.hProcess)
 		return;
 
+	// If we are doing a graceful shutdown, then let's try to poke the
+	// server GUI closed so that players are cleanly saved and logged out of
+	// the server.
+
+	if (graceful)
+	{
+		wxLogMessage(wxT( "* Telling server to stop itself..." ));
+		if (!performGracefulShutdown())
+			wxLogMessage(wxT( "* WARNING: Failed to gracefully shutdown the server process." ));
+	}
+
+	// Mark us as not initialized.
+
 	shutdownServerProcess();
 	TerminateProcess(pi.hProcess, -1);
 	CloseHandle(pi.hProcess);
-	CloseHandle(pi.hThread);
-
-	pi.hProcess = 0;
-	pi.hThread = 0;
+	if (pi.hThread)
+		CloseHandle(pi.hThread);
+	ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
 }
 
 void NWNXController::shutdownServerProcess()
@@ -214,6 +288,131 @@ void NWNXController::shutdownServerProcess()
 	initialized = false;
 }
 
+BOOL CALLBACK NWNXController::findServerGuiWindowEnumProc(__in HWND hwnd, __in LPARAM lParam)
+{
+	DWORD pid;
+	WCHAR className[256];
+	PFIND_SERVER_GUI_WINDOW_PARAM param;
+
+	param = reinterpret_cast< PFIND_SERVER_GUI_WINDOW_PARAM >( lParam );
+
+	// Ignore windows that do not match the right nwn2server process id.
+	GetWindowThreadProcessId(hwnd, &pid);
+	if (pid != param->processId)
+		return TRUE;
+
+	// Ignore windows that are not of the class of the main server window GUI.
+	if (GetClassNameW(hwnd, className, 256))
+	{
+		if (!wcscmp(className, L"Exo - BioWare Corp., (c) 1999 - Generic Blank Application"))
+		{
+			param->hwnd = hwnd;
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+HWND NWNXController::findServerGuiWindow(ULONG processId)
+{
+	FIND_SERVER_GUI_WINDOW_PARAM param;
+
+	param.hwnd = 0;
+	param.processId = processId;
+
+	EnumWindows(findServerGuiWindowEnumProc, (LPARAM)&param);
+
+	return param.hwnd;
+}
+
+bool NWNXController::performGracefulShutdown()
+{
+	HWND serverGuiWindow;
+
+	// Can't perform a graceful shutdown without a process ID.
+	if (!pi.dwProcessId || !pi.hProcess)
+		return false;
+
+	// Try and locate the server's administrative GUI window.
+	serverGuiWindow = findServerGuiWindow(pi.dwProcessId);
+
+	if (!serverGuiWindow)
+		return false;
+
+	// If we have a graceful shutdown message then transmit it before we
+	// initiate shutdown.
+	if (gracefulShutdownMessage != wxT( "" )) 
+	{
+		wxLogMessage(wxT( "* Sending shutdown server message and waiting %d seconds."), gracefulShutdownMessageWait);
+		broadcastServerMessage(gracefulShutdownMessage.c_str());
+		Sleep(gracefulShutdownMessageWait * 1000);
+	}
+
+	// Post a WM_CLOSE to the admin interface window, which initiates a clean
+	// server shutdown without the blocking confirmation message box (if there
+	// were any players present).
+	if (!PostMessage(serverGuiWindow, WM_CLOSE, 0, 0))
+		return false;
+
+	// Wait for the server process to exit in the timeout interval.
+	return (WaitForSingleObject(pi.hProcess, gracefulShutdownTimeout * 1000) == WAIT_OBJECT_0);
+}
+
+bool NWNXController::broadcastServerMessage(const TCHAR *message)
+{
+	HWND srvWnd;
+	HWND sendMsgEdit;
+	HWND sendMsgButton;
+	DWORD_PTR result;
+
+	if (!pi.dwProcessId)
+		return false;
+
+	srvWnd = findServerGuiWindow(pi.dwProcessId);
+
+	if (!srvWnd)
+		return false;
+
+	sendMsgEdit   = GetDlgItem(srvWnd, IDC_SENDMESSAGE_EDIT);
+	sendMsgButton = GetDlgItem(srvWnd, IDC_SENDMESSAGE_BUTTON);
+
+	if (!sendMsgEdit)
+		return false;
+
+	if (!sendMsgButton)
+		return false;
+
+	SendMessageTimeout(
+		sendMsgEdit,
+		WM_SETTEXT,
+		0,
+		reinterpret_cast< LPARAM >( message ),
+		SMTO_NORMAL,
+		1000,
+		&result
+		);
+	SendMessageTimeout(
+		sendMsgButton,
+		BM_CLICK,
+		0,
+		0,
+		SMTO_NORMAL,
+		1000,
+		&result
+		);
+	SendMessageTimeoutA(
+		sendMsgEdit,
+		WM_SETTEXT,
+		0,
+		reinterpret_cast< LPARAM >( "" ),
+		SMTO_NORMAL,
+		1000,
+		&result
+		);
+
+	return true;
+}
 
 /***************************************************************************
     Watchdog related functions
@@ -233,11 +432,10 @@ void NWNXController::ping()
 
 bool NWNXController::checkProcessActive()
 {
-	DWORD lpExitCode;
-	if (GetExitCodeProcess(pi.hProcess, &lpExitCode))
-		if (lpExitCode == STILL_ACTIVE)
-			return true;
-	return false;
+	if (!pi.hProcess)
+		return false;
+
+	return (WaitForSingleObject( pi.hProcess, 0 ) == WAIT_TIMEOUT);
 }
 
 void NWNXController::runProcessWatchdog()
