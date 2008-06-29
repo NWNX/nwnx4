@@ -91,7 +91,7 @@ void wxLogNWNX::DoLogString(const wxChar *szString, time_t WXUNUSED(t))
 
 void wxLogNWNX::create_log_file()
 {
-	fFile = _tfopen(fName, wxT("a"));
+	fFile = _tfopen(fName, wxT("w"));
 	wxLog::SetActiveTarget(this);
 	set_trace_mask();
 	wxLogMessage(wxT("%s"), header);

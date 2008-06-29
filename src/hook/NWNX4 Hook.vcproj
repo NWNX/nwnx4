@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="NWNX4 Hook"
 	ProjectGUID="{DDE52DBA-3A6E-4038-A8AA-E150577D9E8D}"
 	RootNamespace="NWNX4Hook"
@@ -192,10 +192,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\crashdump.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\hook.cpp"
 				>
 			</File>
@@ -205,14 +201,6 @@
 			</File>
 			<File
 				RelativePath="..\misc\log.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\modulecopy.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\packetlog.cpp"
 				>
 			</File>
 			<File
