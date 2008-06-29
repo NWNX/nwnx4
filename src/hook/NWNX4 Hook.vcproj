@@ -67,7 +67,7 @@
 				AdditionalDependencies="madCHook.lib wxmsw28d_core.lib wxbase28d_net.lib wxbase28d.lib wsock32.lib detours.lib detoured.lib"
 				OutputFile="$(OutDir)\NWNX4_Hookd.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				EntryPointSymbol=""
