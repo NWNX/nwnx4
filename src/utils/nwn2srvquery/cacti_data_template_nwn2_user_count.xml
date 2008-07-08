@@ -1,0 +1,133 @@
+<cacti>	
+	<hash_010012701f53a8ddb9fc58643ed383ef584eef>
+		<name>NWN2 - User Count</name>
+		<ds>
+			<t_name></t_name>
+			<name>|host_description| - NWN2 Players</name>
+			<data_input_id>hash_030012e6e2bca95333539fcbd75b211f0ccbf7</data_input_id>
+			<t_rra_id></t_rra_id>
+			<t_rrd_step></t_rrd_step>
+			<rrd_step>300</rrd_step>
+			<t_active></t_active>
+			<active>on</active>
+			<rra_items>hash_150012c21df5178e5c955013591239eb0afd46|hash_1500120d9c0af8b8acdc7807943937b3208e29|hash_1500126fc2d038fb42950138b0ce3e9874cc60|hash_150012e36f3adb9f152adfa5dc50fd2b23337e</rra_items>
+		</ds>
+		<items>
+			<hash_08001219a57930efca8d999af41ef7de568f92>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>users</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum>on</t_rrd_maximum>
+				<rrd_maximum>100</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>600</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>hash_0700125d75cc9b8df4d0c612811f5f26b4bb24</data_input_field_id>
+			</hash_08001219a57930efca8d999af41ef7de568f92>
+			<hash_0800123d0167c8863494398d925ed7f814c96f>
+				<t_data_source_name></t_data_source_name>
+				<data_source_name>maxusers</data_source_name>
+				<t_rrd_minimum></t_rrd_minimum>
+				<rrd_minimum>0</rrd_minimum>
+				<t_rrd_maximum>on</t_rrd_maximum>
+				<rrd_maximum>100</rrd_maximum>
+				<t_data_source_type_id></t_data_source_type_id>
+				<data_source_type_id>1</data_source_type_id>
+				<t_rrd_heartbeat></t_rrd_heartbeat>
+				<rrd_heartbeat>600</rrd_heartbeat>
+				<t_data_input_field_id></t_data_input_field_id>
+				<data_input_field_id>hash_070012d4f0dd0b73f6413c288701bf50371674</data_input_field_id>
+			</hash_0800123d0167c8863494398d925ed7f814c96f>
+		</items>
+		<data>
+			<item_000>
+				<data_input_field_id>hash_0700126f064dd8833fd52398ce77d07b3965b1</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_000>
+			<item_001>
+				<data_input_field_id>hash_070012adf88e5cd36794f792f5f7f8b442732c</data_input_field_id>
+				<t_value></t_value>
+				<value></value>
+			</item_001>
+		</data>
+	</hash_010012701f53a8ddb9fc58643ed383ef584eef>
+	<hash_030012e6e2bca95333539fcbd75b211f0ccbf7>
+		<name>NWN2 - Get User Count</name>
+		<type_id>1</type_id>
+		<input_string>/usr/local/bin/nwn2srvquery &lt;address&gt; &lt;port&gt;</input_string>
+		<fields>
+			<hash_070012adf88e5cd36794f792f5f7f8b442732c>
+				<name>Server IP Address</name>
+				<update_rra></update_rra>
+				<regexp_match></regexp_match>
+				<allow_nulls></allow_nulls>
+				<type_code>hostname</type_code>
+				<input_output>in</input_output>
+				<data_name>address</data_name>
+			</hash_070012adf88e5cd36794f792f5f7f8b442732c>
+			<hash_0700126f064dd8833fd52398ce77d07b3965b1>
+				<name>Server Port Number</name>
+				<update_rra></update_rra>
+				<regexp_match></regexp_match>
+				<allow_nulls>on</allow_nulls>
+				<type_code></type_code>
+				<input_output>in</input_output>
+				<data_name>port</data_name>
+			</hash_0700126f064dd8833fd52398ce77d07b3965b1>
+			<hash_0700125d75cc9b8df4d0c612811f5f26b4bb24>
+				<name>Users</name>
+				<update_rra>on</update_rra>
+				<regexp_match></regexp_match>
+				<allow_nulls></allow_nulls>
+				<type_code></type_code>
+				<input_output>out</input_output>
+				<data_name>users</data_name>
+			</hash_0700125d75cc9b8df4d0c612811f5f26b4bb24>
+			<hash_070012d4f0dd0b73f6413c288701bf50371674>
+				<name>Maximum Users</name>
+				<update_rra>on</update_rra>
+				<regexp_match></regexp_match>
+				<allow_nulls></allow_nulls>
+				<type_code></type_code>
+				<input_output>out</input_output>
+				<data_name>maxusers</data_name>
+			</hash_070012d4f0dd0b73f6413c288701bf50371674>
+		</fields>
+	</hash_030012e6e2bca95333539fcbd75b211f0ccbf7>
+	<hash_150012c21df5178e5c955013591239eb0afd46>
+		<name>Daily (5 Minute Average)</name>
+		<x_files_factor>0.5</x_files_factor>
+		<steps>1</steps>
+		<rows>600</rows>
+		<timespan>86400</timespan>
+		<cf_items>1|2|3|4</cf_items>
+	</hash_150012c21df5178e5c955013591239eb0afd46>
+	<hash_1500120d9c0af8b8acdc7807943937b3208e29>
+		<name>Weekly (30 Minute Average)</name>
+		<x_files_factor>0.5</x_files_factor>
+		<steps>6</steps>
+		<rows>700</rows>
+		<timespan>604800</timespan>
+		<cf_items>1|2|3|4</cf_items>
+	</hash_1500120d9c0af8b8acdc7807943937b3208e29>
+	<hash_1500126fc2d038fb42950138b0ce3e9874cc60>
+		<name>Monthly (2 Hour Average)</name>
+		<x_files_factor>0.5</x_files_factor>
+		<steps>24</steps>
+		<rows>775</rows>
+		<timespan>2678400</timespan>
+		<cf_items>1|2|3|4</cf_items>
+	</hash_1500126fc2d038fb42950138b0ce3e9874cc60>
+	<hash_150012e36f3adb9f152adfa5dc50fd2b23337e>
+		<name>Yearly (1 Day Average)</name>
+		<x_files_factor>0.5</x_files_factor>
+		<steps>288</steps>
+		<rows>797</rows>
+		<timespan>33053184</timespan>
+		<cf_items>1|2|3|4</cf_items>
+	</hash_150012e36f3adb9f152adfa5dc50fd2b23337e>
+</cacti>
