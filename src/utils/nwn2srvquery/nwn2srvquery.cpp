@@ -10,10 +10,19 @@ typedef int socklen_t;
 
 #pragma comment(lib, "ws2_32.lib")
 
+typedef struct _TIME_STATE
+{
+	LARGE_INTEGER freq;
+	LARGE_INTEGER time;
+} TIME_STATE, * PTIME_STATE;
+
+typedef const struct _TIME_STATE * PCTIME_STATE;
+
 #else
 
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -34,8 +43,69 @@ typedef struct sockaddr_in SOCKADDR_IN;
 #define __out_opt
 #define __in_opt
 
+typedef struct timeval TIME_STATE;
+typedef struct timeval * PTIME_STATE;
+typedef const struct timeval * PCTIME_STATE;
 
 #endif
+
+
+//
+// Time differencing, returns count of milliseconds.
+//
+
+void record_time( __out PTIME_STATE timestate );
+unsigned long diff_time( __in PCTIME_STATE then );
+
+
+
+#ifdef _WIN32
+
+void
+record_time(
+	__out PTIME_STATE timestate
+	)
+{
+	QueryPerformanceFrequency( &timestate->freq );
+	QueryPerformanceCounter( &timestate->time );
+}
+
+unsigned long
+diff_time(
+	__in PCTIME_STATE then
+	)
+{
+	LARGE_INTEGER now;
+
+	QueryPerformanceCounter(&now);
+
+	return (now.QuadPart - then->time.QuadPart) / (then->freq.QuadPart / 1000);
+}
+
+#else
+
+void
+record_time(
+	__out PTIME_STATE timestate
+	)
+{
+	gettimeofday(timestate, NULL);
+}
+
+unsigned long
+diff_time(
+	__in PCTIME_STATE then
+	)
+{
+	struct timeval now;
+
+	gettimeofday(&now, NULL);
+
+   return ((now.tv_sec - then->tv_sec)*1000000 + now.tv_usec - then->tv_usec) / 1000;
+}
+
+#endif
+
 
 
 #define QUERY_TIMEOUT ( 10000 ) /* Milliseconds to wait for a response */
@@ -250,6 +320,8 @@ main(
 	socklen_t     rlen;
 	int           status = -1;
 	u_short       port = 5121;
+	unsigned long elapsed = 0;
+	TIME_STATE    timestate;
 
 	for (;;)
 	{
@@ -290,6 +362,8 @@ main(
 		}
 
 		memcpy( buf, "BNXI", 4 );
+
+		record_time( &timestate );
 
 		if (sendto( s, buf, 4, 0, (sockaddr *)&sin, sizeof( sin ) ) < 1)
 		{
@@ -335,6 +409,8 @@ main(
 #endif
 
 		rlen = recvfrom( s, buf, sizeof( buf ), 0, (sockaddr *)&sin, &sinlen );
+
+		elapsed = diff_time( &timestate );
 
 		if (rlen < 1)
 		{
@@ -400,7 +476,7 @@ main(
 		break;
 	}
 
-	printf( "users:%lu maxusers:%lu\n", (unsigned long)users, (unsigned long)maxusers );
+	printf( "users:%lu maxusers:%lu ping:%lu\n", (unsigned long)users, (unsigned long)maxusers, elapsed );
 
 	return status;
 }
