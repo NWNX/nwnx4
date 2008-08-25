@@ -1,6 +1,7 @@
 /***************************************************************************
     NWNX Hook - Responsible for the actual hooking
     Copyright (C) 2007 Ingmar Stieger (Papillon, papillon@nwnx.org)
+	Copyright (C) 2008 Skywing (skywing@valhallalegends.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +22,12 @@
 #if !defined(HOOK_H_INCLUDED)
 #define HOOK_H_INCLUDED
 
-#include "windows.h"
-#include "stdio.h"
-#include "tchar.h"
+#define _STRSAFE_NO_DEPRECATE
+
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+#include <strsafe.h>
 #include "wx/dir.h"
 #include "wx/hashset.h"
 #include "wx/tokenzr.h"
@@ -69,16 +73,17 @@ const unsigned char SET_NWNX_SETSTRING[] = {0xB4, 0x4E, 0xB4, 0x57, 0xB4, 0x4E, 
                                0xB4, 0x53, 0xB4, 0x54, 0xB4, 0x52, 0xB4, 0x49,
                                0xB4, 0x4E, 0xB4, 0x47, 0x00};
 
-SHARED_MEMORY *shmem;
+
+extern SHARED_MEMORY *shmem;
 
 WX_DECLARE_STRING_HASH_MAP(Plugin*, PluginHashMap);
-PluginHashMap plugins;
+extern PluginHashMap plugins;
 
-wxLogNWNX* logger;
-wxString* nwnxhome;
-wxFileConfig *config;
+extern wxLogNWNX* logger;
+extern wxString* nwnxhome;
+extern wxFileConfig *config;
 
-char returnBuffer[MAX_BUFFER];
+extern char returnBuffer[MAX_BUFFER];
 
 int NWNXGetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2);
 void NWNXSetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2, int nValue);
@@ -96,5 +101,53 @@ void init();
 static int (WINAPI * TrueWinMain)(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow) = NULL;
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
+
+
+/*
+ * Types.
+ */
+
+typedef struct _CRASH_DUMP_SECTION
+{
+	HANDLE              CrashReportEvent;
+	HANDLE              CrashAckEvent;
+	EXCEPTION_POINTERS  ExceptionPointers;
+	PEXCEPTION_POINTERS ClientExceptionPointers;
+	ULONG               ThreadId;
+} CRASH_DUMP_SECTION, * PCRASH_DUMP_SECTION;
+
+/*
+ * Forwards.
+ */
+
+bool
+RegisterCrashDumpHandler(
+	);
+
+bool
+WaitForServerInitialization(
+	);
+
+
+void
+DebugPrint(
+	__in const char *Format,
+	...
+	);
+
+void
+DebugPrintV(
+	__in const char *Format,
+	__in va_list Ap
+	);
+
+
+/*
+ * Globals
+ */
+
+extern HMODULE             g_Module;
+extern volatile LONG       g_InCrash;
+extern PCRASH_DUMP_SECTION g_CrashDumpSectionView;
 
 #endif

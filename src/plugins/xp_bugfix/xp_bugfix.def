@@ -1,0 +1,17 @@
+LIBRARY	"xp_bugfix"
+
+EXPORTS
+
+	CalcPositionsLoop0Fix
+	CalcPositionsLoop1Fix
+	NullDerefCrash0Fix
+	NullDerefCrash1Fix
+	NullDerefCrash2Fix
+	NullDerefCrash3Fix
+	NullDerefCrash4Fix
+	Crash5Fix
+	NullDerefCrash6Fix
+	NullDerefCrash7Fix
+	NullDerefCrash8Fix
+	Uncompress0Fix
+	Uncompress1Fix

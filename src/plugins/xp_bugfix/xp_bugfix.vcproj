@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="NWNX4 Hook"
-	ProjectGUID="{DDE52DBA-3A6E-4038-A8AA-E150577D9E8D}"
-	RootNamespace="NWNX4Hook"
+	Name="xp_bugfix"
+	ProjectGUID="{C7943931-B61F-449E-884B-8F2CAF71C802}"
+	RootNamespace="xp_bugfix"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)..\bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="0"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -40,17 +40,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\mswd&quot;;&quot;$(SolutionDir)..\lib\detours\include&quot;;$(NOINHERIT)"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_EXPORTS;__WXMSW__;__WXDEBUG__"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;$(NOINHERIT)"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;XP_BUGFIX_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="stdwx.h"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
-				CallingConvention="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -63,14 +61,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				UseLibraryDependencyInputs="false"
-				AdditionalDependencies="wxmsw28d_core.lib wxbase28d_net.lib wxbase28d.lib wsock32.lib detours.lib detoured.lib"
-				OutputFile="$(OutDir)\NWNX4_Hookd.dll"
+				AdditionalOptions="/dynamicbase /nxcompat"
+				AdditionalDependencies="wxmsw28_core.lib wxbase28_net.lib wxbase28.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;"
+				ModuleDefinitionFile="xp_bugfix.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				EntryPointSymbol=""
 				TargetMachine="1"
 			/>
 			<Tool
@@ -96,7 +93,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\dist&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -104,7 +100,7 @@
 			OutputDirectory="$(SolutionDir)..\bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			CharacterSet="0"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -124,11 +120,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\detours\include&quot;;$(NOINHERIT)"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WINDOWS;_USRDLL;TEST_EXPORTS;__WXMSW__"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;$(NOINHERIT)"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;XP_BUGFIX_EXPORTS"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="stdwx.h"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -144,16 +139,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28_core.lib wxbase28_net.lib wxbase28.lib wsock32.lib detours.lib"
-				OutputFile="$(OutDir)\NWNX4_Hook.dll"
+				AdditionalOptions="/dynamicbase /nxcompat"
+				AdditionalDependencies="wxmsw28_core.lib wxbase28_net.lib wxbase28.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;"
-				ModuleDefinitionFile="hook.map"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;"
+				ModuleDefinitionFile="xp_bugfix.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(TargetDir)$(TargetName).lib"
+				BaseAddress="0x1a000000"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -179,7 +174,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;$(SolutionDir)..\bin\dist&quot;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -192,44 +186,24 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\..\..\..\..\..\..\..\documents and settings\skywing\documents\source\programs\v-nwnx4\nwnx4\trunk\src\hook\crashdump.cpp"
+				RelativePath=".\bugfix.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\hook.cpp"
+				RelativePath="..\..\misc\log.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\hook.map"
+				RelativePath="..\..\misc\Patch.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\misc\log.cpp"
+				RelativePath="..\plugin.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\plugins\plugin.cpp"
+				RelativePath=".\xp_bugfix.def"
 				>
-			</File>
-			<File
-				RelativePath=".\stdwx.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -238,27 +212,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\misc\cmdlineargs.h"
+				RelativePath=".\bugfix.h"
 				>
 			</File>
 			<File
-				RelativePath=".\hook.h"
+				RelativePath="..\..\misc\log.h"
 				>
 			</File>
 			<File
-				RelativePath="..\misc\log.h"
+				RelativePath="..\..\misc\Patch.h"
 				>
 			</File>
 			<File
-				RelativePath="..\plugins\plugin.h"
-				>
-			</File>
-			<File
-				RelativePath="..\misc\shmem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stdwx.h"
+				RelativePath="..\plugin.h"
 				>
 			</File>
 		</Filter>

@@ -91,7 +91,7 @@ void process_command_line(int argc,char *argv[])
 	if (argc == 1) 
 		logger = new wxLogNWNX();
 	if (!logger)
-		logger = new wxLogNWNX(logfile, header);
+		logger = new wxLogNWNX(logfile, header, true, true);
 
 	if (argc == 1) 
 	{

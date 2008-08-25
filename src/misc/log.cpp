@@ -27,6 +27,9 @@ wxLogNWNX::wxLogNWNX(FILE *fp)
     else
         fFile = fp;
 
+	this->append = false;
+	this->timestamp = false;
+
 	wxLog::SetActiveTarget(this);
 	set_trace_mask();
 	wxLogMessage(wxT("%s"), header);
@@ -39,6 +42,8 @@ wxLogNWNX::wxLogNWNX(FILE *fp, wxString header)
     else
         fFile = fp;
 	this->header = wxT("NWNX4 default header\n\n");
+	this->append = false;
+	this->timestamp = false;
 
 	wxLog::SetActiveTarget(this);
 	set_trace_mask();
@@ -50,6 +55,8 @@ wxLogNWNX::wxLogNWNX(wxString fName)
 	this->fName = fName;
 	this->maxSizeBytes = 1024 * 1024;
 	this->header = wxT("NWNX4 default header\n\n");
+	this->append = false;
+	this->timestamp = false;
 	create_log_file();
 }
 
@@ -58,6 +65,8 @@ wxLogNWNX::wxLogNWNX(wxString fName, wxString header)
 	this->fName = fName;
 	this->maxSizeBytes = 1024 * 1024;
 	this->header = header;
+	this->append = false;
+	this->timestamp = false;
 	create_log_file();
 }
 
@@ -66,6 +75,38 @@ wxLogNWNX::wxLogNWNX(wxString fName, wxString header, long maxSizeKB)
 	this->fName = fName;
 	this->maxSizeBytes = maxSizeKB * 1024;
 	this->header = header;
+	this->append = false;
+	this->timestamp = false;
+	create_log_file();
+}
+
+wxLogNWNX::wxLogNWNX(wxString fName, bool append, bool timestamp)
+{
+	this->fName = fName;
+	this->maxSizeBytes = 1024 * 1024;
+	this->header = wxT("NWNX4 default header\n\n");
+	this->append = append;
+	this->timestamp = timestamp;
+
+	if (timestamp)
+	{
+		SetTimestamp( wxT( "%Y-%m-%d %H:%M:%S " ) );
+	}
+	create_log_file();
+}
+
+wxLogNWNX::wxLogNWNX(wxString fName, wxString header, bool append, bool timestamp)
+{
+	this->fName = fName;
+	this->maxSizeBytes = 1024 * 1024;
+	this->header = header;
+	this->append = append;
+	this->timestamp = timestamp;
+
+	if (timestamp)
+	{
+		SetTimestamp( wxT( "%Y-%m-%d %H:%M:%S " ) );
+	}
 	create_log_file();
 }
 
@@ -82,6 +123,12 @@ void wxLogNWNX::DoLogString(const wxChar *szString, time_t WXUNUSED(t))
     fflush(fFile);
 */
     wxString str;
+
+	if (timestamp)
+	{
+		TimeStamp( &str );
+	}
+
     str << szString;
 
     fputs(str.mb_str(), fFile);
@@ -91,7 +138,14 @@ void wxLogNWNX::DoLogString(const wxChar *szString, time_t WXUNUSED(t))
 
 void wxLogNWNX::create_log_file()
 {
-	fFile = _tfopen(fName, wxT("w"));
+	wxString openMode;
+
+	if (append)
+		openMode = wxT("a");
+	else
+		openMode = wxT("w");
+
+	fFile = _tfopen(fName, openMode);
 	wxLog::SetActiveTarget(this);
 	set_trace_mask();
 	wxLogMessage(wxT("%s"), header);

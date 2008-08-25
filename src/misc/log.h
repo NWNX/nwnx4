@@ -35,6 +35,8 @@ public:
 	wxLogNWNX(wxString);
 	wxLogNWNX(wxString, wxString);
 	wxLogNWNX(wxString, wxString, long);
+	wxLogNWNX(wxString, bool append, bool timestamp);
+	wxLogNWNX(wxString, wxString, bool append, bool timestamp);
 
 protected:
     // implement sink function
@@ -44,6 +46,8 @@ protected:
 	wxString fName;
 	long maxSizeBytes;
 	wxString header;
+	bool append;
+	bool timestamp;
 
 	void create_log_file();
 	void set_trace_mask();
