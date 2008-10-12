@@ -206,6 +206,8 @@ unsigned long GetID(dword OID)
 }
 int HookFunctions()
 {
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
 	int success = 0;
 	DWORD org_Chat = FindChat();
 	*(dword*)&pChat = org_Chat;
@@ -236,7 +238,8 @@ int HookFunctions()
 
 	*(dword*)&ChatNextHook = org_Chat;
 	//success = HookCode((PVOID) org_Chat, ChatHookProc, (PVOID*) &ChatNextHook);
-	success = DetourAttach(&(PVOID&)ChatNextHook, ChatHookProc);
+	success = DetourAttach(&(PVOID&)ChatNextHook, ChatHookProc)==0;
+	DetourTransactionCommit();
 
 	pServThis = *(dword*)(org_Chat + 0x33);
 	pScriptThis = pServThis - 8;

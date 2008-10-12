@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,3,5,0
- PRODUCTVERSION 0,3,5,0
+ FILEVERSION 0,3,6,0
+ PRODUCTVERSION 0,3,6,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -71,12 +71,12 @@ BEGIN
         BEGIN
             VALUE "Comments", "http://www.nwnx.org/"
             VALUE "FileDescription", "NWNX4 Chat"
-            VALUE "FileVersion", "0, 3, 5, 0"
+            VALUE "FileVersion", "0, 3, 6, 0"
             VALUE "InternalName", "NWNX4 Chat"
             VALUE "LegalCopyright", "Copyright (C) dumbo & virusman, 2005-2008"
             VALUE "OriginalFilename", "xp_chat.dll"
             VALUE "ProductName", "NWNX4 Chat"
-            VALUE "ProductVersion", "0, 3, 5, 0"
+            VALUE "ProductVersion", "0, 3, 6, 0"
         END
     END
     BLOCK "VarFileInfo"
