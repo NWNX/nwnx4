@@ -1,8 +1,12 @@
-NWNX4 Chat Plugin V.0.3.5
+NWNX4 Chat Plugin V.0.3.6
 (c) 2005-2006 by dumbo (dumbo@nm.ru)
 (c) 2006-2008 by virusman (virusman@virusman.ru)
 
 Changelog:
+0.3.6 (14.10.2008)
+- Fixed the hooking function
+- Updated the scripting library
+
 0.3.5 (22.05.2008)
 - Replaced MadCHook library with Detours
 - New scripting library - nwnx_chat.nss
