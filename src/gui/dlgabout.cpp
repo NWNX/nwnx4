@@ -39,7 +39,7 @@ AboutDialog::AboutDialog(
 	aboutText.append(wxT("Copyright (C) 2008 Ingmar Stieger (Papillon)\n"));
 	aboutText.append(wxT("Visit us at http://www.nwnx.org/\n\n"));
 	aboutText.append(wxT("Contributors:\n\n"));
-	aboutText.append(wxT("Virusman, Grinning Fool, Skywing,\n"));
+	aboutText.append(wxT("Virusman, Grinning Fool, McKillroy, Skywing,\n"));
 	aboutText.append(wxT("and countless others: Tips, motivation, bugfixes, gripes... THANKS!"));
 
 	wxBoxSizer *vsizer = new wxBoxSizer(wxVERTICAL);
