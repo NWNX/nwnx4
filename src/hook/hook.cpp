@@ -230,6 +230,160 @@ void parseNWNCmdLine()
 	*/
 }
 
+void PayLoad(char *gameObject, char* nwnName, char* nwnValue)
+{
+	wxLogTrace(TRACE_VERBOSE, wxT("* Payload called"));
+
+	if (!nwnName || !nwnValue)
+		return;
+
+	if (strncmp(nwnName, "NWNX!", 5) != 0) 	// not for us
+		return;
+
+	wxString fClass, function;
+#ifdef UNICODE
+	wxString name(nwnName, wxConvUTF8);
+#else
+	wxString name(nwnName);
+#endif
+
+	// maybe replace this code with old version..
+	wxStringTokenizer tkz(name, wxT("!"));
+	tkz.GetNextToken();
+
+	if (tkz.HasMoreTokens())
+	{
+		fClass = tkz.GetNextToken();
+		wxLogTrace(TRACE_VERBOSE, wxT("* fClass=%s"), fClass);
+	}
+	else
+	{
+		wxLogMessage(wxT("* Function class not specified."));
+		return;
+	}
+
+	if (tkz.HasMoreTokens())
+	{
+		function = tkz.GetNextToken();
+		wxLogTrace(TRACE_VERBOSE, wxT("* function=%s"), function);
+		while (tkz.HasMoreTokens())
+		{
+			function.append(wxT("!") + tkz.GetNextToken());
+		}		
+	}
+	else
+	{
+		wxLogMessage(wxT("* Function not specified."));
+	}
+
+	wxLogTrace(TRACE_VERBOSE, wxT("* Function class '%s', function '%s'."), fClass, function);
+
+	// try to call the plugin
+	LegacyPluginHashMap::iterator it = legacyplugins.find(fClass);
+	if (it != legacyplugins.end())
+	{
+		// plugin found, handle the request
+		LegacyPlugin* pPlugin = it->second;
+		size_t valueLength = strlen(nwnValue);
+		const char* pRes = pPlugin->DoRequest(gameObject, (TCHAR*) function.c_str(), nwnValue);
+		if (pRes)
+		{
+			// copy result into nwn variable value while respecting the maximum size
+			size_t resultLength = strlen(pRes);
+			if (valueLength < resultLength)
+			{
+				strncpy(nwnValue, pRes, valueLength);
+				*(nwnValue+valueLength) = 0x0;
+			}
+			else
+			{
+				strncpy(nwnValue, pRes, resultLength);
+				*(nwnValue+resultLength) = 0x0;
+			}
+		}
+	}
+	else
+	{
+		/*if (queryFunctions(fClass, function, nwnValue) == false)
+		{
+			wxLogMessage(wxT("* Function class '%s' not provided by any plugin. Check your installation."),
+				fClass);
+			*nwnValue = 0x0; //??
+		}*/
+	}
+}
+
+
+
+void __declspec(naked) SetLocalStringHookProc()
+{
+	__asm {
+
+		push ecx	  // save register contents
+		push edx
+		push ebx
+		push esi
+		push edi
+		push ebp	  
+
+		mov eax, dword ptr ss:[esp+0x20] // variable value (param 3)
+		mov eax, [eax] 
+		push eax
+		mov eax, dword ptr ss:[esp+0x20] // variable name (param 2)
+		mov eax, [eax] 
+		push eax
+		lea eax, dword ptr ss:[ecx-0x190] // game object (param 1) ??
+		push eax
+
+		call PayLoad
+		add esp, 0xC
+
+		pop ebp		// restore register contents
+		pop edi		
+		pop esi
+		pop ebx
+		pop edx
+		pop ecx
+		
+		mov eax, dword ptr ss:[esp+0x14] // arg 5
+		push eax
+		mov eax, dword ptr ss:[esp+0x14] // arg 4
+		push eax
+		mov eax, dword ptr ss:[esp+0x14] // arg 3
+		push eax
+		mov eax, dword ptr ss:[esp+0x14] // arg 2
+		push eax
+		mov eax, dword ptr ss:[esp+0x14] // arg 1
+		push eax
+
+		call SetLocalStringNextHook // call original function
+
+		add esp, 0xC
+        retn 8
+	}
+}
+
+DWORD FindHook()
+{
+	char* ptr = (char*) 0x400000;
+	while (ptr < (char*) 0x600000)
+	{
+		if ((ptr[0] == (char) 0x8B) &&
+			(ptr[1] == (char) 0x44) &&
+			(ptr[2] == (char) 0x24) &&
+			(ptr[4] == (char) 0x6A) &&
+			(ptr[5] == (char) 0x03) &&
+			(ptr[6] == (char) 0x50) &&
+			(ptr[7] == (char) 0xE8) &&
+			(ptr[12] == (char) 0x8B)
+			)
+			return (DWORD) ptr;
+		else
+			ptr++;
+	}
+	return NULL;
+}
+
 /***************************************************************************
     Initialization
 ***************************************************************************/
@@ -338,6 +492,22 @@ void init()
 		missingFunction = true;
 	}
 
+	//Detours hook
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+	DWORD oldHookAt = FindHook();
+	*(DWORD*)&SetLocalStringNextHook = oldHookAt;
+	DetourAttach(&(PVOID&) SetLocalStringNextHook, SetLocalStringHookProc);
+	DetourTransactionCommit();
+
+	if (hookAt)
+		wxLogDebug(wxT("SetLocalString hooked at 0x%x"), oldHookAt);
+	else
+	{
+		wxLogDebug(wxT("SetLocalString NOT FOUND!"));
+		missingFunction = true;
+	}
+
 	if (missingFunction) 
 		wxLogMessage(wxT(
 			"!! One or more functions could not be hooked.\n" 
@@ -365,6 +535,7 @@ void init()
 ***************************************************************************/
 
 typedef Plugin* (WINAPI* GetPluginPointer)();
+typedef LegacyPlugin* (WINAPI* GetLegacyPluginPointer)();
 
 // Called upon initialization (see above).
 // Loads all plugins based on a filename pattern
@@ -433,8 +604,39 @@ void loadPlugins()
 					wxLogMessage(wxT("* Loading plugin %s: Error while instancing plugin."), filename);
 			}
 			else
-				wxLogMessage(wxT("* Loading plugin %s: Error. The plugin is not "
-					"compatible with this version of NWNX."), filename);
+				{
+				GetLegacyPluginPointer pGetPluginPointer = (GetLegacyPluginPointer)GetProcAddress(hDLL, "GetPluginPointer");
+				if (pGetPluginPointer)
+				{
+					LegacyPlugin* pPlugin = pGetPluginPointer();
+					if (pPlugin)
+					{
+						if (!pPlugin->Init((TCHAR*)nwnxhome->c_str()))
+							wxLogMessage(wxT("* Loading plugin %s: Error during plugin initialization."), filename);
+						else
+						{
+							pPlugin->GetFunctionClass(fClass);
+							if (plugins.find(fClass) == plugins.end())
+							{
+								wxLogMessage(wxT("* Loading plugin %s: Successfully registered as class: %s"), 
+									filename, fClass);
+								legacyplugins[fClass] = pPlugin;
+							}
+							else
+							{
+								wxLogMessage(wxT("* Skipping plugin %s: Class %s already registered by another plugin."),
+									filename, fClass);
+								FreeLibrary(hDLL);
+							}
+						}
+					}
+					else
+						wxLogMessage(wxT("* Loading plugin %s: Error while instancing plugin."), filename);
+				}
+				else
+					wxLogMessage(wxT("* Loading plugin %s: Error. Could not retrieve class object pointer."), filename);
+			}
+			//	wxLogMessage(wxT("* Loading plugin %s: Error. The plugin is not " 					"compatible with this version of NWNX."), filename);
 		}
         cont = dir.GetNext(&filename);
     }

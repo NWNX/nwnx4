@@ -200,6 +200,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\plugins\legacy_plugin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\misc\log.cpp"
 				>
 			</File>
@@ -239,6 +243,10 @@
 			</File>
 			<File
 				RelativePath=".\hook.h"
+				>
+			</File>
+			<File
+				RelativePath="..\plugins\legacy_plugin.h"
 				>
 			</File>
 			<File

@@ -33,6 +33,7 @@
 #include "../misc/cmdlineargs.h"
 #include "../misc/shmem.h"
 #include "../plugins/plugin.h"
+#include "../plugins/legacy_plugin.h"
 
 #define MAX_BUFFER 64*1024
 
@@ -72,7 +73,9 @@ const unsigned char SET_NWNX_SETSTRING[] = {0xB4, 0x4E, 0xB4, 0x57, 0xB4, 0x4E, 
 SHARED_MEMORY *shmem;
 
 WX_DECLARE_STRING_HASH_MAP(Plugin*, PluginHashMap);
+WX_DECLARE_STRING_HASH_MAP(LegacyPlugin*, LegacyPluginHashMap);
 PluginHashMap plugins;
+LegacyPluginHashMap legacyplugins;
 
 wxLogNWNX* logger;
 wxString* nwnxhome;
@@ -86,8 +89,10 @@ float NWNXGetFloat(char* sPlugin, char* sFunction, char* sParam1, int nParam2);
 void NWNXSetFloat(char* sPlugin, char* sFunction, char* sParam1, int nParam2, float fValue);
 char* NWNXGetString(char* sPlugin, char* sFunction, char* sParam1, int nParam2);
 void NWNXSetString(char* sPlugin, char* sFunction, char* sParam1, int nParam2, char* sValue);
+void (*SetLocalStringNextHook)();
+void PayLoad(char *gameObject, char* name, char* value);
 void SetLocalStringHookProc();
-char* FindHook();
+DWORD FindHook();
 unsigned char* FindPattern(const unsigned char* pattern);
 void parseNWNCmdLine();
 void loadPlugins();
