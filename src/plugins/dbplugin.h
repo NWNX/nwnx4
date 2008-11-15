@@ -62,6 +62,8 @@ protected:
 	virtual int GetData(int iCol, char* buffer);
 	virtual int GetAffectedRows();
 	virtual void GetEscapeString(char* str, char* buffer);
+	virtual int GetErrno();
+	virtual const char *GetErrorMessage();
 	void SetScorcoSQL(char *request);
 };
 

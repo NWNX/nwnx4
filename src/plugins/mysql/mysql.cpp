@@ -56,7 +56,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 MySQL::MySQL()
 {
 	header = _T(
-		"NWNX MySQL Plugin V.0.0.9\n" \
+		"NWNX MySQL Plugin V.1.1.0-dev\n" \
 		"(c) 2007 by Ingmar Stieger (Papillon)\n" \
 		"(c) 2008 by virusman\n" \
 		"visit us at http://www.nwnx.org\n" \
@@ -67,7 +67,7 @@ MySQL::MySQL()
 	    "MySQL 4 or 5 as database server.");
 
 	subClass = _T("MySQL");
-	version = _T("0.0.9");
+	version = _T("1.1.0-dev");
 
 	result = NULL;
 	row = NULL;
@@ -394,6 +394,16 @@ void MySQL::GetEscapeString(char* str, char* buffer)
 	to_len = mysql_real_escape_string(&mysql, to, str, (unsigned long)len);
 	nwnxcpy(buffer, to, to_len);
 	free(to);
+}
+
+int MySQL::GetErrno()
+{
+	return mysql_errno(&mysql);
+}
+
+const char *MySQL::GetErrorMessage()
+{
+	return mysql_error(&mysql);
 }
 
 BOOL MySQL::WriteScorcoData(BYTE* pData, int Length)

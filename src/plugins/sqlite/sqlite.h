@@ -49,6 +49,8 @@ private:
 	int GetAffectedRows();
 	void GetEscapeString(char* str, char* buffer);
 	void SafeFinalize(sqlite3_stmt** pStmt);
+	int GetErrno();
+	const char *GetErrorMessage();
 };
 
 #endif

@@ -100,10 +100,14 @@ int DBPlugin::GetInt(char* sFunction, char* sParam1, int nParam2)
 		return -1;
 	}
 
-	if (function == wxT("FETCH"))
+	if (function == wxT("EXEC"))
+		return Execute(sParam1);
+	else if (function == wxT("FETCH"))
 		return Fetch(sParam1);
 	else if (function == wxT("GET AFFECTED ROWS"))
 		return GetAffectedRows();
+	else if (function == wxT("GET ERRNO"))
+		return GetErrno();
 
 	return 0;
 
@@ -155,6 +159,8 @@ char* DBPlugin::GetString(char* sFunction, char* sParam1, int nParam2)
 	}
 	else if (function == wxT("GET ESCAPE STRING"))
 		GetEscapeString(sParam1, returnBuffer);
+	else if (function == wxT("GET ERROR MESSAGE"))
+		return GetErrorMessage();
 	else
 	{
 		// Process generic functions
@@ -191,6 +197,16 @@ int DBPlugin::Fetch(char* buffer)
 int DBPlugin::GetData(int iCol, char* buffer)
 {
 	return -1;
+}
+
+int DBPlugin::GetErrno()
+{
+	return 0;
+}
+
+const char *DBPlugin::GetErrorMessage()
+{
+	return NULL;
 }
 
 void DBPlugin::GetEscapeString(char* str, char* buffer)

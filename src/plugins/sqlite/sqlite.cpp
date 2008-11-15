@@ -55,7 +55,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 SQLite::SQLite()
 {
 	header = _T(
-		"NWNX SQLite Plugin V.0.0.8\n" \
+		"NWNX SQLite Plugin V.1.1.0\n" \
 		"(c) 2007 by Ingmar Stieger (Papillon)\n" \
 		"visit us at http://www.nwnx.org\n" \
 		"(built using SQLite 3.3.17)\n");
@@ -66,7 +66,7 @@ SQLite::SQLite()
 		"very ease to configure and maintain.");
 
 	subClass = _T("SQLite");
-	version = _T("0.0.8");
+	version = _T("1.1.0");
 
 	firstfetch = false;
 	pStmt = NULL;
@@ -308,4 +308,14 @@ void SQLite::GetEscapeString(char* str, char* buffer)
 	char* to = sqlite3_mprintf("%q", str);
 	nwnxcpy(buffer, to);
 	sqlite3_free(to);
+}
+
+int SQLite::GetErrno()
+{
+	return sqlite3_errcode(sdb);
+}
+
+const char *SQLite::GetErrorMessage()
+{
+	return sqlite3_errmsg(sdb);
 }

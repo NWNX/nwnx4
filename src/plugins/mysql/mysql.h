@@ -49,6 +49,8 @@ private:
 	int GetAffectedRows();
 	void GetEscapeString(char* str, char* buffer);
 	MYSQL_RES* AdvanceToNextValidResultset();
+	int GetErrno();
+	const char *GetErrorMessage();
 
 	MYSQL mysql;
 	MYSQL* connection;
