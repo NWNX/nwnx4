@@ -160,7 +160,7 @@ char* DBPlugin::GetString(char* sFunction, char* sParam1, int nParam2)
 	else if (function == wxT("GET ESCAPE STRING"))
 		GetEscapeString(sParam1, returnBuffer);
 	else if (function == wxT("GET ERROR MESSAGE"))
-		return GetErrorMessage();
+		return (char *) GetErrorMessage();
 	else
 	{
 		// Process generic functions
