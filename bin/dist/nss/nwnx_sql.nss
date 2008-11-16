@@ -1,7 +1,9 @@
 // Name     : NWNX SQL include
+// Version  : 1.10-dev49
 // Purpose  : Scripting functions for NWNX SQL plugins
 // Author   : Ingmar Stieger
-// Modified : 09/12/2006
+// Author   : virusman
+// Modified : 16 Nov 2008
 // Copyright: This file is licensed under the terms of the
 //            GNU GENERAL PUBLIC LICENSE (GPL) Version 2
 //            Based on aps_include by Ingmar Stieger, Adam Colon, Josh Simon
@@ -18,7 +20,9 @@ const int SQL_SUCCESS = 1;
 /************************************/
 
 // Execute statement in sSQL
-void SQLExecDirect(string sSQL);
+// returns: SQL_SUCCESS if the query was successful
+//          SQL_ERROR if an error has occurred
+int SQLExecDirect(string sSQL);
 
 // Position cursor on next row of the resultset
 // Call this before using SQLGetData().
@@ -42,6 +46,14 @@ string SQLGetDataText(int iCol);
 // Return the number of rows that were affected by the last 
 // INSERT, UPDATE, or DELETE operation.
 int SQLGetAffectedRows();
+
+// Return the error code for the most recently invoked API function that can succeed or fail.
+// A return value of zero means that no error occurred.
+// Client error message numbers are listed in nwnx_mysql_errors.nss
+int SQLGetErrno();
+
+// Return a string containing the error message for the most recently invoked API function that failed
+string SQLGetErrorMessage();
 
 // Return a string value when given a location
 string SQLLocationToString(location lLocation);
@@ -156,9 +168,9 @@ object SQLRetrieveObject(location lLocation, object oOwner = OBJECT_INVALID, str
 /* Implementation                   */
 /************************************/
 
-void SQLExecDirect(string sSQL)
+int SQLExecDirect(string sSQL)
 {
-    NWNXSetString("SQL", "EXEC", sSQL, 0, "");
+    return NWNXGetInt("SQL", "EXEC", sSQL, 0);
 }
 
 int SQLFetch(string mode = " ")
@@ -179,6 +191,16 @@ string SQLGetDataText(int iCol)
 int SQLGetAffectedRows()
 {
     return NWNXGetInt("SQL", "GET AFFECTED ROWS", "", 0);
+}
+
+int SQLGetErrno()
+{
+    return NWNXGetInt("SQL", "GET AFFECTED ROWS", "", 0);
+}
+
+string SQLGetErrorMessage()
+{
+    return NWNXGetString("SQL", "GET ERROR MESSAGE", "", 0);
 }
 
 void SQLSCORCOExec(string sSQL)
