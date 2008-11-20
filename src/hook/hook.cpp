@@ -100,45 +100,19 @@ void dummy()
     Hooking functions
 ***************************************************************************/
 
-ULONG
-FindPatternExceptionFilter(
-	__in ULONG ExceptionCode
-	)
-{
-	switch (ExceptionCode)
-	{
-
-	case STATUS_ACCESS_VIOLATION:
-	case STATUS_IN_PAGE_ERROR:
-		return EXCEPTION_EXECUTE_HANDLER;
-
-	default:
-		return EXCEPTION_CONTINUE_EXECUTION;
-
-	}
-}
-
 unsigned char* FindPattern(const unsigned char* pattern)
 {
 	int i;
 	int patternLength = (int)strlen((char*)pattern);
-	unsigned char* ptr = (unsigned char*) GetModuleHandle( 0 );
-	unsigned char* end = ptr + 0x400000; // hack
+	unsigned char* ptr = (unsigned char*) 0x400000;
 
-	__try
+	while (ptr < (unsigned char *)0x800000)
 	{
-		while (ptr < end)
-		{
-			for (i = 0; i < patternLength && ptr[i] == pattern[i]; i++);
-			if (i == patternLength)
-				return ptr;
-			else
-				ptr++;
-		}
-	}
-	__except( FindPatternExceptionFilter( GetExceptionCode() ) )
-	{
-		return NULL;
+		for (i = 0; i < patternLength && ptr[i] == pattern[i]; i++);
+		if (i == patternLength)
+			return ptr;
+		else
+			ptr++;
 	}
 
 	return NULL;
@@ -529,73 +503,6 @@ void loadPlugins()
     Redirected EXE Entry point 
 ***************************************************************************/
 
-HWND
-createNotificationWindow()
-{
-	wxString   className, windowName;
-	WNDCLASSEX wc;
-	ATOM       aWc;
-	ULONG      pid;
-	HWND       hwnd;
-
-	pid = GetCurrentProcessId();
-
-	className.Printf(wxT("NWNXServerClass %lu"), pid);
-	windowName.Printf(wxT("NWNXServerWindow %lu"), pid);
-
-	/*
-	 * Create a dummy window with a known name.  This allows the controller to
-	 * know when we are processing messages, as we don't run a message loop
-	 * before NWN2Server initializes the main message loop.
-	 *
-	 * Note that we can use DefWindowProc because we only care about sending a
-	 * WM_NULL message to verify that NWN2Server's message loop is running.
-	 */
-
-	wc.cbSize          = sizeof( WNDCLASSEX );
-	wc.style           = 0;
-	wc.lpfnWndProc     = DefWindowProc;
-	wc.cbClsExtra      = 0;
-	wc.cbWndExtra      = 0;
-	wc.hInstance       = (HINSTANCE)g_Module;
-	wc.hIcon           = 0;
-	wc.hCursor         = 0;
-	wc.hbrBackground   = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpszMenuName    = 0;
-	wc.lpszClassName   = className.c_str();
-	wc.hIconSm         = 0;
-
-	aWc = RegisterClassEx( &wc );
-
-	if (aWc == NULL)
-	{
-		OutputDebugStringA( "createNotificationWindow(): RegisterClassEx fails\n" );
-		return 0;
-	}
-
-	hwnd = CreateWindowEx(
-		0,
-		className.c_str(),
-		windowName.c_str(),
-		0,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		0,
-		0,
-		(HINSTANCE)g_Module,
-		0);
-
-	if (hwnd == NULL)
-	{
-		OutputDebugStringA( "createNotificationWindow(): CreateWindowEx fails\n" );
-		UnregisterClass( className.c_str(), (HINSTANCE)g_Module );
-	}
-
-	return hwnd;
-}
-
 int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 					   LPSTR lpCmdLine, int nCmdShow)
 {
@@ -617,8 +524,6 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	    if (shmem)
 		{
-			HWND  hwnd;
-
 			//
 			// Start the crash dump client first off, as the controller will try and
 			// connect to it after we acknowledge booting.
@@ -633,13 +538,6 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			nwnxhome = new wxString(shmem->nwnx_home);
 
 			init();
-
-			//
-			// Create the notification window now, so that we may poll for the message
-			// loop to be ready.
-			//
-
-			hwnd = createNotificationWindow();
 
 			//
 			// Signal controller that we are ready.  This unblocks the
