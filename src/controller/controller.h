@@ -129,7 +129,6 @@ private:
 	void runProcessWatchdog();
 	void runGamespyWatchdog();
 	void runCrashDumpWaiter(__in ULONG timeout);
-	bool waitForNWN2ServerMessageLoop(unsigned long pid);
 	static BOOL CALLBACK findServerGuiWindowEnumProc(
 		__in HWND hwnd,
 		__in LPARAM lParam

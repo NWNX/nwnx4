@@ -33,8 +33,7 @@
 #define IDC_SENDMESSAGE_BUTTON  0x400 
 
 NWNXController::NWNXController(wxFileConfig *config)
-: initTimeout( 30000 ),
-  gracefulShutdownTimeout( 10000 ),
+: gracefulShutdownTimeout( 10000 ),
   gracefulShutdownMessageWait( 5 ),
   NtSuspendProcess( NULL ),
   ImagehlpApiVersion( NULL ),
@@ -66,7 +65,6 @@ NWNXController::NWNXController(wxFileConfig *config)
 	config->Read(wxT("gamespyInterval"), &gamespyInterval);
 	config->Read(wxT("gamespyTolerance"), &gamespyTolerance);
 	config->Read(wxT("gamespyDelay"), &gamespyDelay);
-	config->Read(wxT("initTimeout"), &initTimeout);
 	config->Read(wxT("gracefulShutdownTimeout"), &gracefulShutdownTimeout);
 	config->Read(wxT("gracefulShutdownMessageWait"), &gracefulShutdownMessageWait);
 
@@ -298,17 +296,6 @@ bool NWNXController::startServerProcessInternal()
 	}
 
 	//
-	// Wait for the server message loop to start.
-	//
-
-	if (!waitForNWN2ServerMessageLoop( pi.dwProcessId ))
-	{
-		wxLogMessage( wxT("! Error: Server did not initialize message loop within timeout period." ) );
-		killServerProcess( false );
-		return false;
-	}
-
-	//
 	// Reset the count of ping probes to zero for purposes of initial load time
 	// GameSpy ping allowances.
 	//
@@ -407,52 +394,6 @@ void NWNXController::killServerProcess(bool graceful /* = true */)
 void NWNXController::shutdownServerProcess()
 {
 	initialized = false;
-}
-
-bool NWNXController::waitForNWN2ServerMessageLoop(unsigned long pid)
-{
-	HWND hwnd;
-	DWORD_PTR res;
-	wxString className, windowName;
-
-	/*
-	 * Locate the notification window.
-	 */
-
-	className.Printf(wxT("NWNXServerClass %lu"), pid);
-	windowName.Printf(wxT("NWNXServerWindow %lu"), pid);
-
-	hwnd = FindWindow( className.c_str(), windowName.c_str() );
-
-	if (!hwnd)
-	{
-		wxLogMessage(wxT( "* Server window %s class %s does not exist?" ), windowName.c_str(), className.c_str());
-		return false;
-	}
-
-	/*
-	 * Send a WM_NULL to it and wait for a reply to come back.  This allows us
-	 * to block until the message loop is up and running with a configurable
-	 * timeout.  We need to ensure that the message loop is really functional
-	 * or we may fail to connect to DDE.
-	 */
-
-	if (!SendMessageTimeout(
-		hwnd,
-		WM_NULL,
-		0,
-		0,
-		SMTO_NORMAL,
-		static_cast< ULONG >( initTimeout ),
-		&res))
-	{
-		wxLogMessage(wxT( "* Couldn't receive response from server confirming message loop running (%lu)." ), GetLastError() );
-		return false;
-	}
-
-	wxLogMessage(wxT( "* Server successfully started message loop (%lu)." ), pi.dwThreadId );
-
-	return true;
 }
 
 BOOL
