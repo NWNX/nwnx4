@@ -141,7 +141,7 @@ bool MySQL::Connect()
 		return FALSE;
 
 	// try to connect to the mysql server
-	connection = mysql_real_connect(&mysql, server, user, password, schema, 0, NULL, CLIENT_MULTI_STATEMENTS);
+	connection = mysql_real_connect(&mysql, server, user, password, schema, port, NULL, CLIENT_MULTI_STATEMENTS);
 	if (connection == NULL)
 	{
 		mysql_close(&mysql);
