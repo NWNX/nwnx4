@@ -117,6 +117,12 @@ bool MySQL::Init(TCHAR* nwnxhome)
 		user = wxT("nwn2");
 		wxLogMessage(wxT("* Using default schema '%s'"), schema);
 	}
+	if (!config->Read(wxT("port"), &port) )
+	{
+		wxLogMessage(wxT("* MySQL port not found in ini file"));
+		port = 3306;
+		wxLogMessage(wxT("* Using default port '%d'"), port);
+	}
 
 	if (!Connect())
 	{
@@ -194,8 +200,14 @@ bool MySQL::Execute(char* query)
 	if (mysql_query(connection, (const char *)query) != 0)
 	{
 		unsigned int error_no = mysql_errno(&mysql);
-		if (logLevel > 0)
-				wxLogMessage(wxT("! SQL Error: %s (%lu)."), mysql_error(&mysql), error_no);
+		if (logLevel > 0) { 
+			wxLogMessage(wxT("! SQL Error: %s (%lu)."), mysql_error(&mysql), error_no);
+
+			// log the query that caused the error, too,  if we haven't already. 
+			if (logLevel != 2) { 
+				wxLogMessage(wxT(" -> QUERY: %s."), query);
+			}
+		}
 
 		// throw away last resultset if a SELECT statement failed
 		if (_strnicmp(query, wxT("SELECT"), 6) == 0)

@@ -63,6 +63,7 @@ private:
 	wxString user;
 	wxString password;
 	wxString schema;
+	int port; 
 
 };
 
