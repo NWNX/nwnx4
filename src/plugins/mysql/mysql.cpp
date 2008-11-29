@@ -120,7 +120,7 @@ bool MySQL::Init(TCHAR* nwnxhome)
 	if (!config->Read(wxT("port"), &port) )
 	{
 		wxLogMessage(wxT("* MySQL port not found in ini file"));
-		port = 3306;
+		port = 0;
 		wxLogMessage(wxT("* Using default port '%d'"), port);
 	}
 
