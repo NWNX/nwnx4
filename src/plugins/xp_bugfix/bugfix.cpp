@@ -37,14 +37,18 @@ Patch _patches[] =
 	Patch( OFFS_CalcPositionLoop0+1, (relativefunc)BugFix::CalcPositionsLoop0Fix ),
 	Patch( OFFS_CalcPositionLoop1, "\xe9", 1 ),
 	Patch( OFFS_CalcPositionLoop1+1, (relativefunc)BugFix::CalcPositionsLoop1Fix ),
+#if NWN2SERVER_VERSION < 0x01211549
 	Patch( OFFS_NullDerefCrash0, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash0+1, (relativefunc)BugFix::NullDerefCrash0Fix ),
 	Patch( OFFS_NullDerefCrash1, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash1+1, (relativefunc)BugFix::NullDerefCrash1Fix ),
+#endif
 	Patch( OFFS_NullDerefCrash2, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash2+1, (relativefunc)BugFix::NullDerefCrash2Fix ),
+#if NWN2SERVER_VERSION < 0x01211549
 	Patch( OFFS_NullDerefCrash3, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash3+1, (relativefunc)BugFix::NullDerefCrash3Fix ),
+#endif
 	Patch( OFFS_NullDerefCrash4, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash4+1, (relativefunc)BugFix::NullDerefCrash4Fix ),
 	Patch( OFFS_Crash5, "\xe9", 1 ),
@@ -456,14 +460,18 @@ void __stdcall BugFix::LogNullDerefCrash9()
 
 unsigned long CalcPositionLoop0Ret      = OFFS_CalcPositionLoop0Ret;
 unsigned long CalcPositionLoop1Ret      = OFFS_CalcPositionLoop1Ret;
+#if NWN2SERVER_VERSION < 0x01211549
 unsigned long NullDerefCrash0NormalRet  = OFFS_NullDerefCrash0RetNormal;
 unsigned long NullDerefCrash0SkipRet    = OFFS_NullDerefCrash0RetSkip;
 unsigned long NullDerefCrash1NormalRet  = OFFS_NullDerefCrash1RetNormal;
 unsigned long NullDerefCrash1SkipRet    = OFFS_NullDerefCrash1RetSkip;
+#endif
 unsigned long NullDerefCrash2NormalRet  = OFFS_NullDerefCrash2RetNormal;
 unsigned long NullDerefCrash2SkipRet    = OFFS_NullDerefCrash2RetSkip;
+#if NWN2SERVER_VERSION < 0x01211549
 unsigned long NullDerefCrash3NormalRet  = OFFS_NullDerefCrash3RetNormal;
 unsigned long NullDerefCrash3SkipRet    = OFFS_NullDerefCrash3RetSkip;
+#endif
 unsigned long NullDerefCrash4NormalRet  = OFFS_NullDerefCrash4RetNormal;
 unsigned long NullDerefCrash4SkipRet    = OFFS_NullDerefCrash4RetSkip;
 unsigned long Crash5NormalRet           = OFFS_Crash5RetNormal;
@@ -595,6 +603,7 @@ __declspec(naked) void BugFix::CalcPositionsLoop1Fix()
  */
 __declspec(naked) void BugFix::NullDerefCrash0Fix()
 {
+#if NWN2SERVER_VERSION < 0x01211549
 	__asm
 	{
 		test    al, al
@@ -613,6 +622,7 @@ Skip:
 		call    LogNullDerefCrash0
 		jmp     dword ptr [NullDerefCrash0SkipRet]
 	}
+#endif
 }
 
 /*
@@ -678,6 +688,13 @@ Skip:
 		jmp     dword ptr [NullDerefCrash1SkipRet]
 	}
 }
+#else
+__declspec(naked) void BugFix::NullDerefCrash1Fix()
+{
+	__asm
+	{
+	}
+}
 #endif
 
 /*
@@ -733,6 +750,7 @@ Skip:
  */
 __declspec(naked) void BugFix::NullDerefCrash3Fix()
 {
+#if NWN2SERVER_VERSION < 0x01211549
 	__asm
 	{
 		test    eax, eax
@@ -746,6 +764,7 @@ Skip:
 		call    LogNullDerefCrash3
 		jmp     dword ptr [NullDerefCrash3SkipRet]
 	}
+#endif
 }
 
 /*
