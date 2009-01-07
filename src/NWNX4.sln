@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+# Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4 Controller", "controller\controller.vcproj", "{4187545D-C3EE-4B22-A6FD-47B8057200D1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4 GUI", "gui\gui.vcproj", "{C0FE3308-455C-45D6-A508-BCA664CF046A}"
@@ -14,14 +14,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP MySQL", "plugins\mysql\mysql.vcproj", "{7468B0D2-5865-4416-8AFB-E688008DE091}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "..\lib\detours\src\Detours.vcproj", "{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Hashtable", "plugins\hashtable\hashtable.vcproj", "{259D64E5-EB52-4EA4-8BD3-EE85CBB0647D}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Profiler", "plugins\profiler\profiler.vcproj", "{7CA75742-EBBE-46FB-AE83-4EA5C280458B}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Util", "plugins\util\util.vcproj", "{030BD065-7B9D-44BA-AEF2-181E4E0A9545}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Chat", "plugins\chat\chat.vcproj", "{76973E1B-FCFE-48E9-9893-4D41326167D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,22 +49,6 @@ Global
 		{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}.Debug|Win32.Build.0 = Debug|Win32
 		{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}.Release|Win32.ActiveCfg = Release|Win32
 		{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}.Release|Win32.Build.0 = Release|Win32
-		{259D64E5-EB52-4EA4-8BD3-EE85CBB0647D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{259D64E5-EB52-4EA4-8BD3-EE85CBB0647D}.Debug|Win32.Build.0 = Debug|Win32
-		{259D64E5-EB52-4EA4-8BD3-EE85CBB0647D}.Release|Win32.ActiveCfg = Release|Win32
-		{259D64E5-EB52-4EA4-8BD3-EE85CBB0647D}.Release|Win32.Build.0 = Release|Win32
-		{7CA75742-EBBE-46FB-AE83-4EA5C280458B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7CA75742-EBBE-46FB-AE83-4EA5C280458B}.Debug|Win32.Build.0 = Debug|Win32
-		{7CA75742-EBBE-46FB-AE83-4EA5C280458B}.Release|Win32.ActiveCfg = Release|Win32
-		{7CA75742-EBBE-46FB-AE83-4EA5C280458B}.Release|Win32.Build.0 = Release|Win32
-		{030BD065-7B9D-44BA-AEF2-181E4E0A9545}.Debug|Win32.ActiveCfg = Debug|Win32
-		{030BD065-7B9D-44BA-AEF2-181E4E0A9545}.Debug|Win32.Build.0 = Debug|Win32
-		{030BD065-7B9D-44BA-AEF2-181E4E0A9545}.Release|Win32.ActiveCfg = Release|Win32
-		{030BD065-7B9D-44BA-AEF2-181E4E0A9545}.Release|Win32.Build.0 = Release|Win32
-		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Debug|Win32.ActiveCfg = Debug|Win32
-		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Debug|Win32.Build.0 = Debug|Win32
-		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Release|Win32.ActiveCfg = Release|Win32
-		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
