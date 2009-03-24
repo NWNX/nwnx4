@@ -7,7 +7,8 @@
 // General header file for reverse engineered NWN2Server information.
 //
 
-#define NWN2SERVER_VERSION 0x01211549
+#define NWN2SERVER_VERSION 0x01221588
+//#define NWN2SERVER_VERSION 0x01211549
 //#define NWN2SERVER_VERSION 0x00131409
 //#define NWN2SERVER_VERSION 0x00121295
 
@@ -15,7 +16,96 @@
  * Version specific offsets and check data.
  */
 
-#if   NWN2SERVER_VERSION == 0x01211549
+#if   NWN2SERVER_VERSION == 0x01221588
+
+/*
+ * 1.0.22.1588
+ */
+
+#define OFFS_ProcessServerMessage      0x004FFA70 // CNWSMessage::HandlePlayerToServerMessage
+#define OFFS_ProcessServerMessageHook  0x0045418D // CServerExoAppInternal::HandleMessage
+#define OFFS_CalcPositionLoop0         0x007096DD // NWN2_JStar::SearchStep+0x5D [left]
+#define OFFS_CalcPositionLoop0Ret      0x007096EE // NWN2_JStar::SearchStep+0x6E [left]
+#define OFFS_CalcPositionLoop1         0x00709A8F // NWN2_JStar::SearchStep+0x40F [right]
+#define OFFS_CalcPositionLoop1Ret      0x00709AA0 // NWN2_JStar::SearchStep+0x420 [right]
+
+// NullDerefCrash0 is fixed in 1.0.21.1549
+// #define OFFS_NullDerefCrash0           0x005DB05A // CNetLayerWindow::FrameTimeout
+// #define OFFS_NullDerefCrash0RetNormal  0x005DB067 // CNetLayerWindow::FrameTimeout
+// #define OFFS_NullDerefCrash0RetSkip    0x005DB1CB // CNetLayerWindow::FrameTimeout
+
+// Still 1.0.13.1409 offsets.  Fixed in 1.0.13.1409.
+// #define OFFS_NullDerefCrash1           0x0042F595
+// #define OFFS_NullDerefCrash1RetNormal  0x0042F59B
+// #define OFFS_NullDerefCrash1RetSkip    0x0042F5C1
+
+#define OFFS_NullDerefCrash2           0x007324FF // NWN2_Collider::UpdateCollider+0x4F
+#define OFFS_NullDerefCrash2RetNormal  0x00732505 // NWN2_Collider::UpdateCollider+0x55
+#define OFFS_NullDerefCrash2RetSkip    0x00732546 // NWN2_Collider::UpdateCollider+0x96
+
+// Fixed in 1.0.21.1549.
+// #define OFFS_NullDerefCrash3           0x004F45A4 // CNWSMessage::HandlePlayerToServerDungeonMasterMessage [0x24]
+// #define OFFS_NullDerefCrash3RetNormal  0x004F45AA // CNWSMessage::HandlePlayerToServerDungeonMasterMessage [0x24]
+// #define OFFS_NullDerefCrash3RetSkip    0x004F45C8 // CNWSMessage::HandlePlayerToServerDungeonMasterMessage [0x24]
+
+#define OFFS_NullDerefCrash4           0x0045C00F // CServerExoAppInternal::LoadCharacterStart+0x47F
+#define OFFS_NullDerefCrash4RetNormal  0x0045C016 // CServerExoAppInternal::LoadCharacterStart+0x486
+#define OFFS_NullDerefCrash4RetSkip    0x0045C262 // CServerExoAppInternal::LoadCharacterStart+0x6D2
+
+//
+// Actual crash occurs at 0x005D110C <1.0.13.1409> but that is not the right place to hook in
+// to fix it.
+//
+#define OFFS_Crash5                    0x005D6700 // CNetLayerWindow::UnpacketizeFullMessages+0x80
+#define OFFS_Crash5RetNormal           0x005D6706 // CNetLayerWindow::UnpacketizeFullMessages+0x86
+#define OFFS_Crash5RetSkip             0x005D6706 // CNetLayerWindow::UnpacketizeFullMessages+0x86
+
+// BrianMeyer_Inventory_Msg_BadObjIdCrash
+#define OFFS_NullDerefCrash6           0x004FB197 // CNWSMessage::HandlePlayerToServerInventoryMessage+0x887
+#define OFFS_NullDerefCrash6RetNormal  0x004FB19E // CNWSMessage::HandlePlayerToServerInventoryMessage+0x88E
+#define OFFS_NullDerefCrash6RetSkip    0x004FB208 // CNWSMessage::HandlePlayerToServerInventoryMessage+0x8F8
+
+//
+// Actual crash occurs at 004e8c09 <1.0.13.1409>
+//
+
+#define OFFS_NullDerefCrash7           0x00560ED9 // CNWVirtualMachineCommands::ExecuteCommandActionExchangeItem+0xB9
+#define OFFS_NullDerefCrash7RetNormal  0x00560EDF // CNWVirtualMachineCommands::ExecuteCommandActionExchangeItem+0xBF
+#define OFFS_NullDerefCrash7RetSkip    0x00560F20 // CNWVirtualMachineCommands::ExecuteCommandActionExchangeItem+100
+
+//
+// Actual crash occurs at 004a2256 <1.0.13.1409>
+
+#define OFFS_NullDerefCrash8           0x004A3FEA // CNWSItem::AcquireItem+0x8A
+#define OFFS_NullDerefCrash8RetNormal  0x004A3FF0 // CNWSItem::AcquireItem+0x90
+#define OFFS_NullDerefCrash8RetSkip    0x004A4168 // CNWSItem::AcquireItem+0x208
+
+#define OFFS_CheckUncompress0          0x005D67A6 // CNetLayerWindow::UnpacketizeFullMessages+0x126 [right]
+#define OFFS_CheckUncompress0RetNormal 0x005D67B4 // CNetLayerWindow::UnpacketizeFullMessages+0x134 [right]
+#define OFFS_CheckUncompress0RetSkip   0x005D6745 // CNetLayerWindow::UnpacketizeFullMessages+0xC5  [left]
+
+#define OFFS_CheckUncompress1          0x005D69EE // CNetLayerWindow::UnpacketizeFullMessages+0x36E [bottom]
+#define OFFS_CheckUncompress1RetNormal 0x005D69FC // CNetLayerWindow::UnpacketizeFullMessages+0x37C [bottom]
+#define OFFS_CheckUncompress1RetSkip   OFFS_CheckUncompress0RetSkip // Same, presently
+
+#define OFFS_UncompressMessage         0x005D17F0 // CNetLayerInternal::UncompressMessage+0
+
+#define OFFS_NullDerefCrash9           0x0049E50D // CItemRepository::GetItemPtrInRepository+0x5D
+#define OFFS_NullDerefCrash9RetNormal  0x0049E512 // CItemRepository::GetItemPtrInRepository+0x62
+#define OFFS_NullDerefCrash9RetSkip    0x0049E56B // CItemRepository::GetItemPtrInRepository+0xBB
+
+#define OFFS_NullDerefCrash10          0x00480C5D // CNWSCreatureStats::ValidateLevelUp+0x3FD
+#define OFFS_NullDerefCrash10RetNormal 0x00480C63 // CNWSCreatureStats::ValidateLevelUp+0x403
+#define OFFS_NullDerefCrash10RetSkip   0x004808A0 // CNWSCreatureStats::ValidateLevelUp+0x40
+
+// Not needed for 1.0.22.1588
+// #define OFFS_CGameEffectDtor           0x00521B30 // CGameEffect::~CGameEffect
+// #define OFFS_ms_iGameEffectCount       0x0085D5A8 // CGameEffect::ms_iGameEffectCount
+// #define OFFS_CGameEffectDtorRet        0x00521B38 // CGameEffect::~CGameEffect+8
+
+#define CHECK_ProcessServerMessageHook 0x000AB8DF
+
+#elif NWN2SERVER_VERSION == 0x01211549
 
 /*
  * 1.0.21.1549
@@ -92,6 +182,14 @@
 #define OFFS_NullDerefCrash9           0x0049E56D // CItemRepository::GetItemPtrInRepository+5D
 #define OFFS_NullDerefCrash9RetNormal  0x0049E572 // CItemRepository::GetItemPtrInRepository+62
 #define OFFS_NullDerefCrash9RetSkip    0x0049E5CB // CItemRepository::GetItemPtrInRepository+BB
+
+#define OFFS_NullDerefCrash10          0x00480C7D // CNWSCreatureStats::ValidateLevelUp
+#define OFFS_NullDerefCrash10RetNormal 0x00480C83 // CNWSCreatureStats::ValidateLevelUp
+#define OFFS_NullDerefCrash10RetSkip   0x004808C0 // CNWSCreatureStats::ValidateLevelUp
+
+#define OFFS_CGameEffectDtor           0x00521B30 // CGameEffect::~CGameEffect
+#define OFFS_ms_iGameEffectCount       0x0085D5A8 // CGameEffect::ms_iGameEffectCount
+#define OFFS_CGameEffectDtorRet        0x00521B38 // CGameEffect::~CGameEffect+8
 
 #define CHECK_ProcessServerMessageHook 0x000AB9ED
 
