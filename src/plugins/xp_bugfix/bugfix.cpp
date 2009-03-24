@@ -19,8 +19,10 @@
 
 #include "bugfix.h"
 #include "..\..\misc\Patch.h"
+#include "StackTracer.h"
+#include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "0.0.9b3"
+#define BUGFIX_VERSION "1.0.1"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -65,6 +67,14 @@ Patch _patches[] =
 	Patch( OFFS_CheckUncompress1+1, (relativefunc)BugFix::Uncompress1Fix ),
 	Patch( OFFS_NullDerefCrash9, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash9+1, (relativefunc)BugFix::NullDerefCrash9Fix ),
+#if NWN2SERVER_VERSION >= 0x01211549
+	Patch( OFFS_NullDerefCrash10, "\xe9", 1 ),
+	Patch( OFFS_NullDerefCrash10+1, (relativefunc)BugFix::NullDerefCrash10Fix ),
+#endif
+#if NWN2SERVER_VERSION == 0x01211549 && defined(XP_BUGFIX_USE_SYMBOLS)
+	Patch( OFFS_CGameEffectDtor, "\xe9", 1 ),
+	Patch( OFFS_CGameEffectDtor+1, (relativefunc)BugFix::CGameEffectDtorLogger ),
+#endif
 
 	Patch()
 };
@@ -156,6 +166,57 @@ bool BugFix::Init(TCHAR* nwnxhome)
 	}
 
 	wxLogMessage(wxT("* Plugin initialized."));
+
+	/* Ini file */
+	wxString inifile(nwnxhome); 
+	inifile.append(wxT("\\"));
+	inifile.append(GetPluginFileName());
+	inifile.append(wxT(".ini"));
+
+	wxLogMessage(wxT("* Reading inifile %s"), inifile);
+
+	wxFileConfig config(wxEmptyString, wxEmptyString, 
+		inifile, wxEmptyString,
+		wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_NO_ESCAPE_CHARACTERS
+		);
+
+
+#ifdef XP_BUGFIX_USE_SYMBOLS
+
+	tracer = new StackTracer();
+
+	wxString TraceLogFileName;
+
+	if (config.Read( "StackTraceLogFile", &TraceLogFileName ))
+	{
+		int TraceCount = 0;
+
+		wxLogMessage(wxT("* Trace log file: %s"),
+			TraceLogFileName);
+
+		if (!config.Read( "StackTraceCount", &TraceCount ))
+			TraceCount = 1024;
+
+		if (!tracer->Initialize(
+			(size_t)TraceCount,
+			TraceLogFileName.wc_str(wxConvLibc).data()))
+		{
+			wxLogMessage(wxT("* Failed to initialize stack tracing for '%s' (%lu traces)."),
+				TraceLogFileName, TraceCount);
+
+			delete tracer;
+
+			tracer = NULL;
+		}
+		else
+		{
+			wxLogMessage(wxT("* Initialized stack tracing to '%s' for %lu traces."),
+				TraceLogFileName, TraceCount);
+		}
+	}
+
+#endif
+
 	return true;
 }
 
@@ -205,6 +266,25 @@ void __stdcall BugFix::FreeNwn2Heap(void *p)
 	if (NWN2Heap_Deallocate)
 		NWN2Heap_Deallocate( p );
 }
+
+#ifdef XP_BUGFIX_USE_SYMBOLS
+
+void __stdcall BugFix::LogStackTrace(
+	__in const CONTEXT * Context,
+	__in ULONG_PTR TraceContext
+	)
+{
+	//
+	// Call the class method.
+	//
+
+	if (!plugin->tracer)
+		return;
+
+	plugin->tracer->LogTrace( Context, TraceContext );
+}
+
+#endif
 
 void __stdcall BugFix::SafeInitPositionList(NWN2::somestruc *struc)
 {
@@ -452,7 +532,19 @@ void __stdcall BugFix::LogNullDerefCrash9()
 	{
 		plugin->lastlog = now;
 
-		wxLogMessage( wxT( "LogNullDerefCrash8: Avoided null deference crash #9 (Nonexistant object in item repository)." ) );
+		wxLogMessage( wxT( "LogNullDerefCrash9: Avoided null deference crash #9 (Nonexistant object in item repository)." ) );
+	}
+}
+
+void __stdcall BugFix::LogNullDerefCrash10()
+{
+	ULONG now = GetTickCount();
+
+	if (now - plugin->lastlog > 1000)
+	{
+		plugin->lastlog = now;
+
+		wxLogMessage( wxT( "LogNullDerefCrash10: Avoided null dereference crash #10 (Bogus feats during level-up processing)." ) );
 	}
 }
 
@@ -489,6 +581,13 @@ unsigned long CheckUncompress1SkipRet   = OFFS_CheckUncompress1RetSkip;
 unsigned long UncompressMessage         = OFFS_UncompressMessage;
 unsigned long NullDerefCrash9NormalRet  = OFFS_NullDerefCrash9RetNormal;
 unsigned long NullDerefCrash9SkipRet    = OFFS_NullDerefCrash9RetSkip;
+#if NWN2SERVER_VERSION >= 0x01211549
+unsigned long NullDerefCrash10NormalRet = OFFS_NullDerefCrash10RetNormal;
+unsigned long NullDerefCrash10SkipRet   = OFFS_NullDerefCrash10RetSkip;
+#endif
+#if NWN2SERVER_VERSION == 0x01211549
+unsigned long CGameEffectDtorRet        = OFFS_CGameEffectDtorRet;
+#endif
 
 /*
  * NWN2_JStar::SearchStep
@@ -1130,4 +1229,92 @@ Skip:
 
 		jmp     dword ptr [NullDerefCrash9SkipRet]
 	}
+}
+
+/*
+ * CNWSCreatureStats::ValidateLevelUp
+ *
+ * - We don't handle the case where CNWSFeat::GetFeat returns NULL.  This
+ *   results in a crash during level-up processing (inside
+ *   CNWSRules::IgnoreValidation) if a client specifies a bogus feat identifier
+ *   in their level-up packet.
+ *
+ * - The actual fix to this problem should be:
+ *
+ *    CNWSFeat *pFeat = g_pRules->GetFeat( FeatId );
+ *
+ *    if (!pFeat) return LEVELUP_FAIL_BAD_FEAT;
+ *
+ */
+__declspec(naked) void BugFix::NullDerefCrash10Fix()
+{
+	__asm
+	{
+		test    eax, eax
+		jz      Skip
+
+		cmp     dword ptr [esp+028h], ebx
+		mov     ebp, eax
+
+		jmp     dword ptr [NullDerefCrash10NormalRet]
+
+Skip:
+		call    LogNullDerefCrash10
+
+		;
+		; Fail the level-up.
+		;
+
+		jmp     dword ptr [NullDerefCrash10SkipRet]
+	}
+}
+
+/*
+ * CGameEffect::~CGameEffect
+ *
+ * - Log stack traces to catch who deletes a still-live CGameEffect.
+ *
+ */
+__declspec(naked) void BugFix::CGameEffectDtorLogger()
+{
+#if NWN2SERVER_VERSION == 0x01211549
+	__asm
+	{
+		sub     esp, SIZE CONTEXT
+
+		mov     dword ptr [esp]CONTEXT.ContextFlags, CONTEXT_CONTROL | CONTEXT_INTEGER
+		mov     word ptr [esp]CONTEXT.SegSs, ss
+		mov     word ptr [esp]CONTEXT.SegCs, cs
+		mov     dword ptr [esp]CONTEXT.Esp, esp
+		add     dword ptr [esp]CONTEXT.Esp, SIZE CONTEXT
+		mov     dword ptr [esp]CONTEXT.Ebp, ebp
+		mov     dword ptr [esp]CONTEXT.Eax, eax
+		mov     dword ptr [esp]CONTEXT.Ebx, ebx
+		mov     dword ptr [esp]CONTEXT.Ecx, ecx
+		mov     dword ptr [esp]CONTEXT.Edx, edx
+		mov     dword ptr [esp]CONTEXT.Edi, edi
+		mov     dword ptr [esp]CONTEXT.Esi, esi
+		mov     dword ptr [esp]CONTEXT.Eip, OFFS_CGameEffectDtor
+		pushfd
+		pop     eax
+		mov     dword ptr [esp]CONTEXT.EFlags, eax
+
+		lea     eax, dword ptr [esp]
+		push    ecx
+		push    eax
+		call    LogStackTrace
+
+		mov     eax, OFFS_ms_iGameEffectCount
+		dec     dword ptr [eax]
+
+		mov     eax, dword ptr [esp]CONTEXT.Eax
+		mov     ecx, dword ptr [esp]CONTEXT.Ecx
+
+		add     esp, SIZE CONTEXT
+
+		push    ecx
+
+		jmp     dword ptr [CGameEffectDtorRet]
+	}
+#endif
 }

@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/dynamicbase /nxcompat"
-				AdditionalDependencies="wxmsw28_core.lib wxbase28_net.lib wxbase28.lib"
+				AdditionalDependencies="wxmsw28_core.lib wxbase28_net.lib wxbase28.lib dbghelp.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;"
 				ModuleDefinitionFile="xp_bugfix.def"
@@ -140,7 +140,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/dynamicbase /nxcompat"
-				AdditionalDependencies="wxmsw28_core.lib wxbase28_net.lib wxbase28.lib"
+				AdditionalDependencies="wxmsw28_core.lib wxbase28_net.lib wxbase28.lib dbghelp.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;"
 				ModuleDefinitionFile="xp_bugfix.def"
@@ -202,6 +202,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StackTracer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\xp_bugfix.def"
 				>
 			</File>
@@ -225,6 +229,10 @@
 			</File>
 			<File
 				RelativePath="..\plugin.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StackTracer.h"
 				>
 			</File>
 		</Filter>

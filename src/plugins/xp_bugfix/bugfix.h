@@ -23,12 +23,23 @@
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
 #include "windows.h"
+#include <dbghelp.h>
+
+//
+// N.B. Windows headers *MUST* be included before wxWindows, because something
+// in wx seems to be changing the default structure packing, which totally
+// screws any other headers you include after it.  Moronic, to say the
+// least.
+//
+
 #include "../plugin.h"
 #include "../../misc/log.h"
 #include "wx/tokenzr.h"
 #include "wx/hashset.h"
 #include <set>
 #include "../../nwn2lib/NWN2Lib.h"
+
+#define XP_BUGFIX_USE_SYMBOLS
 
 /*
 
@@ -92,8 +103,10 @@ public:
 	static void NullDerefCrash7Fix();
 	static void NullDerefCrash8Fix();
 	static void NullDerefCrash9Fix();
+	static void NullDerefCrash10Fix();
 	static void Uncompress0Fix();
 	static void Uncompress1Fix();
+	static void CGameEffectDtorLogger();
 
 private:
 
@@ -109,14 +122,27 @@ private:
 	static void __stdcall LogNullDerefCrash7();
 	static void __stdcall LogNullDerefCrash8();
 	static void __stdcall LogNullDerefCrash9();
+	static void __stdcall LogNullDerefCrash10();
 	static void __stdcall LogUncompress0Fix();
 	static void __stdcall LogUncompress1Fix();
 
 	static void __stdcall FreeNwn2Heap(void *p);
 
-	wxLogNWNX* logger;
-	ULONG      lastlog;
-	HMODULE    nwn2mm;
+	static void __stdcall LogStackTrace(
+		__in const CONTEXT * Context,
+		__in ULONG_PTR TraceContext
+		);
+
+	wxLogNWNX*   logger;
+	ULONG        lastlog;
+	HMODULE      nwn2mm;
+
+#ifdef XP_BUGFIX_USE_SYMBOLS
+
+	class StackTracer* tracer;
+
+#endif
+
 };
 
 #endif
