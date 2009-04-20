@@ -37,6 +37,7 @@ dword pScriptThis = 0;
 char *pChatThis = 0;
 dword * (*pGetPCobj)();
 void (*pChat)(int mode, int id, char **msg, int to);
+bool post123 = 0;
 
 char scriptRun = 0;
 char *lastMsg;
@@ -68,6 +69,30 @@ DWORD FindChat()
 			(ptr[0x12] == (char) 0x01)
 			)
 			return (DWORD) ptr;
+		else
+			ptr++;
+	}
+	ptr = (char*) 0x400000;
+	while (ptr < (char*) 0x730000)
+	{
+		if ((ptr[0] == (char) 0x83) &&
+			(ptr[1] == (char) 0xEC) &&
+			(ptr[8] == (char) 0x53) &&
+			(ptr[9] == (char) 0x55) &&
+			(ptr[0xA] == (char) 0x56) &&
+			(ptr[0xB] == (char) 0x8B) &&
+			(ptr[0xC] == (char) 0xD9) &&
+			(ptr[0xD] == (char) 0x8B) &&
+			(ptr[0xE] == (char) 0x48) &&
+			(ptr[0xF] == (char) 0x04) &&
+			(ptr[0x10] == (char) 0x57) &&
+			(ptr[0x11] == (char) 0x89) &&
+			(ptr[0x12] == (char) 0x5C)
+			)
+		{
+			post123 = 1;
+			return (DWORD) ptr;
+		}
 		else
 			ptr++;
 	}
@@ -136,8 +161,17 @@ void ChatHookProc(const int mode, const int id, const char **msg, const int to)
 	_asm { leave }
 	if (!scriptRun && lastRet)
 	{
-		_asm { mov eax, lastRet }
-		_asm { retn 0x14 }
+		if(post123)
+		{
+			_asm { mov eax, lastRet }
+			_asm { retn 0x18 }
+		}
+		else
+		{
+			_asm { mov eax, lastRet }
+			_asm { retn 0x14 }
+		}
+
 	}
 	_asm { jmp ChatNextHook }
 }
