@@ -101,6 +101,15 @@ diff_time(
 
 	gettimeofday(&now, NULL);
 
+	//
+	// Begin lame workaround for Linux bug with gettimeofday going backwards.
+	//
+
+	if ((now.tv_sec < then->tv_sec) ||
+	    ((now.tv_sec == then->tv_sec) &&
+		  (now.tv_usec < then->tv_usec)))
+		  return 0;
+
    return ((now.tv_sec - then->tv_sec)*1000000 + now.tv_usec - then->tv_usec) / 1000;
 }
 
