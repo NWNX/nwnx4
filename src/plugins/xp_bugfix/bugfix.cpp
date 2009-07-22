@@ -51,10 +51,12 @@ Patch _patches[] =
 	Patch( OFFS_NullDerefCrash3, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash3+1, (relativefunc)BugFix::NullDerefCrash3Fix ),
 #endif
+#if NWN2SERVER_VERSION < 0x01231763
 	Patch( OFFS_NullDerefCrash4, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash4+1, (relativefunc)BugFix::NullDerefCrash4Fix ),
 	Patch( OFFS_Crash5, "\xe9", 1 ),
 	Patch( OFFS_Crash5+1, (relativefunc)BugFix::Crash5Fix ),
+#endif
 	Patch( OFFS_NullDerefCrash6, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash6+1, (relativefunc)BugFix::NullDerefCrash6Fix ),
 	Patch( OFFS_NullDerefCrash7, "\xe9", 1 ),
@@ -564,10 +566,12 @@ unsigned long NullDerefCrash2SkipRet    = OFFS_NullDerefCrash2RetSkip;
 unsigned long NullDerefCrash3NormalRet  = OFFS_NullDerefCrash3RetNormal;
 unsigned long NullDerefCrash3SkipRet    = OFFS_NullDerefCrash3RetSkip;
 #endif
+#if NWN2SERVER_VERSION < 0x01231763
 unsigned long NullDerefCrash4NormalRet  = OFFS_NullDerefCrash4RetNormal;
 unsigned long NullDerefCrash4SkipRet    = OFFS_NullDerefCrash4RetSkip;
 unsigned long Crash5NormalRet           = OFFS_Crash5RetNormal;
 unsigned long Crash5SkipRet             = OFFS_Crash5RetSkip;
+#endif
 unsigned long NullDerefCrash6NormalRet  = OFFS_NullDerefCrash6RetNormal;
 unsigned long NullDerefCrash6SkipRet    = OFFS_NullDerefCrash6RetSkip;
 unsigned long NullDerefCrash7NormalRet  = OFFS_NullDerefCrash7RetNormal;
@@ -866,6 +870,7 @@ Skip:
 #endif
 }
 
+#if NWN2SERVER_VERSION < 0x01231763
 /*
  * CServerExoAppInternal::LoadCharacterStart
  *
@@ -977,7 +982,14 @@ Skip:
 		jmp     dword ptr [Crash5SkipRet]
 	}
 }
-
+#else
+void BugFix::NullDerefCrash4Fix()
+{
+}
+void BugFix::Crash5Fix()
+{
+}
+#endif
 
 /*
  * CNWSMessage::HandlePlayerToServerInventoryMessage
@@ -1041,6 +1053,7 @@ __declspec(naked) void BugFix::NullDerefCrash7Fix()
 		; rewritten beyond this point.
 		;
 
+		pushfd
 		push    ecx
 		push    eax
 
@@ -1060,12 +1073,15 @@ __declspec(naked) void BugFix::NullDerefCrash7Fix()
 		jz      Skip
 
 		mov     cl, byte ptr [eax+03e0h]
+		popfd
 
 		jmp     dword ptr [NullDerefCrash7NormalRet]
 
 Skip:
 
 		call    LogNullDerefCrash7
+
+		popfd
 
 		;
 		; Fail the script VM call.
@@ -1092,6 +1108,28 @@ Skip:
  */
 __declspec(naked) void BugFix::NullDerefCrash8Fix()
 {
+#if NWN2SERVER_VERSION > 0x01221588
+	__asm
+	{
+		test    eax, eax
+		jz      Skip
+
+		mov     edx, dword ptr [edi]
+		push    01h
+		push    00h
+
+		jmp     dword ptr [NullDerefCrash8NormalRet]
+
+Skip:
+		call    LogNullDerefCrash8
+
+		;
+		; Fail the item acquisition.
+		;
+
+		jmp     dword ptr [NullDerefCrash8SkipRet]
+	}
+#else
 	__asm
 	{
 		test    ebp, ebp
@@ -1112,6 +1150,7 @@ Skip:
 
 		jmp     dword ptr [NullDerefCrash8SkipRet]
 	}
+#endif
 }
 
 /*

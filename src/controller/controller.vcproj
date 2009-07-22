@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crashmonitor.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\misc\log.cpp"
 				>
 			</File>
@@ -234,6 +238,10 @@
 			>
 			<File
 				RelativePath=".\controller.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crashmonitor.h"
 				>
 			</File>
 			<File

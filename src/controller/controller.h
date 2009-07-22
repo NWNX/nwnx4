@@ -66,44 +66,11 @@ public:
 
 private:
 
-	typedef LONG NTSTATUS;
-
-#define NTAPI __stdcall
-
-	typedef NTSTATUS (NTAPI * NtSuspendProcessProc)(__in HANDLE Process);
-
-	typedef BOOL (WINAPI * MiniDumpWriteDumpProc)(
-		IN HANDLE hProcess,
-		IN DWORD ProcessId,
-		IN HANDLE hFile,
-		IN MINIDUMP_TYPE DumpType,
-		IN CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, OPTIONAL
-		IN CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, OPTIONAL
-		IN CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam OPTIONAL
-		);
-
-	typedef LPAPI_VERSION (__stdcall * ImagehlpApiVersionProc)( VOID );
-	typedef LPAPI_VERSION (__stdcall * ImagehlpApiVersionExProc)( __in LPAPI_VERSION AppVersion );
-
-	typedef struct _CRASH_DUMP_SECTION
-	{
-		HANDLE              CrashReportEvent;
-		HANDLE              CrashAckEvent;
-		EXCEPTION_POINTERS  ExceptionPointers;
-		PEXCEPTION_POINTERS ClientExceptionPointers;
-		ULONG               ThreadId;
-	} CRASH_DUMP_SECTION, * PCRASH_DUMP_SECTION;
-
 	typedef struct _FIND_SERVER_GUI_WINDOW_PARAM
 	{
 		HWND hwnd;
 		ULONG processId;
 	} FIND_SERVER_GUI_WINDOW_PARAM, * PFIND_SERVER_GUI_WINDOW_PARAM;
-
-	NtSuspendProcessProc     NtSuspendProcess;
-	MiniDumpWriteDumpProc    MiniDumpWriteDump;
-	ImagehlpApiVersionProc   ImagehlpApiVersion;
-	ImagehlpApiVersionExProc ImagehlpApiVersionEx;
 
 	wxFileConfig            *config;
 
@@ -115,14 +82,11 @@ private:
 	PCRASH_DUMP_SECTION      crashDumpSection;
 
 	unsigned long            tick;
-	int                      initTimeout;
 	wxString                 nwnhome;
 	wxString                 crashDumpDir;
 	wxString                 gracefulShutdownMessage;
 	bool                     initialized;
 	bool                     shuttingDown;
-	MINIDUMP_TYPE            dumpType;
-	HMODULE                  dbgHelp;
 
 	bool startServerProcessInternal();
 	bool checkProcessActive();
@@ -136,20 +100,6 @@ private:
 	static HWND findServerGuiWindow( __in ULONG processId );
 	bool performGracefulShutdown( __in ULONG timeout );
 	bool broadcastServerMessage( __in const TCHAR *message );
-
-	bool checkDbgHelpVersion();
-	bool connectCrashDumpServer(__in ULONG pid, __in HANDLE process);
-	void cleanupCrashDumpServer();
-	bool writeCrashDump(
-		__in HANDLE Process,
-		__in ULONG ProcessId,
-		__in ULONG ThreadId,
-		__in PEXCEPTION_POINTERS ExceptionPointers,
-		__in BOOL ClientPointers,
-		__in CONST WCHAR *Comment,
-		__out std::wstring &DumpFileName
-		);
-	bool writeNwn2serverHangDump();
 
 };
 

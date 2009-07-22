@@ -39,7 +39,7 @@
 #include <set>
 #include "../../nwn2lib/NWN2Lib.h"
 
-#define XP_BUGFIX_USE_SYMBOLS
+//#define XP_BUGFIX_USE_SYMBOLS
 
 /*
 
