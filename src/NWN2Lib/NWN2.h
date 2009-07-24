@@ -106,7 +106,7 @@
 // #define OFFS_ms_iGameEffectCount       0x0085D5A8 // CGameEffect::ms_iGameEffectCount
 // #define OFFS_CGameEffectDtorRet        0x00521B38 // CGameEffect::~CGameEffect+8
 
-#define CHECK_ProcessServerMessageHook 0x000AB8DF
+#define CHECK_ProcessServerMessageHook 0x000ABC9F
 
 #elif NWN2SERVER_VERSION == 0x01221588
 
