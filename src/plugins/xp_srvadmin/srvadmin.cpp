@@ -20,17 +20,20 @@
 
 #include "srvadmin.h"
 
-#define PLUGIN_VERSION "0.0.3"
+#define PLUGIN_VERSION "0.0.4"
 
 /*
  * Control identifiers for the server GUI admin window.
  */
 
 #define IDC_ELC_CHECKBOX        0x3EF
-#define IDC_SENDMESSAGE_EDIT    0x3FC 
+#define IDC_SENDMESSAGE_EDIT    0x3FC
+#define IDC_PLAYERPASSWORD_EDIT 0x3F9
+#define IDC_DMPASSWORD_EDIT     0x3FA
+#define IDC_ADMINPASSWORD_EDIT  0x3FB
 #define IDC_PLAYERLIST_LISTBOX  0x3FE
 #define IDC_SHUTDOWN_BUTTON     0x3FF
-#define IDC_SENDMESSAGE_BUTTON  0x400 
+#define IDC_SENDMESSAGE_BUTTON  0x400
 #define IDC_BOOT_BUTTON         0x401
 #define IDC_BANNAME_BUTTON      0x402
 #define IDC_BANCD_BUTTON        0x403
@@ -177,6 +180,21 @@ void SrvAdmin::SetString(char* sFunction, char* sParam1, int nParam2, char* sVal
 			SetELC( EnableELC );
 		}
 	}
+	else if (function == wxT("SETPLAYERPASSWORD"))
+	{
+		wxLogMessage( wxT( "* Setting player password to: %s" ), sParam1 );
+		SetPlayerPassword( sParam1 );
+	}
+	else if (function == wxT("SETDMPASSWORD"))
+	{
+		wxLogMessage( wxT( "* Setting DM password to: %s" ), sParam1 );
+		SetDMPassword( sParam1 );
+	}
+	else if (function == wxT("SETADMINPASSWORD"))
+	{
+		wxLogMessage( wxT( "* Setting admin password to: %s" ), sParam1 );
+		SetAdminPassword( sParam1 );
+	}
 }
 
 char* SrvAdmin::GetString(char* sFunction, char* sParam1, int nParam2)
@@ -280,6 +298,68 @@ SrvAdmin::SelectPlayerListBox(
 		return false;
 
 	return (ListBox_SetCurSel( ListBox, Index ) != LB_ERR);
+}
+
+bool
+SrvAdmin::SendVkKeyStroke(
+	__in HWND ControlWindow,
+	__in UINT VkCode
+	)
+{
+	UINT ScanCode;
+
+	//
+	// Map the scan code and send a WM_KEYDOWN/WM_KEYUP.
+	//
+
+	ScanCode = MapVirtualKey( VkCode, MAPVK_VK_TO_VSC );
+
+	SendMessageW(
+		ControlWindow,
+		WM_KEYDOWN,
+		(WPARAM) (VkCode),
+		(LPARAM) ((ScanCode << 16) | (0 << 30) | (0 << 31)));
+	SendMessageW(
+		ControlWindow,
+		WM_KEYUP,
+		(WPARAM) (VkCode),
+		(LPARAM) ((ScanCode << 16) | (1 << 30) | (1 << 31)));
+
+	return true;
+}
+
+bool
+SrvAdmin::SetTabbingTextField(
+	__in HWND ControlWindow,
+	__in const char *TextContents
+	)
+{
+	//
+	// Sets the text content of a control subclassed by nwn2server!TabbingProc,
+	// and synthesizes the appropriate key-down message to realize it.
+	//
+	// TabbingProc accepts both VK_RETURN and VK_TAB and does not use the scan
+	// codes.  It also does not require WM_KEYUP, but we do the whole smash so
+	// that we're compatible with any other subclasses or hooks that someone
+	// else might install.
+	//
+
+	//
+	// First, set the text contents.
+	//
+	// N.B.  Comparison with TRUE is carefully chosen as that is valid for all
+	//       of the standard control implementations for WM_SETTEXT.
+	//
+
+	if ((BOOL) (SendMessageA( ControlWindow, WM_SETTEXT, 0, (LPARAM) TextContents )) != TRUE)
+		return false;
+
+	//
+	// Now that the text contents are set, fake a return keypress so that the
+	// contents are realized and saved to the internal state.
+	//
+
+	return SendVkKeyStroke( ControlWindow, VK_RETURN );
 }
 
 int
@@ -435,7 +515,7 @@ SrvAdmin::ShutdownNwn2server()
 
 int
 SrvAdmin::SetELC(
-	bool EnableELC
+	__in bool EnableELC
 	)
 {
 	HWND SrvWnd;
@@ -457,4 +537,67 @@ SrvAdmin::SetELC(
 	SendMessage( ELCCheckbox, BM_SETCHECK, (WPARAM)CheckState, 0 );
 
 	return 0;
+}
+
+int
+SrvAdmin::SetPlayerPassword(
+	__in const char *PlayerPassword
+	)
+{
+	HWND SrvWnd;
+	HWND Edit;
+
+	SrvWnd = FindServerGuiWindow( );
+
+	if (!SrvWnd)
+		return -1;
+
+	Edit = GetDlgItem( SrvWnd, IDC_PLAYERPASSWORD_EDIT );
+
+	if (!Edit)
+		return -2;
+
+	return SetTabbingTextField( Edit, PlayerPassword ) ? 0 : -3;
+}
+
+int
+SrvAdmin::SetDMPassword(
+	__in const char *DMPassword
+	)
+{
+	HWND SrvWnd;
+	HWND Edit;
+
+	SrvWnd = FindServerGuiWindow( );
+
+	if (!SrvWnd)
+		return -1;
+
+	Edit = GetDlgItem( SrvWnd, IDC_DMPASSWORD_EDIT );
+
+	if (!Edit)
+		return -2;
+
+	return SetTabbingTextField( Edit, DMPassword ) ? 0 : -3;
+}
+
+int
+SrvAdmin::SetAdminPassword(
+	__in const char *AdminPassword
+	)
+{
+	HWND SrvWnd;
+	HWND Edit;
+
+	SrvWnd = FindServerGuiWindow( );
+
+	if (!SrvWnd)
+		return -1;
+
+	Edit = GetDlgItem( SrvWnd, IDC_ADMINPASSWORD_EDIT );
+
+	if (!Edit)
+		return -2;
+
+	return SetTabbingTextField( Edit, AdminPassword ) ? 0 : -3;
 }

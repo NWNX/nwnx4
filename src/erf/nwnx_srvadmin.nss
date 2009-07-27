@@ -49,6 +49,30 @@ void BanPlayerCDKey(string sAccountName);
 //
 void SetELC(int nELCEnabled);
 
+//
+// Set the player password required to join the server.  Setting an empty
+// password string disables the password requirement.  This functions as
+// changing the password via the server GUI and isn't persisted across
+// restarts.
+//
+void SetPlayerPassword(string sPlayerPassword);
+
+//
+// Set the DM password required to join the server as a DM.  Setting an
+// empty password string disables the password requirement.  This
+// functions as changing the password via the server GUI and isn't
+// persisted across restarts.
+//
+void SetDMPassword(string sDMPassword);
+
+//
+// Set the admin password required to use the server admin console.
+// Setting an empty password string disables the server admin console.
+// This functions as changing the password via the server GUI and isn't
+// persisted across restarts.
+//
+void SetAdminPassword(string sAdminPassword);
+
 const string srvadminSpacer = "                                               ";
 
 /************************************/
@@ -95,5 +119,20 @@ void SetELC(int nELCEnabled)
         sTfString = "true";
 
     NWNXSetString( "SRVADMIN", "SETELC", sTfString, 0, "" );
+}
+
+void SetPlayerPassword(string sPlayerPassword)
+{
+    NWNXSetString( "SRVADMIN", "SETPLAYERPASSWORD", sPlayerPassword, 0, "" );
+}
+
+void SetDMPassword(string sDMPassword)
+{
+    NWNXSetString( "SRVADMIN", "SETDMPASSWORD", sDMPassword, 0, "" );
+}
+
+void SetAdminPassword(string sAdminPassword)
+{
+    NWNXSetString( "SRVADMIN", "SETADMINPASSWORD", sAdminPassword, 0, "" );
 }
 

@@ -74,6 +74,18 @@ private:
 		__in const char *PlayerName
 		);
 
+	bool
+	SendVkKeyStroke(
+		__in HWND ControlWindow,
+		__in UINT VkCode
+		);
+
+	bool
+	SetTabbingTextField(
+		__in HWND ControlWindow,
+		__in const char *TextContents
+		);
+
 	int
 	BootPlayer(
 		__in const char *PlayerName
@@ -100,7 +112,22 @@ private:
 
 	int
 	SetELC(
-		bool EnableELC
+		__in bool EnableELC
+		);
+
+	int
+	SetPlayerPassword(
+		__in const char *PlayerPassword
+		);
+
+	int
+	SetDMPassword(
+		__in const char *DMPassword
+		);
+
+	int
+	SetAdminPassword(
+		__in const char *AdminPassword
 		);
 
 };
