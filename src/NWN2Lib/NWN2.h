@@ -20,7 +20,7 @@
 #if   NWN2SERVER_VERSION == 0x01231763
 
 /*
- * 1.0.23.1763
+ * 1.0.23.1763 & 1.0.23.1765
  */
 
 #define OFFS_ProcessServerMessage      0x00635250 // CNWSMessage::HandlePlayerToServerMessage
@@ -107,6 +107,10 @@
 // #define OFFS_CGameEffectDtorRet        0x00521B38 // CGameEffect::~CGameEffect+8
 
 #define CHECK_ProcessServerMessageHook 0x000ABC9F
+
+#define OFFS_NullDerefCrash11          0x005724fa // CNWSPlayer::DropTURD+0x2da
+#define OFFS_NullDerefCrash11RetNormal 0x00572501 // CNWSPlayer::DropTURD+0x2e1
+#define OFFS_NullDerefCrash11RetSkip   0x0057250a // CNWSPlayer::DropTURD+0x2ea
 
 #elif NWN2SERVER_VERSION == 0x01221588
 

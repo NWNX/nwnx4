@@ -22,7 +22,7 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.2"
+#define BUGFIX_VERSION "1.0.3"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -76,6 +76,10 @@ Patch _patches[] =
 #if NWN2SERVER_VERSION == 0x01211549 && defined(XP_BUGFIX_USE_SYMBOLS)
 	Patch( OFFS_CGameEffectDtor, "\xe9", 1 ),
 	Patch( OFFS_CGameEffectDtor+1, (relativefunc)BugFix::CGameEffectDtorLogger ),
+#endif
+#if NWN2SERVER_VERSION >= 0x01231763
+	Patch( OFFS_NullDerefCrash11, "\xe9", 1 ),
+	Patch( OFFS_NullDerefCrash11+1, (relativefunc)BugFix::NullDerefCrash11Fix ),
 #endif
 
 	Patch()
@@ -550,6 +554,18 @@ void __stdcall BugFix::LogNullDerefCrash10()
 	}
 }
 
+void __stdcall BugFix::LogNullDerefCrash11()
+{
+	ULONG now = GetTickCount();
+
+	if (now - plugin->lastlog > 1000)
+	{
+		plugin->lastlog = now;
+
+		wxLogMessage( wxT( "LogNullDerefCrash11: Avoided null dereference crash #11 (Player with no automap module parting)." ) );
+	}
+}
+
 
 
 unsigned long CalcPositionLoop0Ret      = OFFS_CalcPositionLoop0Ret;
@@ -591,6 +607,10 @@ unsigned long NullDerefCrash10SkipRet   = OFFS_NullDerefCrash10RetSkip;
 #endif
 #if NWN2SERVER_VERSION == 0x01211549
 unsigned long CGameEffectDtorRet        = OFFS_CGameEffectDtorRet;
+#endif
+#if NWN2SERVER_VERSION >= 0x01231763
+unsigned long NullDerefCrash11NormalRet = OFFS_NullDerefCrash11RetNormal;
+unsigned long NullDerefCrash11SkipRet   = OFFS_NullDerefCrash11RetSkip;
 #endif
 
 /*
@@ -1135,7 +1155,7 @@ Skip:
 		test    ebp, ebp
 		jz      Skip
 
-		mov     ecx, dword ptr [edi]
+		mov     edx, dword ptr [edi]
 		push    01h
 		push    00h
 
@@ -1357,3 +1377,42 @@ __declspec(naked) void BugFix::CGameEffectDtorLogger()
 	}
 #endif
 }
+
+
+/*
+ * CNWSPlayer::DropTURD:
+ *
+ * - We don't handle the case where the player was not fully initialized and
+ *   had not acquired a NWN2_SAutoMap::NWN2_SAutoMapModule yet.
+ *
+ * - The actual fix to this problem should be:
+ *
+ *    NWN2_SAutoMap::NWN2_SAutoMapModule *pMapModule = pCreature->m_cAutoMap.m_CurrentModuleAutoMap
+ *
+ *    if (pMapModule) {  CopyAutomapData( );  }
+ *
+ */
+__declspec(naked) void BugFix::NullDerefCrash11Fix()
+{
+	__asm
+	{
+		test    eax, eax
+		jz      Skip
+
+		mov     edx, dword ptr [eax+030h]
+		push    ecx
+		lea     ecx, dword ptr [eax+020h]
+
+		jmp     dword ptr [NullDerefCrash11NormalRet]
+
+Skip:
+		call    LogNullDerefCrash11
+
+		;
+		; Don't persist the nonexistant automap data.
+		;
+
+		jmp     dword ptr [NullDerefCrash11SkipRet]
+	}
+}
+
