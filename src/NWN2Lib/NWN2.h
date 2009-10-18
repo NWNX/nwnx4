@@ -112,6 +112,10 @@
 #define OFFS_NullDerefCrash11RetNormal 0x00572501 // CNWSPlayer::DropTURD+0x2e1
 #define OFFS_NullDerefCrash11RetSkip   0x0057250a // CNWSPlayer::DropTURD+0x2ea
 
+#define OFFS_SendCompressionHook       0x00508DE2 // CNetLayerInternal::SendMessageToPlayer+0x52
+#define OFFS_SendCompressionHookDoZlib 0x00508de8 // CNetLayerInternal::SendMessageToPlayer+0x58
+#define OFFS_SendCompressionHookNoZlib 0x0050902f // CNetLayerInternal::SendMessageToPlayer+0x29f
+
 #elif NWN2SERVER_VERSION == 0x01221588
 
 /*

@@ -18,3 +18,4 @@ EXPORTS
 	NullDerefCrash9Fix
 	NullDerefCrash10Fix
 	NullDerefCrash11Fix
+	SendCompressionHook

@@ -22,7 +22,7 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.3"
+#define BUGFIX_VERSION "1.0.4"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -32,6 +32,7 @@
 ***************************************************************************/
 
 BugFix* plugin;
+bool nocompress = true;
 
 Patch _patches[] =
 {
@@ -80,6 +81,8 @@ Patch _patches[] =
 #if NWN2SERVER_VERSION >= 0x01231763
 	Patch( OFFS_NullDerefCrash11, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash11+1, (relativefunc)BugFix::NullDerefCrash11Fix ),
+	Patch( OFFS_SendCompressionHook, "\xe9", 1 ),
+	Patch( OFFS_SendCompressionHook+1, (relativefunc)BugFix::SendCompressionHook ),
 #endif
 
 	Patch()
@@ -186,6 +189,14 @@ bool BugFix::Init(TCHAR* nwnxhome)
 		wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_NO_ESCAPE_CHARACTERS
 		);
 
+	nocompress = false;
+
+	config.Read( "DisableServerCompression", &nocompress, false );
+
+	if (nocompress)
+	{
+		wxLogMessage(wxT("* Disabling server to client compression."));
+	}
 
 #ifdef XP_BUGFIX_USE_SYMBOLS
 
@@ -611,6 +622,8 @@ unsigned long CGameEffectDtorRet        = OFFS_CGameEffectDtorRet;
 #if NWN2SERVER_VERSION >= 0x01231763
 unsigned long NullDerefCrash11NormalRet = OFFS_NullDerefCrash11RetNormal;
 unsigned long NullDerefCrash11SkipRet   = OFFS_NullDerefCrash11RetSkip;
+unsigned long SendCompressionHookDoZlib = OFFS_SendCompressionHookDoZlib;
+unsigned long SendCompressionHookNoZlib = OFFS_SendCompressionHookNoZlib;
 #endif
 
 /*
@@ -1413,6 +1426,28 @@ Skip:
 		;
 
 		jmp     dword ptr [NullDerefCrash11SkipRet]
+	}
+}
+
+
+/*
+ * CNetLayerInternal::SendMessageToPlayer
+ *
+ * - Allow compression to be forced always off for server to client messages.
+ *
+ */
+__declspec(naked) void BugFix::SendCompressionHook()
+{
+	__asm
+	{
+		cmp     byte ptr [nocompress], 0h
+		je      DoCompress
+
+		jmp     dword ptr [SendCompressionHookNoZlib]
+
+DoCompress:
+
+		jmp     dword ptr [SendCompressionHookDoZlib]
 	}
 }
 

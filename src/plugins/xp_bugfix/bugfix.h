@@ -108,6 +108,7 @@ public:
 	static void Uncompress0Fix();
 	static void Uncompress1Fix();
 	static void CGameEffectDtorLogger();
+	static void SendCompressionHook();
 
 private:
 
