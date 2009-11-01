@@ -79,14 +79,9 @@ typedef struct _CONNECTION_CALLBACKS
 typedef const struct _CONNECTION_CALLBACKS * PCCONNECTION_CALLBACKS;
 
 //
-// Begin snipped from NetLayerWindow.h
+// End snipped from NetLayerWindow.h
 //
 
-AuroraServerNetLayerCreateProc  AuroraServerNetLayerCreate_;
-AuroraServerNetLayerSendProc    AuroraServerNetLayerSend_;
-AuroraServerNetLayerReceiveProc AuroraServerNetLayerReceive_;
-AuroraServerNetLayerTimeoutProc AuroraServerNetLayerTimeout_;
-AuroraServerNetLayerDestroyProc AuroraServerNetLayerDestroy_;
 
 #define MAX_PLAYERS               0x60
 #define PLAYERID_ALL_CLIENTS      0xFFFFFFFF
@@ -101,10 +96,6 @@ AuroraServerNetLayerDestroyProc AuroraServerNetLayerDestroy_;
 #define SEND_LOW_PRIORITY           0x04
 #define SEND_COMPRESSED_BY_NETLAYER 0x10
 #define SEND_SINGLE_RECIPIENT       0x20
-
-HMODULE AuroraServerNetLayer;
-
-NETLAYER_HANDLE Connections[MAX_PLAYERS];
 
 #include <pshpack1.h>
 

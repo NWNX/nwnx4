@@ -33,6 +33,18 @@ bool ReplaceNetLayer();
 
 CNetLayerInternal * NetLayerInternal;
 
+
+HMODULE AuroraServerNetLayer;
+
+NETLAYER_HANDLE Connections[MAX_PLAYERS];
+
+
+AuroraServerNetLayerCreateProc  AuroraServerNetLayerCreate_;
+AuroraServerNetLayerSendProc    AuroraServerNetLayerSend_;
+AuroraServerNetLayerReceiveProc AuroraServerNetLayerReceive_;
+AuroraServerNetLayerTimeoutProc AuroraServerNetLayerTimeout_;
+AuroraServerNetLayerDestroyProc AuroraServerNetLayerDestroy_;
+
 /***************************************************************************
     Debug output to the debugger before we can use wx logging safely.
 ***************************************************************************/
