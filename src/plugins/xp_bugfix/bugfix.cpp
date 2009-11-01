@@ -27,6 +27,8 @@
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
 
+extern bool ReplaceNetLayer();
+
 /***************************************************************************
     NWNX and DLL specific functions
 ***************************************************************************/
@@ -145,6 +147,8 @@ BugFix::~BugFix()
 
 bool BugFix::Init(TCHAR* nwnxhome)
 {
+	bool DoReplaceNetLayer;
+
 	assert(GetPluginFileName());
 
 	/* Log file */
@@ -196,6 +200,18 @@ bool BugFix::Init(TCHAR* nwnxhome)
 	if (nocompress)
 	{
 		wxLogMessage(wxT("* Disabling server to client compression."));
+	}
+
+	config.Read( "ReplaceNetLayer", &DoReplaceNetLayer, false );
+
+	if (DoReplaceNetLayer)
+	{
+		wxLogMessage(wxT("* Replacing built-in CNetLayerWindow implementation."));
+
+		if (ReplaceNetLayer())
+			wxLogMessage(wxT("* CNetLayerWindow replaced."));
+		else
+			wxLogMessage(wxT("* Failed to replace CNetLayerWindow.  Is AuroraServerNetLayer.dll present?"));
 	}
 
 #ifdef XP_BUGFIX_USE_SYMBOLS
