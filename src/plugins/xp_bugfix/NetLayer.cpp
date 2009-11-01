@@ -227,13 +227,17 @@ void ResetWindow(unsigned long PlayerId)
 	CONNECTION_CALLBACKS Callbacks;
 	NETLAYER_HANDLE      Handle;
 
-	if (Connections[PlayerId] != NULL)
-		AuroraServerNetLayerDestroy_(Connections[PlayerId]);
-
 	Callbacks.Context       = (void *) (ULONG_PTR) PlayerId;
 	Callbacks.OnReceive     = OnNetLayerWindowReceive;
 	Callbacks.OnSend        = OnNetLayerWindowSend;
 	Callbacks.OnStreamError = OnNetLayerWindowStreamError;
+
+	//
+	// Create the window (the first time around), else simply reset its
+	// internal state if we have already set it up.  We do not need to allocate
+	// a new instance to reset its state and instead pass in the previous
+	// instance handle.
+	//
 
 	Handle = AuroraServerNetLayerCreate_(Connections[PlayerId], &Callbacks);
 
@@ -357,10 +361,10 @@ SendMessageToPlayer(
 		}
 
 		if (Size >= 0x03 && Data[0] == 0x50)
-			DebugPrint("Send %s.%02X to player %lu (%lu bytes)\n", GetMsgName(Data[1]), Data[2], PlayerId, Size);
+			DebugPrint("Send %s.%02X to player %lu (%lu bytes)\n", GetMsgName(Data[1]), Data[2], Player, Size);
 
 		AuroraServerNetLayerSend_(
-			Connections[PlayerId],
+			Connections[Player],
 			Data,
 			Size,
 			FALSE,
@@ -474,16 +478,16 @@ SendMessageToPlayer2(
 
 __declspec(naked)
 void
-__stdcall
-SetFrameInTimer(
+__fastcall
+SetInFrameTimer(
 	__in SlidingWindow * Winfo
 	)
 {
 	__asm
 	{
-		mov   ecx, dword ptr [esp+04h]
+		; ecx already set by __fastcall
 		mov   eax, OFFS_SetInFrameTimer
-		jmp   dword ptr [eax]
+		jmp   eax
 	}
 }
 
@@ -503,7 +507,7 @@ CallFrameTimeout(
 		push    dword ptr [ebp+08h]
 		mov     ecx, dword ptr [ebp+0ch]
 		mov     eax, OFFS_FrameTimeout
-		call    dword ptr [eax]
+		call    eax
 
 		mov     esp, ebp
 		pop     ebp
@@ -534,7 +538,7 @@ FrameReceive(
 	// Update timeouts so that the server doesn't drop this player for timeout.
 	//
 
-	SetFrameInTimer( Winfo );
+	SetInFrameTimer( Winfo );
 
 	//
 	// Pass it on to the internal NetLayerWindow implementation to deal with.
@@ -622,7 +626,8 @@ FrameTimeout2(
 		push    dword ptr [ebp+08h]
 		call    FrameTimeout
 
-		mov     ebp, esp
+		mov     esp, ebp
+		pop     ebp
 		ret     04h
 	}
 }
@@ -654,14 +659,14 @@ CallHandleMessage(
 		mov     ebp, esp
 
 		push    0h
-		push    dword ptr [ebp+10h]
 		push    dword ptr [ebp+0ch]
 		push    dword ptr [ebp+08h]
+		push    dword ptr [ebp+10h]
 
 		mov     ecx, dword ptr [NetLayerInternal]
 		mov     ecx, dword ptr [ecx]
-		mov     edx, dword ptr [ecx+10h]
-		call    edx
+		mov     edx, dword ptr [ecx]
+		call    dword ptr [edx+10h]
 
 		mov     esp, ebp
 		pop     ebp
@@ -809,7 +814,7 @@ OnNetLayerWindowSend(
 	sin.sin_port        = htons( NetI->ConnectionAddresses[ Winfo->m_ConnectionId ].Port );
 	sin.sin_addr.s_addr = NetI->ConnectionAddresses[ Winfo->m_ConnectionId ].Address;
 
-	DebugPrint( "Send to %08X:%lu\n", NetI->ConnectionAddresses[ Winfo->m_ConnectionId ].Port, sin.sin_addr.s_addr );
+	DebugPrint( "Send to %08X:%lu:\n", sin.sin_addr.s_addr, NetI->ConnectionAddresses[ Winfo->m_ConnectionId ].Port );
 
 	slen = sendto(
 		NetI->Socket,

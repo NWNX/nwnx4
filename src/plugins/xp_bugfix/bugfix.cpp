@@ -211,7 +211,7 @@ bool BugFix::Init(TCHAR* nwnxhome)
 		if (ReplaceNetLayer())
 			wxLogMessage(wxT("* CNetLayerWindow replaced."));
 		else
-			wxLogMessage(wxT("* Failed to replace CNetLayerWindow.  Is AuroraServerNetLayer.dll present?"));
+			wxLogMessage(wxT("* Failed to replace CNetLayerWindow.  Is AuroraServerNetLayer.dll present in the directory with nwn2server.exe?"));
 	}
 
 #ifdef XP_BUGFIX_USE_SYMBOLS
