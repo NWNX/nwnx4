@@ -292,7 +292,11 @@ bool ReplaceNetLayer()
 	for (unsigned long i = 0; i < MAX_PLAYERS; i += 1)
 		ResetWindow( i );
 
-	return false;
+	//
+	// All done.
+	//
+
+	return true;
 }
 
 BOOL
@@ -361,7 +365,27 @@ SendMessageToPlayer(
 		}
 
 		if (Size >= 0x03 && Data[0] == 0x50)
+		{
 			DebugPrint("Send %s.%02X to player %lu (%lu bytes)\n", GetMsgName(Data[1]), Data[2], Player, Size);
+
+			switch (Data[1])
+			{
+
+			case CMD::Login:
+			case CMD::Area:
+			case CMD::GameObjUpdate:
+			case CMD::Chat:
+			case CMD::ClientSideMessage:
+			case CMD::VoiceChat:
+			case CMD::QuickChat:
+			case CMD::CustomAnim:
+			case CMD::DungeonMaster:
+			case CMD::CharList:
+				Flags |= SEND_FLUSH_CACHE;
+				break;
+
+			}
+		}
 
 		AuroraServerNetLayerSend_(
 			Connections[Player],
@@ -581,10 +605,10 @@ FrameTimeout(
 	__in SlidingWindow *Winfo
 	)
 {
-	DebugPrint(
-		"FrameTimeout: Do timer processing for SlidingWindow %p player %lu\n",
-		Winfo,
-		Winfo->m_PlayerId);
+	//DebugPrint(
+	//	"FrameTimeout: Do timer processing for SlidingWindow %p player %lu\n",
+	//	Winfo,
+	//	Winfo->m_PlayerId);
 
 	//
 	// Reinitialize the window if appropriate.
@@ -753,7 +777,8 @@ OnNetLayerWindowSend(
 	Pinfo = &NetLayerInternal->Players[ PlayerId ];
 	Winfo = &NetLayerInternal->Windows[ Pinfo->m_nSlidingWindowId ];
 
-	DebugPrint( "OnNetLayerWindowSend: Send to player %lu WindowId %lu\n", PlayerId, Pinfo->m_nSlidingWindowId );
+	DebugPrint( "OnNetLayerWindowSend: Send to player %lu WindowId %lu %lu bytes\n", PlayerId, Pinfo->m_nSlidingWindowId, Length );
+	wxLogMessage( wxT("OnNetLayerWindowSend: Send to player %lu WindowId %lu %lu bytes\n"), PlayerId, Pinfo->m_nSlidingWindowId, Length );
 
 	if (!Pinfo->m_bPlayerInUse)
 	{
