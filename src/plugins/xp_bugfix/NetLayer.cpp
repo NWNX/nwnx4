@@ -790,7 +790,7 @@ OnNetLayerWindowSend(
 	Winfo = &NetLayerInternal->Windows[ Pinfo->m_nSlidingWindowId ];
 
 	DebugPrint( "OnNetLayerWindowSend: Send to player %lu WindowId %lu %lu bytes\n", PlayerId, Pinfo->m_nSlidingWindowId, Length );
-	wxLogMessage( wxT("OnNetLayerWindowSend: Send to player %lu WindowId %lu %lu bytes\n"), PlayerId, Pinfo->m_nSlidingWindowId, Length );
+//	wxLogMessage( wxT("OnNetLayerWindowSend: Send to player %lu WindowId %lu %lu bytes\n"), PlayerId, Pinfo->m_nSlidingWindowId, Length );
 
 	if (!Pinfo->m_bPlayerInUse)
 	{
