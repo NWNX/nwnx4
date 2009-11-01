@@ -231,12 +231,13 @@ struct CExoNet
 
 struct CNetLayerInternal
 {
-	void         *ServerApp;               // 00000
-	CExoNet      *Net;                     // 00004
-	char          skip0[0x04];             // 00008
-	SlidingWindow Windows[MAX_PLAYERS];    // 0000c
-	char          skip1[0x04];             // 3768C
-	PlayerInfo    Players[MAX_PLAYERS];    // 37690
+	void         *ServerApp;                 // 00000
+	CExoNet      *Net;                       // 00004
+	char          skip0[0x04];               // 00008
+	SlidingWindow Windows[MAX_PLAYERS];      // 0000c
+	char          skip1[0x04];               // 3768C
+	PlayerInfo    Players[MAX_PLAYERS];      // 37690
+	// CExoNetExtendableBuffer FrameStorage; // 3A390
 };
 
 

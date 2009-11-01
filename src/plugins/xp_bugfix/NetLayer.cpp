@@ -371,6 +371,90 @@ SendMessageToPlayer(
 	return TRUE;
 }
 
+void
+CheckForNewWindow(
+	__in SlidingWindow *Winfo
+	)
+{
+	//
+	// Check if this CNetLayerWindow instance has not yet been tagged with our
+	// magical SEQ/ACK values.  These are reset to zero on ShutDown/Initialize
+	// as called by the game, but they should never increment with receive
+	// processing never hit and the data send path also never hit.
+	//
+
+	if ((Winfo->m_LastSeqAcked == 0x0000) &&
+		(Winfo->m_Seq == 0x0000)          &&
+		(Winfo->m_RemoteSeq == 0x0000))
+	{
+		DebugPrint( "Reinitializing sliding window %p for player %lu.\n", Winfo, Winfo->m_PlayerId );
+
+		if (!Winfo->m_WindowInUse)
+		{
+			DebugPrint( "!!! Window isn't in use!\n" );
+
+			if (IsDebuggerPresent( ))
+				__debugbreak( );
+		}
+		else if (Winfo->m_PlayerId >= MAX_PLAYERS)
+		{
+			DebugPrint( "!!! PlayerId is out of range for window!\n" );
+
+			if (IsDebuggerPresent( ))
+				__debugbreak( );
+
+			return;
+		}
+
+		//
+		// Reinitialize our internal window so that it has the right seq/ack
+		// states.
+		//
+
+		ResetWindow( Winfo->m_PlayerId );
+
+		//
+		// Tag this window as owned by us so that we do not try and throw away
+		// our existing seq/ack state the next time around.  This also lets us
+		// easily verify that nobody else is touching the window's internal
+		// state as we should have disabled all of that logic.
+		//
+
+		Winfo->m_Seq = 0x4242;
+	}
+	else if ((Winfo->m_LastSeqAcked == 0x0000) &&
+		     (Winfo->m_Seq == 0x4242)          &&
+		     (Winfo->m_RemoteSeq == 0x0000))
+	{
+		//
+		// Everything checks out as ok as a window that we have already set up
+		// for our end, consider it good.
+		//
+
+		return;
+	}
+	else
+	{
+		//
+		// With us having snipped out the code that would update seq/ack fields
+		// this should not happen unless there's something we've missed, which
+		// would be bad.  Catch this here and now so we can figure out just
+		// what happened.
+		//
+
+		DebugPrint(
+			"Window %p player %lu LastSeqAcked %04X Seq %04X RemoteSeq %04X has had its internal seq/ack state modified when it should not have!\n",
+			Winfo,
+			Winfo->m_PlayerId,
+			Winfo->m_LastSeqAcked,
+			Winfo->m_Seq,
+			Winfo->m_RemoteSeq);
+
+		if (IsDebuggerPresent( ))
+			__debugbreak( );
+	}
+}
+
 __declspec(naked)
 BOOL
 __stdcall
@@ -441,6 +525,12 @@ FrameReceive(
 		Winfo->m_PlayerId);
 
 	//
+	// Reinitialize the window if appropriate.
+	//
+
+	CheckForNewWindow( Winfo );
+
+	//
 	// Update timeouts so that the server doesn't drop this player for timeout.
 	//
 
@@ -491,6 +581,12 @@ FrameTimeout(
 		"FrameTimeout: Do timer processing for SlidingWindow %p player %lu\n",
 		Winfo,
 		Winfo->m_PlayerId);
+
+	//
+	// Reinitialize the window if appropriate.
+	//
+
+	CheckForNewWindow( Winfo );
 
 	//
 	// Perform timeout handling in the replacement NetLayerWindow.
