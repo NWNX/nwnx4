@@ -116,6 +116,14 @@
 #define OFFS_SendCompressionHookDoZlib 0x00508de8 // CNetLayerInternal::SendMessageToPlayer+0x58
 #define OFFS_SendCompressionHookNoZlib 0x0050902f // CNetLayerInternal::SendMessageToPlayer+0x29f
 
+#define OFFS_SendMessageToPlayer       0x00508D90 // CNetLayerInternal::SendMessageToPlayer+0x0
+#define OFFS_FrameReceive              0x00507740 // CNetLayerWindow::FrameRecieve+0x0
+#define OFFS_SetInFrameTimer           0x004FEE80 // CNetLayerWindow::SetInFrameTimer+0x0
+#define OFFS_CallFrameTimeout          0x0050918A // CNetLayerInternal::UpdateStatusLoop+140 (+139 for raw instr)
+#define OFFS_FrameTimeout              0x00508B80 // CNetLayerWindow::FrameTimeout+0x0
+#define OFFS_FrameSend                 0x00504110 // CNetLayerWindow::FrameSend+0x0
+#define OFFS_HandleMessage             0x0054a390 // CServerExoApp::HandleMessage+0x0
+
 #elif NWN2SERVER_VERSION == 0x01221588
 
 /*
