@@ -105,6 +105,7 @@ public:
 	static void NullDerefCrash9Fix();
 	static void NullDerefCrash10Fix();
 	static void NullDerefCrash11Fix();
+	static void NullDerefCrash12Fix();
 	static void Uncompress0Fix();
 	static void Uncompress1Fix();
 	static void CGameEffectDtorLogger();
@@ -126,6 +127,7 @@ private:
 	static void __stdcall LogNullDerefCrash9();
 	static void __stdcall LogNullDerefCrash10();
 	static void __stdcall LogNullDerefCrash11();
+	static void __stdcall LogNullDerefCrash12();
 	static void __stdcall LogUncompress0Fix();
 	static void __stdcall LogUncompress1Fix();
 

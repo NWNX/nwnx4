@@ -22,7 +22,7 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.5"
+#define BUGFIX_VERSION "1.0.6"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -85,6 +85,8 @@ Patch _patches[] =
 	Patch( OFFS_NullDerefCrash11+1, (relativefunc)BugFix::NullDerefCrash11Fix ),
 	Patch( OFFS_SendCompressionHook, "\xe9", 1 ),
 	Patch( OFFS_SendCompressionHook+1, (relativefunc)BugFix::SendCompressionHook ),
+	Patch( OFFS_NullDerefCrash12, "\xe9", 1 ),
+	Patch( OFFS_NullDerefCrash12+1, (relativefunc)BugFix::NullDerefCrash12Fix ),
 #endif
 
 	Patch()
@@ -593,6 +595,18 @@ void __stdcall BugFix::LogNullDerefCrash11()
 	}
 }
 
+void __stdcall BugFix::LogNullDerefCrash12()
+{
+	ULONG now = GetTickCount();
+
+	if (now - plugin->lastlog > 1000)
+	{
+		plugin->lastlog = now;
+
+		wxLogMessage( wxT( "LogNullDerefCrash12: Avoided null dereference crash #12 (Level up with no player LUO)." ) );
+	}
+}
+
 
 
 unsigned long CalcPositionLoop0Ret      = OFFS_CalcPositionLoop0Ret;
@@ -640,6 +654,7 @@ unsigned long NullDerefCrash11NormalRet = OFFS_NullDerefCrash11RetNormal;
 unsigned long NullDerefCrash11SkipRet   = OFFS_NullDerefCrash11RetSkip;
 unsigned long SendCompressionHookDoZlib = OFFS_SendCompressionHookDoZlib;
 unsigned long SendCompressionHookNoZlib = OFFS_SendCompressionHookNoZlib;
+unsigned long NullDerefCrash12Ret       = OFFS_NullDerefCrash12Ret;
 #endif
 
 /*
@@ -1442,6 +1457,40 @@ Skip:
 		;
 
 		jmp     dword ptr [NullDerefCrash11SkipRet]
+	}
+}
+
+/*
+ * CNWSMessage::HandlePlayerToServerLevelUpMessage
+ *
+ * - We don't handle the case of the player LUO being NULL.
+ *
+ * - The actual fix to this problem should be:
+ *
+ *    if (pPlayerLUO && pPlayerLUO->m_lstFeatUses.num) { pPlayerLUO->m_lstFeatUses[0].m_nUsedToday += 1; }
+ *
+ */
+__declspec(naked) void BugFix::NullDerefCrash12Fix()
+{
+	__asm
+	{
+		test    eax, eax
+		jz      Skip
+
+		cmp     dword ptr [eax+03ch], 00h
+		jle     NoFeats
+
+		mov     ecx, dword ptr [eax+038h]
+		mov     eax, dword ptr [ecx]
+		add     byte ptr [eax+02h], 01h
+
+NoFeats:
+		jmp     dword ptr [NullDerefCrash12Ret]
+
+Skip:
+		call    LogNullDerefCrash12
+
+		jmp     dword ptr [NullDerefCrash12Ret]
 	}
 }
 

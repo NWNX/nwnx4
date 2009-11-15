@@ -124,6 +124,9 @@
 #define OFFS_FrameSend                 0x00504110 // CNetLayerWindow::FrameSend+0x0
 #define OFFS_HandleMessage             0x0054a390 // CServerExoApp::HandleMessage+0x0
 
+#define OFFS_NullDerefCrash12          0x00632963 // CNWSMessage::HandlePlayerToServerLevelUpMessage+0x443
+#define OFFS_NullDerefCrash12Ret       0x00632972 // CNWSMessage::HandlePlayerToServerLevelUpMessage+0x452
+
 #elif NWN2SERVER_VERSION == 0x01221588
 
 /*
