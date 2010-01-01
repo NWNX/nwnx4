@@ -22,7 +22,7 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.6"
+#define BUGFIX_VERSION "1.0.8"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -216,6 +216,17 @@ bool BugFix::Init(TCHAR* nwnxhome)
 			wxLogMessage(wxT("* Failed to replace CNetLayerWindow.  Is AuroraServerNetLayer.dll present in the directory with nwn2server.exe?"));
 	}
 
+	int GameObjUpdateTime;
+
+	if (config.Read( "GameObjUpdateTime", &GameObjUpdateTime, 0x30D40 ))
+	{
+		wxLogMessage(wxT("* Setting GameObjUpdate time to %lu microseconds."), GameObjUpdateTime);
+
+		Patch p( OFFS_GameObjectUpdateTime1, (char *)&GameObjUpdateTime, 4 );
+		
+		p.Apply( );
+	}
+
 #ifdef XP_BUGFIX_USE_SYMBOLS
 
 	tracer = new StackTracer();
@@ -258,6 +269,18 @@ bool BugFix::Init(TCHAR* nwnxhome)
 void BugFix::GetFunctionClass(TCHAR* fClass)
 {
 	_tcsncpy_s(fClass, 128, wxT("BUGFIX"), 4); 
+}
+
+void BugFix::SetInt(char* sFunction, char* sParam1, int nParam2, int nValue)
+{
+	if (sFunction == wxT("GAMEOBJUPDATETIME"))
+	{
+		Patch p( OFFS_GameObjectUpdateTime1, (char *)&nValue, 4 );
+
+		wxLogMessage(wxT("* Setting GameObjUpdateTime to %d microseconds"), nValue);
+		
+		p.Apply( );
+	}
 }
 
 void BugFix::SetString(char* sFunction, char* sParam1, int nParam2, char* sValue)

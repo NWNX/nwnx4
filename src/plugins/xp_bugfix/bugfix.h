@@ -83,7 +83,7 @@ public:
 	bool Init(TCHAR* nwnxhome);  
 
 	int GetInt(char* sFunction, char* sParam1, int nParam2) { return 0; }
-	void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue) {};
+	void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue);
 	float GetFloat(char* sFunction, char* sParam1, int nParam2) { return 0.0; }
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue) {};
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue);
