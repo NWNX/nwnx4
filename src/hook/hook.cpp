@@ -21,6 +21,26 @@
 #include "stdwx.h"
 #include "hook.h"
 
+/*
+ * Globals.
+ */
+
+SHARED_MEMORY *shmem;
+
+PluginHashMap plugins;
+LegacyPluginHashMap legacyplugins;
+
+wxLogNWNX* logger;
+wxString* nwnxhome;
+wxFileConfig *config;
+
+char returnBuffer[MAX_BUFFER];
+
+
+HMODULE             g_Module;
+volatile LONG       g_InCrash;
+PCRASH_DUMP_SECTION g_CrashDumpSectionView;
+
 /***************************************************************************
     Fake export function for detours
 ***************************************************************************/
@@ -49,6 +69,7 @@ unsigned char* FindPattern(const unsigned char* pattern)
 		else
 			ptr++;
 	}
+
 	return NULL;
 }
 
@@ -304,12 +325,12 @@ void PayLoad(char *gameObject, char* nwnName, char* nwnValue)
 	}
 	else
 	{
-		/*if (queryFunctions(fClass, function, nwnValue) == false)
-		{
+		//if (queryFunctions(fClass, function, nwnValue) == false)
+		//{
 			wxLogMessage(wxT("* Function class '%s' not provided by any plugin. Check your installation."),
 				fClass);
 			*nwnValue = 0x0; //??
-		}*/
+		//}
 	}
 }
 
@@ -366,7 +387,7 @@ void __declspec(naked) SetLocalStringHookProc()
 DWORD FindHook()
 {
 	char* ptr = (char*) 0x400000;
-	while (ptr < (char*) 0x600000)
+	while (ptr < (char*) 0x700000)
 	{
 		if ((ptr[0] == (char) 0x8B) &&
 			(ptr[1] == (char) 0x44) &&
@@ -500,7 +521,7 @@ void init()
 	DetourAttach(&(PVOID&) SetLocalStringNextHook, SetLocalStringHookProc);
 	DetourTransactionCommit();
 
-	if (hookAt)
+	if (oldHookAt)
 		wxLogDebug(wxT("SetLocalString hooked at 0x%x"), oldHookAt);
 	else
 	{
@@ -643,7 +664,7 @@ void loadPlugins()
 }
 
 /***************************************************************************
-    DLL Entry point 
+    Redirected EXE Entry point 
 ***************************************************************************/
 
 int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -660,20 +681,48 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	};
 
 	shmem = NULL;
+
     for (HINSTANCE hinst = NULL; (hinst = DetourEnumerateModules(hinst)) != NULL;)
 	{
 	    shmem = (SHARED_MEMORY*) DetourFindPayload(hinst, my_guid, &cbData);
+
 	    if (shmem)
 		{
+			//
+			// Start the crash dump client first off, as the controller will try and
+			// connect to it after we acknowledge booting.
+			//
+
+			RegisterCrashDumpHandler();
+
+			//
+			// Initialize plugins and load configuration data.
+			//
+
 			nwnxhome = new wxString(shmem->nwnx_home);
+
 			init();
 			break;
 		}
     }
 
+	/*
+	 * If we didn't connect to the controller then bail out here.
+	 */
+
+	if (!shmem)
+	{
+		//DebugPrint( "NWNXWinMain(): Failed to connect to controller!\n" );
+		ExitProcess( ERROR_DEVICE_NOT_CONNECTED );
+	}
+
+	/*
+	 * Call the original entrypoint of the process now that we have done our
+	 * preprocessing.
+	 */
+
     return TrueWinMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }
-
 
 // Called by Windows when the DLL gets loaded or unloaded
 // It just starts the IPC server.
@@ -693,7 +742,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	}
 	else if (ul_reason_for_call == DLL_PROCESS_DETACH)
 	{
-		wxLogMessage(wxT("* NWNX4 shutting down."));
+		//
+		// Doing complicated things from DLL_PROCESS_ATTACH is extremely bad.
+		// Let's not.  Don't want to risk deadlocking the process during an
+		// otherwise clean shutdown.
+		//
+
+//		wxLogMessage(wxT("* NWNX4 shutting down."));
 	}
     return TRUE;
 }

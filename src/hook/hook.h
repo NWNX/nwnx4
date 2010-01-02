@@ -21,14 +21,15 @@
 #if !defined(HOOK_H_INCLUDED)
 #define HOOK_H_INCLUDED
 
-#include "windows.h"
-#include "stdio.h"
-#include "tchar.h"
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
 #include "wx/dir.h"
 #include "wx/hashset.h"
 #include "wx/tokenzr.h"
 #include "wx/fileconf.h"
 #include "detours.h"
+#include "crashdump.h"
 #include "../misc/log.h"
 #include "../misc/cmdlineargs.h"
 #include "../misc/shmem.h"
@@ -38,7 +39,7 @@
 #define MAX_BUFFER 64*1024
 
 const wxString header = 
-	wxT("NWN Extender 4 V.1.0.9\n") \
+	wxT("NWN Extender 4 V.1.1.0\n") \
 	wxT("(c) 2008 by Ingmar Stieger (Papillon)\n") \
 	wxT("visit us at http://www.nwnx.org\n");
 
@@ -70,18 +71,19 @@ const unsigned char SET_NWNX_SETSTRING[] = {0xB4, 0x4E, 0xB4, 0x57, 0xB4, 0x4E, 
                                0xB4, 0x53, 0xB4, 0x54, 0xB4, 0x52, 0xB4, 0x49,
                                0xB4, 0x4E, 0xB4, 0x47, 0x00};
 
-SHARED_MEMORY *shmem;
+
+extern SHARED_MEMORY *shmem;
 
 WX_DECLARE_STRING_HASH_MAP(Plugin*, PluginHashMap);
 WX_DECLARE_STRING_HASH_MAP(LegacyPlugin*, LegacyPluginHashMap);
-PluginHashMap plugins;
-LegacyPluginHashMap legacyplugins;
+extern PluginHashMap plugins;
+extern LegacyPluginHashMap legacyplugins;
 
-wxLogNWNX* logger;
-wxString* nwnxhome;
-wxFileConfig *config;
+extern wxLogNWNX* logger;
+extern wxString* nwnxhome;
+extern wxFileConfig *config;
 
-char returnBuffer[MAX_BUFFER];
+extern char returnBuffer[MAX_BUFFER];
 
 int NWNXGetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2);
 void NWNXSetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2, int nValue);
