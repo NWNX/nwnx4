@@ -108,4 +108,38 @@ AuroraServerNetLayerDestroyProc)(
 	__in NETLAYER_HANDLE Connection
 	);
 
+BOOL
+ASNAPI
+AuroraServerNetLayerQuery(
+	__in NETLAYER_HANDLE Connection,
+	__in ULONG InfoClass,
+	__in ULONG InfoBufferSize,
+	__inout_bcount( InfoBufferSize ) PVOID * InfoBuffer
+	);
+
+typedef
+BOOL
+(ASNAPI *
+AuroraServerNetLayerQueryProc)(
+	__in NETLAYER_HANDLE Connection,
+	__in ULONG InfoClass,
+	__in ULONG InfoBufferSize,
+	__out_opt PULONG ReturnLength,
+	__inout_bcount( InfoBufferSize ) PVOID InfoBuffer
+	);
+
+enum
+{
+	AuroraServerQuerySendQueueDepth = 0,
+
+	LastAuroraServerQuery
+};
+
+typedef struct _AURORA_SERVER_QUERY_SEND_QUEUE_DEPTH
+{
+	ULONG SendQueueDepth; // [out]
+} AURORA_SERVER_QUERY_SEND_QUEUE_DEPTH, * PAURORA_SERVER_QUERY_SEND_QUEUE_DEPTH;
+
+typedef const struct _AURORA_SERVER_QUERY_SEND_QUEUE_DEPTH * PCAURORA_SERVER_QUERY_SEND_QUEUE_DEPTH;
+
 #endif

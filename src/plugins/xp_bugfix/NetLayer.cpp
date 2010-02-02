@@ -29,6 +29,8 @@
 #include <strsafe.h>
 #include "NetLayer.h"
 
+extern long GameObjUpdateBurstSize;
+
 bool ReplaceNetLayer();
 
 CNetLayerInternal * NetLayerInternal;
@@ -36,7 +38,13 @@ CNetLayerInternal * NetLayerInternal;
 
 HMODULE AuroraServerNetLayer;
 
+struct PlayerStateInfo
+{
+	bool AreaLoadPending;
+};
+
 NETLAYER_HANDLE Connections[MAX_PLAYERS];
+PlayerStateInfo PlayerState[MAX_PLAYERS];
 
 
 AuroraServerNetLayerCreateProc  AuroraServerNetLayerCreate_;
@@ -44,6 +52,7 @@ AuroraServerNetLayerSendProc    AuroraServerNetLayerSend_;
 AuroraServerNetLayerReceiveProc AuroraServerNetLayerReceive_;
 AuroraServerNetLayerTimeoutProc AuroraServerNetLayerTimeout_;
 AuroraServerNetLayerDestroyProc AuroraServerNetLayerDestroy_;
+AuroraServerNetLayerQueryProc   AuroraServerNetLayerQuery_;
 
 /***************************************************************************
     Debug output to the debugger before we can use wx logging safely.
@@ -196,6 +205,10 @@ FrameReceive2(
 	__in unsigned long Size
 	);
 
+void
+SetGameObjUpdateSize(
+	);
+
 Patch _patches2[] =
 {
 	Patch( OFFS_SendMessageToPlayer, "\xe9", 1 ),
@@ -204,6 +217,8 @@ Patch _patches2[] =
 	Patch( OFFS_FrameReceive, "\xe9", 1 ),
 	Patch( OFFS_FrameReceive+1, (relativefunc)FrameReceive2 ),
 	Patch( OFFS_FrameSend, "\xc2\x0c\x00", 3 ), // Disable all outbound sends (from FrameTimeout)
+	Patch( OFFS_GameObjUpdateSizeLimit1, "\xe9", 1 ),
+	Patch( OFFS_GameObjUpdateSizeLimit1+1, (relativefunc) SetGameObjUpdateSize ),
 
 	Patch( )
 };
@@ -244,6 +259,8 @@ void ResetWindow(unsigned long PlayerId)
 	Callbacks.OnSend        = OnNetLayerWindowSend;
 	Callbacks.OnStreamError = OnNetLayerWindowStreamError;
 
+	PlayerState[PlayerId].AreaLoadPending = true;
+
 	//
 	// Create the window (the first time around), else simply reset its
 	// internal state if we have already set it up.  We do not need to allocate
@@ -265,13 +282,14 @@ bool ReplaceNetLayer()
 	// Wire up the dllimports.
 	//
 
-	struct { const char *Name; void **Import; } DllImports[] =
+	struct { bool Required; const char *Name; void **Import; } DllImports[] =
 	{
-		{ "AuroraServerNetLayerCreate",  (void **) &AuroraServerNetLayerCreate_  },
-		{ "AuroraServerNetLayerSend",    (void **) &AuroraServerNetLayerSend_    },
-		{ "AuroraServerNetLayerReceive", (void **) &AuroraServerNetLayerReceive_ },
-		{ "AuroraServerNetLayerTimeout", (void **) &AuroraServerNetLayerTimeout_ },
-		{ "AuroraServerNetLayerDestroy", (void **) &AuroraServerNetLayerDestroy_ }
+		{ true , "AuroraServerNetLayerCreate",  (void **) &AuroraServerNetLayerCreate_  },
+		{ true , "AuroraServerNetLayerSend",    (void **) &AuroraServerNetLayerSend_    },
+		{ true , "AuroraServerNetLayerReceive", (void **) &AuroraServerNetLayerReceive_ },
+		{ true , "AuroraServerNetLayerTimeout", (void **) &AuroraServerNetLayerTimeout_ },
+		{ true , "AuroraServerNetLayerDestroy", (void **) &AuroraServerNetLayerDestroy_ },
+		{ false, "AuroraServerNetLayerQuery",   (void **) &AuroraServerNetLayerQuery_   }
 	};
 	AuroraServerNetLayer = LoadLibrary("AuroraServerNetLayer.dll");
 
@@ -287,6 +305,13 @@ bool ReplaceNetLayer()
 
 		if (!*DllImports[i].Import)
 		{
+			if (!DllImports[i].Required)
+			{
+				wxLogMessage(
+					wxT("* Warning: You need to update your AuroraServerNetLayer.dll; missing optional entrypoint AuroraServerNetLayer!%s"),
+					DllImports[i].Name);
+				continue;
+			}
 			wxLogMessage(wxT("* Unable to resolve AuroraServerNetLayer!%s"), DllImports[i].Name);
 			return false;
 		}
@@ -396,6 +421,29 @@ SendMessageToPlayer(
 				Flags |= SEND_FLUSH_CACHE;
 				break;
 
+			}
+
+			//
+			// Record if this player is about to join an area, or if the first
+			// GameObjUpdate was sent after joining the area.  This lets us
+			// temporarily accelerate GameObjUpdates for players who are
+			// downloading the initial area contents all at once, but only for
+			// the first update -- even if their window was already full from
+			// the already queued static area contents being sent via the
+			// Area.ClientArea message.
+			//
+
+			if ((Data[1] == CMD::Area) &&
+			    (Data[2] == 0x01)) // ClientArea
+			{
+				DebugPrint("Enabling accelerated area transfer to player %lu.\n", Player);
+				PlayerState[Player].AreaLoadPending = true;
+			}
+			else if ((Data[1] == CMD::GameObjUpdate) &&
+				     (Data[2] == 0x01)) // Update
+			{
+				DebugPrint("Closing accelerated area transfer window for player %lu.\n", Player);
+				PlayerState[Player].AreaLoadPending = false;
 			}
 		}
 
@@ -900,4 +948,86 @@ OnNetLayerWindowStreamError(
 	return true;
 }
 
+unsigned long
+__stdcall
+SetGameObjUpdateSize2(
+	__in unsigned long PlayerId
+	)
+{
+	const unsigned long                  DefaultSize = 400;
+	AURORA_SERVER_QUERY_SEND_QUEUE_DEPTH QueryDepth;
 
+	if ((Connections[ PlayerId ] == NULL)     ||
+	    (AuroraServerNetLayerQuery_ == NULL))
+	{
+		return DefaultSize;
+	}
+
+	//
+	// Check the send queue depth.
+	//
+
+	if (!AuroraServerNetLayerQuery_(
+		Connections[ PlayerId ],
+		AuroraServerQuerySendQueueDepth,
+		sizeof( QueryDepth ),
+		NULL,
+		&QueryDepth))
+	{
+		return DefaultSize;
+	}
+
+	//
+	// Limit sends to default-sized send queues if this window is getting
+	// behind, otherwise let it burst.
+	//
+	// As an exception, let the initial GameObjUpdate after joining an area
+	// burst ahead even if the window wasn't empty -- which it would be
+	// probably not, as we would have just sent a large chunk of data via the
+	// Area.ClientArea message.
+	//
+	// This actually reduces the amount of data sent during area loading as it
+	// allows a larger window of data to compress over !
+	//
+
+	if ((QueryDepth.SendQueueDepth >= 2) &&
+	    (!PlayerState[ PlayerId ].AreaLoadPending))
+		return DefaultSize;
+
+	DebugPrint("Allowing burst GameObjUpdate transmission to %lu.\n", PlayerId);
+
+	//
+	// Otherwise, allow a large burst transmission to boost area loading
+	// performance.
+	//
+
+	return (unsigned long) GameObjUpdateBurstSize;
+}
+
+__declspec(naked)
+void
+SetGameObjUpdateSize(
+	)
+{
+	__asm
+	{
+		;
+		; Calculate the actual update size to use.
+		;
+
+		push    ecx
+
+		push    eax
+		call    SetGameObjUpdateSize2
+
+		pop     ecx
+
+		;
+		; Set the update size and return to normal program flow.
+		;
+
+		mov     esi, eax
+		mov     eax, OFFS_GameObjUpdateSizeLimit1 + 6
+		jmp     eax
+	}
+}

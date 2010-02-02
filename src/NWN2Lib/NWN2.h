@@ -127,6 +127,9 @@
 #define OFFS_NullDerefCrash12          0x00632963 // CNWSMessage::HandlePlayerToServerLevelUpMessage+0x443
 #define OFFS_NullDerefCrash12Ret       0x00632972 // CNWSMessage::HandlePlayerToServerLevelUpMessage+0x452
 
+#define OFFS_GameObjectUpdateTime1     0x00589E26 // CServerExoAppInternal::UpdateGameObjectsForPlayer+0xc6
+#define OFFS_GameObjUpdateSizeLimit1   0x0056EEFC // CNWSMessage::SendServerToPlayerGameObjUpdate+0x7c
+
 #elif NWN2SERVER_VERSION == 0x01221588
 
 /*

@@ -22,7 +22,7 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.8"
+#define BUGFIX_VERSION "1.0.9"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -35,6 +35,7 @@ extern bool ReplaceNetLayer();
 
 BugFix* plugin;
 bool nocompress = true;
+long GameObjUpdateBurstSize = 102400; // 100K
 
 Patch _patches[] =
 {
@@ -199,6 +200,8 @@ bool BugFix::Init(TCHAR* nwnxhome)
 
 	config.Read( "DisableServerCompression", &nocompress, false );
 
+	config.Read( "GameObjUpdateBurstSize", &GameObjUpdateBurstSize, GameObjUpdateBurstSize );
+
 	if (nocompress)
 	{
 		wxLogMessage(wxT("* Disabling server to client compression."));
@@ -211,9 +214,14 @@ bool BugFix::Init(TCHAR* nwnxhome)
 		wxLogMessage(wxT("* Replacing built-in CNetLayerWindow implementation."));
 
 		if (ReplaceNetLayer())
+		{
 			wxLogMessage(wxT("* CNetLayerWindow replaced."));
+			wxLogMessage(wxT("* GameObjUpdate burst size: %lu bytes (stock server default would be 400 bytes)."), GameObjUpdateBurstSize);
+		}
 		else
+		{
 			wxLogMessage(wxT("* Failed to replace CNetLayerWindow.  Is AuroraServerNetLayer.dll present in the directory with nwn2server.exe?"));
+		}
 	}
 
 	int GameObjUpdateTime;
