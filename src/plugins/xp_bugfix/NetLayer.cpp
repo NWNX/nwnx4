@@ -41,6 +41,7 @@ HMODULE AuroraServerNetLayer;
 struct PlayerStateInfo
 {
 	bool AreaLoadPending;
+	bool BlockGameObjUpdate;
 };
 
 NETLAYER_HANDLE Connections[MAX_PLAYERS];
@@ -259,7 +260,8 @@ void ResetWindow(unsigned long PlayerId)
 	Callbacks.OnSend        = OnNetLayerWindowSend;
 	Callbacks.OnStreamError = OnNetLayerWindowStreamError;
 
-	PlayerState[PlayerId].AreaLoadPending = true;
+	PlayerState[PlayerId].AreaLoadPending    = true;
+	PlayerState[PlayerId].BlockGameObjUpdate = true;
 
 	//
 	// Create the window (the first time around), else simply reset its
@@ -437,11 +439,34 @@ SendMessageToPlayer(
 			    (Data[2] == 0x01)) // ClientArea
 			{
 				DebugPrint("Enabling accelerated area transfer to player %lu.\n", Player);
-				PlayerState[Player].AreaLoadPending = true;
+
+				//
+				// Enable bursting for area load, and unblock GameObjUpdates.
+				//
+
+				PlayerState[Player].AreaLoadPending    = true;
+				PlayerState[Player].BlockGameObjUpdate = false;
 			}
 			else if ((Data[1] == CMD::GameObjUpdate) &&
 				     (Data[2] == 0x01)) // Update
 			{
+				//
+				// If GameObjUpdates are still being blocked, then drop the
+				// message.  This prevents the client from being crashed by the
+				// server erroneously emitting GameObjUpdates prior to the
+				// transmission of an Area.ClientArea message.
+				//
+				// The server will once again retransmit the entire area
+				// contents once Area.ClientArea is signaled, so it is not
+				// harmful to eliminate these extraneous updates.
+				//
+
+				if (PlayerState[Player].BlockGameObjUpdate)
+				{
+					DebugPrint("Blocking premature GameObjUpdate.Update to player %lu.\n", Player);
+					continue;
+				}
+
 				DebugPrint("Closing accelerated area transfer window for player %lu.\n", Player);
 				PlayerState[Player].AreaLoadPending = false;
 			}
