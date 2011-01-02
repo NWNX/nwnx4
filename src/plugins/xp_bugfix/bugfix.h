@@ -110,6 +110,7 @@ public:
 	static void Uncompress1Fix();
 	static void CGameEffectDtorLogger();
 	static void SendCompressionHook();
+	static ULONG64 __cdecl GetHighResolutionTimerFix();
 
 private:
 
@@ -138,9 +139,10 @@ private:
 		__in ULONG_PTR TraceContext
 		);
 
-	wxLogNWNX*   logger;
-	ULONG        lastlog;
-	HMODULE      nwn2mm;
+	wxLogNWNX*    logger;
+	ULONG         lastlog;
+	HMODULE       nwn2mm;
+	LARGE_INTEGER perffreq;
 
 #ifdef XP_BUGFIX_USE_SYMBOLS
 

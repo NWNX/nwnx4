@@ -129,6 +129,9 @@
 
 #define OFFS_GameObjectUpdateTime1     0x00589E26 // CServerExoAppInternal::UpdateGameObjectsForPlayer+0xc6
 #define OFFS_GameObjUpdateSizeLimit1   0x0056EEFC // CNWSMessage::SendServerToPlayerGameObjUpdate+0x7c
+#define OFFS_GetNextIslandExit         0x0040F8B1 // NWN2_AreaSurfaceMesh::GetNextIslandExit+0x48
+
+#define OFFS_GetHighResolutionTimer    0x0043E240 // CExoTimersInternal::GetHighResolutionTimer
 
 #elif NWN2SERVER_VERSION == 0x01221588
 

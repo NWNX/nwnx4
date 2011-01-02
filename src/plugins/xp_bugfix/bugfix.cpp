@@ -22,7 +22,7 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.10"
+#define BUGFIX_VERSION "1.0.11"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -88,6 +88,8 @@ Patch _patches[] =
 	Patch( OFFS_SendCompressionHook+1, (relativefunc)BugFix::SendCompressionHook ),
 	Patch( OFFS_NullDerefCrash12, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash12+1, (relativefunc)BugFix::NullDerefCrash12Fix ),
+	Patch( OFFS_GetHighResolutionTimer,  "\xe9", 1 ),
+	Patch( OFFS_GetHighResolutionTimer+1, (relativefunc)BugFix::GetHighResolutionTimerFix ),
 #endif
 
 	Patch()
@@ -130,7 +132,7 @@ BugFix::BugFix()
 {
 	header = 
 		_T("NWNX BugFix Plugin V") _T( BUGFIX_VERSION ) _T("\n") \
-		_T("(c) 2008 by Skywing \n") \
+		_T("(c) 2008-2011 by Skywing \n") \
 		_T("Visit NWNX at: http://www.nwnx.org\n") \
 		_T("Built for NWN2 version ") _T( NWN2_VERSION ) _T("\n");
 
@@ -141,6 +143,11 @@ BugFix::BugFix()
 	version  = _T(BUGFIX_VERSION);
 
 	lastlog  = GetTickCount();
+
+	if (!QueryPerformanceFrequency( &perffreq ))
+		perffreq.QuadPart = 1000;
+	else
+		perffreq.QuadPart /= 1000; // Split the difference
 }
 
 BugFix::~BugFix()
@@ -1547,3 +1554,31 @@ DoCompress:
 	}
 }
 
+/*
+ * CExoTimersInternal::GetHighResolutionTimer
+ *
+ * - Use 64-bit integral path instead of 32-bit float path to calculate time
+ *   from performance counter (so as to avoid overflow).
+ *
+ */
+ULONG64 __cdecl BugFix::GetHighResolutionTimerFix()
+{
+	LARGE_INTEGER PerfCount;
+
+	if (!QueryPerformanceCounter( &PerfCount ))
+	{
+		return (GetTickCount( ) * 1000);
+	}
+
+	//
+	// We assume that the perf frequency is at least 1000 counts per second,
+	// so we divide by that upfront.  This means that we have the extra 1000
+	// factor to take care of here, which we do so.
+	//
+	// Splitting the difference like this allows the timer to still provide a
+	// baseline level of functionality even if its resolution is lower than the
+	// microsecond precision we require.
+	//
+
+	return (PerfCount.QuadPart * 1000) / plugin->perffreq.QuadPart;
+}

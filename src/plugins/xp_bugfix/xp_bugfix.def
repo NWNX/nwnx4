@@ -20,3 +20,4 @@ EXPORTS
 	NullDerefCrash11Fix
 	SendCompressionHook
 	NullDerefCrash12Fix
+	GetHighResolutionTimerFix
