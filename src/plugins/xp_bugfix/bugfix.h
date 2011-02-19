@@ -143,6 +143,8 @@ private:
 	ULONG         lastlog;
 	HMODULE       nwn2mm;
 	LARGE_INTEGER perffreq;
+	bool          useGetTickCount;
+	ULONG         tickCountDelta;
 
 #ifdef XP_BUGFIX_USE_SYMBOLS
 

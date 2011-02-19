@@ -22,7 +22,7 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.11"
+#define BUGFIX_VERSION "1.0.12"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -148,6 +148,18 @@ BugFix::BugFix()
 		perffreq.QuadPart = 1000;
 	else
 		perffreq.QuadPart /= 1000; // Split the difference
+
+	useGetTickCount = false;
+
+	//
+	// If we started the server while near to tick count wraparound, then back
+	// us up a bit so as to avoid tripping wraparound problems with the server.
+	//
+
+	if (GetTickCount() >= 0xD0000000)
+		tickCountDelta = 0xD0000000;
+	else
+		tickCountDelta = 0x00000000;
 }
 
 BugFix::~BugFix()
@@ -215,6 +227,13 @@ bool BugFix::Init(TCHAR* nwnxhome)
 	}
 
 	config.Read( "ReplaceNetLayer", &DoReplaceNetLayer, false );
+
+	config.Read( "UseGetTickCount", &useGetTickCount, false );
+
+	if (useGetTickCount)
+	{
+		wxLogMessage(wxT("* Using GetTickCount as server time source (instead of QueryPerformanceCounter)."));
+	}
 
 	if (DoReplaceNetLayer)
 	{
@@ -1565,9 +1584,9 @@ ULONG64 __cdecl BugFix::GetHighResolutionTimerFix()
 {
 	LARGE_INTEGER PerfCount;
 
-	if (!QueryPerformanceCounter( &PerfCount ))
+	if (plugin->useGetTickCount || !QueryPerformanceCounter( &PerfCount ))
 	{
-		return (GetTickCount( ) * 1000);
+		return ((GetTickCount( ) - plugin->tickCountDelta) * 1000);
 	}
 
 	//
