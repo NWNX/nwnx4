@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
+# Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4 Controller", "controller\controller.vcproj", "{4187545D-C3EE-4B22-A6FD-47B8057200D1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4 GUI", "gui\gui.vcproj", "{C0FE3308-455C-45D6-A508-BCA664CF046A}"
@@ -14,6 +14,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP MySQL", "plugins\mysql\mysql.vcproj", "{7468B0D2-5865-4416-8AFB-E688008DE091}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "..\lib\detours\src\Detours.vcproj", "{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Profiler", "plugins\profiler\profiler.vcproj", "{7CA75742-EBBE-46FB-AE83-4EA5C280458B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Pickpocket", "plugins\pickpocket\XP Pickpocket.vcproj", "{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +53,14 @@ Global
 		{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}.Debug|Win32.Build.0 = Debug|Win32
 		{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}.Release|Win32.ActiveCfg = Release|Win32
 		{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}.Release|Win32.Build.0 = Release|Win32
+		{7CA75742-EBBE-46FB-AE83-4EA5C280458B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7CA75742-EBBE-46FB-AE83-4EA5C280458B}.Debug|Win32.Build.0 = Debug|Win32
+		{7CA75742-EBBE-46FB-AE83-4EA5C280458B}.Release|Win32.ActiveCfg = Release|Win32
+		{7CA75742-EBBE-46FB-AE83-4EA5C280458B}.Release|Win32.Build.0 = Release|Win32
+		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Debug|Win32.Build.0 = Debug|Win32
+		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Release|Win32.ActiveCfg = Release|Win32
+		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
