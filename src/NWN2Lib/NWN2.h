@@ -1,8 +1,6 @@
 #ifndef _NWNX4_NWN2LIB_NWN2_H
 #define _NWNX4_NWN2LIB_NWN2_H
 
-#include "NWN2Common.h"
-
 //
 // General header file for reverse engineered NWN2Server information.
 //
@@ -132,6 +130,35 @@
 #define OFFS_GetNextIslandExit         0x0040F8B1 // NWN2_AreaSurfaceMesh::GetNextIslandExit+0x48
 
 #define OFFS_GetHighResolutionTimer    0x0043E240 // CExoTimersInternal::GetHighResolutionTimer
+
+#define OFFS_g_pAppManager             0x0086442C // g_pAppManager
+#define OFFS_NWServerGetGameObject     0x005BA910 // NWServer::GetGameObject
+
+#define CrControllingPlayerId          0x00404    // offsetof(CNWSCreature, m_dwControllingPlayerId)
+#define CrPlayerCharacter              0x00eec    // offsetof(CNWSCreature, m_bPlayerCharacter)
+#define CrAppearance                   0x0180c    // offsetof(CNWSCreature, m_cApperance)
+#define CrStats                        0x01fc4    // offsetof(CNWSCreature, m_pStats)
+
+#define CaHeadVariation                0x00704    // offsetof(CNWSCreatureAppearanceInfo, m_nHeadVariation)
+#define CaTailVariation                0x00705    // offsetof(CNWSCreatureAppearanceInfo, m_nTailVariation)
+#define CaWingVariation                0x00706    // offsetof(CNWSCreatureAppearanceInfo, m_nWingVariation)
+#define CaHairVariation                0x00707    // offsetof(CNWSCreatureAppearanceInfo, m_nHairVariation)
+#define CaFacialHairVariation          0x00708    // offsetof(CNWSCreatureAppearanceInfo, m_nFacialHairVariation)
+#define CaTint                         0x0070c    // offsetof(CNWSCreatureAppearanceInfo, m_cTint)
+#define CaHeadTint                     0x0073c    // offsetof(CNWSCreatureAppearanceInfo, m_cHeadTint)
+#define CaHairTint                     0x0076c    // offsetof(CNWSCreatureAppearanceInfo, m_cHairTint)
+
+#define CsTint                         0x00650    // offsetof(CNWSCreatureStatsCore, m_cTint)
+#define CsHeadTint                     0x00680    // offsetof(CNWSCreatureStatsCore, m_cHeadTint)
+#define CsHairTint                     0x006b0    // offsetof(CNWSCreatureStatsCore, m_cHairTint)
+#define CsHairVariation                0x006ec    // offsetof(CNWSCreatureStatsCore, m_nHairVariation)
+#define CsFacialHairVariation          0x006ed    // offsetof(CNWSCreatureStatsCore, m_nFacialHairVariation)
+#define CsHeadVariation                0x006f2    // offsetof(CNWSCreatureStatsCore, m_nHeadVariation)
+#define CsTailVariation                0x00dc8    // offsetof(CNWSCreatureStatsCore, m_nTailVariation)
+#define CsWingVariation                0x00dc9    // offsetof(CNWSCreatureStatsCore, m_nTailVariation)
+
+#define ArGameObjectBaseClassOffset    0x00ad0    // offsetof(CNWSArea, CGameObject)
+
 
 #elif NWN2SERVER_VERSION == 0x01221588
 
@@ -471,6 +498,10 @@
 #error Unsupported nwn2server version!
 
 #endif
+
+
+#include "NWN2Common.h"
+
 
 
 #endif

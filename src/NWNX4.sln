@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_bugfix", "plugins\xp_bug
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_fastboot", "plugins\xp_fastboot\xp_fastboot.vcproj", "{2C14DF0D-A2E6-446E-AD2C-C9CCB5122C11}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_objectattributes", "plugins\xp_objectattributes\xp_objectattributes.vcproj", "{F90DA4E6-2A30-4309-9EC3-810557632F8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -67,6 +69,10 @@ Global
 		{2C14DF0D-A2E6-446E-AD2C-C9CCB5122C11}.Debug|Win32.Build.0 = Debug|Win32
 		{2C14DF0D-A2E6-446E-AD2C-C9CCB5122C11}.Release|Win32.ActiveCfg = Release|Win32
 		{2C14DF0D-A2E6-446E-AD2C-C9CCB5122C11}.Release|Win32.Build.0 = Release|Win32
+		{F90DA4E6-2A30-4309-9EC3-810557632F8C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F90DA4E6-2A30-4309-9EC3-810557632F8C}.Debug|Win32.Build.0 = Debug|Win32
+		{F90DA4E6-2A30-4309-9EC3-810557632F8C}.Release|Win32.ActiveCfg = Release|Win32
+		{F90DA4E6-2A30-4309-9EC3-810557632F8C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
