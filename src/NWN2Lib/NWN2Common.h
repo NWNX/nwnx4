@@ -290,7 +290,7 @@ namespace NWN
 
 			}
 
-			memcpy( ObjTintSet, &TintSet, sizeof( *TintSet ) );
+			memcpy( ObjTintSet, TintSet, sizeof( *TintSet ) );
 		}
 	};
 
@@ -389,7 +389,7 @@ namespace NWN
 
 			}
 
-			memcpy( ObjTintSet, &TintSet, sizeof( *TintSet ) );
+			memcpy( ObjTintSet, TintSet, sizeof( *TintSet ) );
 
 			GetStats( )->SetTintSet( WhichTintSet, TintSet );
 		}
