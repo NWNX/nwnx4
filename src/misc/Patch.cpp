@@ -37,6 +37,7 @@ Patch::Patch(DWORD offset, char *replace, int l, Relocation *nreloc)
 	memcpy(repl, replace, l);
 	reloc = nreloc;
 	relocdata = false;
+	enabled = false;
 	orig = 0;
 	len = l;
 }
@@ -70,6 +71,7 @@ Patch::Patch()
 	offs = repl = orig = 0;
 	reloc = 0;
 	len = 0;
+	enabled = false;
 }
 
 int Patch::Apply(void)

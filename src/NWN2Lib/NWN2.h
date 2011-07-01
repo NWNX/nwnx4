@@ -148,6 +148,7 @@
 #define CaHeadTint                     0x0073c    // offsetof(CNWSCreatureAppearanceInfo, m_cHeadTint)
 #define CaHairTint                     0x0076c    // offsetof(CNWSCreatureAppearanceInfo, m_cHairTint)
 
+#define CsRace                         0x0000a    // offsetof(CNWSCreatureStatsCore, m_uRace)
 #define CsTint                         0x00650    // offsetof(CNWSCreatureStatsCore, m_cTint)
 #define CsHeadTint                     0x00680    // offsetof(CNWSCreatureStatsCore, m_cHeadTint)
 #define CsHairTint                     0x006b0    // offsetof(CNWSCreatureStatsCore, m_cHairTint)
@@ -158,6 +159,12 @@
 #define CsWingVariation                0x00dc9    // offsetof(CNWSCreatureStatsCore, m_nTailVariation)
 
 #define ArGameObjectBaseClassOffset    0x00ad0    // offsetof(CNWSArea, CGameObject)
+
+
+#define code4optRestart_SetBufferCount 0x007ca649 // code4optRestart+0x169
+#define code4optRestart_SetBufferCount2 0x007ca6c6 // code4optRestart+0x1e6
+#define code4optRestart_SetBufferCount3 0x007CA627 // code4optRestart+0x170
+//#define code4initLow_BufferCountOffs   0x007a2703 // code4initLow+0x253
 
 
 #elif NWN2SERVER_VERSION == 0x01221588

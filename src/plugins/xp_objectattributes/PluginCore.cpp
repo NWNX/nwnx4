@@ -149,6 +149,15 @@ Environment:
 
 		return;
 	}
+	else if ((!strcmp( Function, "SetRace" )) &&
+	         (Creature != NULL))
+	{
+		XPObjectAttributesSetRace(
+			Creature,
+			(unsigned short) strtoul( Value, 0, NULL ));
+
+		return;
+	}
 	else
 	{
 	}
@@ -393,6 +402,36 @@ Environment:
 --*/
 {
 	Creature->SetTintSet( NWN::CreatureTintSetHair, TintSet );
+}
+
+void
+ObjectAttributesPlugin::XPObjectAttributesSetRace(
+	__in CreatureObject * Creature,
+	__in unsigned short Race
+	)
+/*++
+
+Routine Description:
+
+	This routine alters the racial type of a creature on behalf of script.
+
+Arguments:
+
+	Creature - Supplies the creature object to modify.
+
+	Race - Supplies the new racial type value.
+
+Return Value:
+
+	None.
+
+Environment:
+
+	User mode.
+
+--*/
+{
+	Creature->SetRace( Race );
 }
 
 bool

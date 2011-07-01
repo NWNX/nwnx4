@@ -22,7 +22,7 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.12"
+#define BUGFIX_VERSION "1.0.13"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -259,6 +259,26 @@ bool BugFix::Init(TCHAR* nwnxhome)
 		Patch p( OFFS_GameObjectUpdateTime1, (char *)&GameObjUpdateTime, 4 );
 		
 		p.Apply( );
+	}
+
+	int DatabaseBufferCount; // default 0xF000 (*0x8000 per buffer)
+
+	config.Read ("DatabaseBufferCount", &DatabaseBufferCount, 1024 );
+
+	{
+		wxLogMessage(wxT("* Setting database buffer count to %d."), DatabaseBufferCount);
+
+		//Patch p( code4initLow_BufferCountOffs, (char *)&DatabaseBufferCount, 4 );
+		Patch p0( code4optRestart_SetBufferCount, "\xbd\x00\x00\x00\x00\x90\x90", 7 );
+		Patch p1( code4optRestart_SetBufferCount+1, (char *)&DatabaseBufferCount, 4 );
+		Patch p2( code4optRestart_SetBufferCount2, "\x90\x90", 2 );
+		Patch p3( code4optRestart_SetBufferCount2+3, (char *)&DatabaseBufferCount, 4 );
+		Patch p4( code4optRestart_SetBufferCount3, "\xeb\x20", 2 );
+		p0.Apply( );
+		p1.Apply( );
+		p2.Apply( );
+		p3.Apply( );
+		p4.Apply( );
 	}
 
 #ifdef XP_BUGFIX_USE_SYMBOLS

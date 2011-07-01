@@ -292,6 +292,15 @@ namespace NWN
 
 			memcpy( ObjTintSet, TintSet, sizeof( *TintSet ) );
 		}
+
+		inline
+		void
+		SetRace(
+			__in unsigned short Race
+			)
+		{
+			*(unsigned short *) ((char *) this + CsRace) = Race;
+		}
 	};
 
 	struct CNWSCreature : public CGameObject
@@ -392,6 +401,15 @@ namespace NWN
 			memcpy( ObjTintSet, TintSet, sizeof( *TintSet ) );
 
 			GetStats( )->SetTintSet( WhichTintSet, TintSet );
+		}
+
+		inline
+		void
+		SetRace(
+			__in unsigned short Race
+			)
+		{
+			GetStats( )->SetRace( Race );
 		}
 	};
 

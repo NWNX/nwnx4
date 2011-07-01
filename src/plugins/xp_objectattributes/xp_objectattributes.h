@@ -149,6 +149,16 @@ private:
 		);
 
 	//
+	// Set the racial type for a creature.
+	//
+
+	void
+	XPObjectAttributesSetRace(
+		__in CreatureObject * Creature,
+		__in unsigned short Race
+		);
+
+	//
 	// Parse a string tint set into the raw tintset data structure.
 	//
 
