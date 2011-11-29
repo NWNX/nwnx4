@@ -108,7 +108,8 @@ struct CExoString
 struct PlayerInfo // sizeof = 0x78, CNetLayerPlayerInfo
 {
 	int            m_bPlayerInUse;              // 00
-	char           skip0[0x0c];                 // 04
+	CExoString     m_sPlayerName;               // 04
+	char           skip0[0x04];                 // 0c
 	unsigned long  m_nSlidingWindowId;          // 10
 	int            m_bPlayerPrivileges;         // 14
 	int            m_bGameMasterPrivileges;     // 18

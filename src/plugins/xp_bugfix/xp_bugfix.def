@@ -21,3 +21,15 @@ EXPORTS
 	SendCompressionHook
 	NullDerefCrash12Fix
 	GetHighResolutionTimerFix
+	AddInternalObjectHook
+	AddObjectAtPosHook
+	DeleteAllHook
+	GetGameObjectHook
+	DeleteHook
+	AIMasterUpdateState_GetObjectHook
+	AIMasterUpdateState_GetObject2Hook
+	
+	SetPacketFilterCallouts
+	SendMessageToPlayer
+	GetPlayerAccountName
+	CallHandleMessage

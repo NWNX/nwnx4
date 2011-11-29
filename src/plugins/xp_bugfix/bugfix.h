@@ -111,6 +111,13 @@ public:
 	static void CGameEffectDtorLogger();
 	static void SendCompressionHook();
 	static ULONG64 __cdecl GetHighResolutionTimerFix();
+	static void AddInternalObjectHook();
+	static void AddObjectAtPosHook();
+	static void DeleteAllHook();
+	static void GetGameObjectHook();
+	static void DeleteHook();
+	static void AIMasterUpdateState_GetObjectHook();
+	static void AIMasterUpdateState_GetObject2Hook();
 
 private:
 
@@ -139,12 +146,28 @@ private:
 		__in ULONG_PTR TraceContext
 		);
 
+	static void __fastcall AddGameObject(__in NWN::OBJECTID ObjectId, __in NWN::CGameObject * Object);
+	static void __fastcall AddGameObjectAtPos(__in NWN::CGameObjectArray * GameObjArray, __in NWN::OBJECTID ObjectId, __in NWN::CGameObject * Object);
+	static void __fastcall RemoveGameObject(__in NWN::OBJECTID ObjectId);
+	static void __fastcall DeleteAllGameObjects();
+	static NWN::CGameObject * __fastcall GetGameObject(__in NWN::OBJECTID ObjectId);
+
 	wxLogNWNX*    logger;
 	ULONG         lastlog;
 	HMODULE       nwn2mm;
 	LARGE_INTEGER perffreq;
 	bool          useGetTickCount;
 	ULONG         tickCountDelta;
+
+	enum
+	{
+		OBJARRAY_SIZE = 0x1000000,
+		OBJARRAY_MASK = OBJARRAY_SIZE-1,
+
+		LAST_OBJARRAY_CONST
+	};
+
+	static NWN::CGameObjectArrayNode * GameObjectNodes[ OBJARRAY_SIZE ];
 
 #ifdef XP_BUGFIX_USE_SYMBOLS
 

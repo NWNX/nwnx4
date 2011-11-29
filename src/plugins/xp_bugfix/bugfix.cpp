@@ -22,10 +22,12 @@
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 
-#define BUGFIX_VERSION "1.0.13"
+#define BUGFIX_VERSION "1.0.14"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
+
+#define BUGFIX_LOG_GAMEOBJACCESS 0
 
 extern bool ReplaceNetLayer();
 
@@ -88,8 +90,22 @@ Patch _patches[] =
 	Patch( OFFS_SendCompressionHook+1, (relativefunc)BugFix::SendCompressionHook ),
 	Patch( OFFS_NullDerefCrash12, "\xe9", 1 ),
 	Patch( OFFS_NullDerefCrash12+1, (relativefunc)BugFix::NullDerefCrash12Fix ),
-	Patch( OFFS_GetHighResolutionTimer,  "\xe9", 1 ),
-	Patch( OFFS_GetHighResolutionTimer+1, (relativefunc)BugFix::GetHighResolutionTimerFix ),
+//	Patch( OFFS_GetHighResolutionTimer,  "\xe9", 1 ),
+//	Patch( OFFS_GetHighResolutionTimer+1, (relativefunc)BugFix::GetHighResolutionTimerFix ),
+	Patch( OFFS_ObjArrayAddInternalObject, "\xe9", 1 ),
+	Patch( OFFS_ObjArrayAddInternalObject+1, (relativefunc)BugFix::AddInternalObjectHook ),
+	Patch( OFFS_ObjArrayAddObjectAtPos, "\xe9", 1 ),
+	Patch( OFFS_ObjArrayAddObjectAtPos+1, (relativefunc)BugFix::AddObjectAtPosHook ),
+	Patch( OFFS_ObjArrayDeleteAll, "\xe9", 1 ),
+	Patch( OFFS_ObjArrayDeleteAll+1, (relativefunc)BugFix::DeleteAllHook ),
+	Patch( OFFS_ObjArrayGetGameObject, "\xe9", 1 ),
+	Patch( OFFS_ObjArrayGetGameObject+1, (relativefunc)BugFix::GetGameObjectHook ),
+	Patch( OFFS_ObjArrayDelete, "\xe9", 1 ),
+	Patch( OFFS_ObjArrayDelete+1, (relativefunc)BugFix::DeleteHook ),
+	Patch( OFFS_AIMasterUpdateStateGetObj, "\xe9", 1 ),
+	Patch( OFFS_AIMasterUpdateStateGetObj+1, (relativefunc)BugFix::AIMasterUpdateState_GetObjectHook ),
+	Patch( OFFS_AIMasterUpdateStateGetOb2, "\xe9", 1 ),
+	Patch( OFFS_AIMasterUpdateStateGetOb2+1, (relativefunc)BugFix::AIMasterUpdateState_GetObject2Hook ),
 #endif
 
 	Patch()
@@ -1621,3 +1637,456 @@ ULONG64 __cdecl BugFix::GetHighResolutionTimerFix()
 
 	return (PerfCount.QuadPart * 1000) / plugin->perffreq.QuadPart;
 }
+
+/*
+ * CGameObjectArray::AddInternalObject
+ *
+ * Add the object to our internal faster lookup table.
+ *
+ */
+__declspec(naked) void BugFix::AddInternalObjectHook()
+{
+	__asm
+	{
+
+		push    ebp
+		mov     ebp, esp
+
+		;
+		; Add the object into the game's array first.
+		;
+
+		push    dword ptr [ebp+10h] ; [in] BOOL IsPlayer
+		push    dword ptr [ebp+0ch] ; [in] CGameObject * ObjectPtr
+		push    dword ptr [ebp+08h] ; [out] NWN::ObjectId * ObjectId
+		call    DoAddInternalObject
+
+		;
+		; Exit out if the add failed.
+		;
+
+		test    al, al
+		jz      retpoint
+
+		;
+		; Now add it into our array.
+		;
+
+		mov     ecx, dword ptr [ebp+08h]  ; ObjectId
+		mov     ecx, dword ptr [ecx]      ; *ObjectId
+		mov     edx, dword ptr [ebp+0ch]  ; ObjectPtr
+		call    BugFix::AddGameObject
+
+		or      eax, 01h
+		jmp     retpoint
+
+DoAddInternalObject:
+		;
+		; Call the original logic to add the new object...
+		;
+
+		push    ebp
+        mov     ebp, dword ptr [esp+0ch]
+		mov     eax, OFFS_ObjArrayAddInternalObject+5
+		jmp     eax
+
+retpoint:
+		pop     ebp
+		ret     0ch
+	}
+}
+
+/*
+ * CGameObjectArray::AddObjectAtPos
+ *
+ * Add the object to our internal faster lookup table.
+ *
+ */
+__declspec(naked) void BugFix::AddObjectAtPosHook()
+{
+	__asm
+	{
+
+		push    ebp
+		mov     ebp, esp
+
+		;
+		; Add the object into the game's array first.
+		;
+
+		push    ecx ; save ecx
+		push    dword ptr [ebp+0ch] ; [in] CGameObject * ObjectPtr
+		push    dword ptr [ebp+08h] ; [in] NWN::ObjectId ObjectId
+		call    DoAddObjectAtPos
+		pop     ecx
+
+		;
+		; Exit out if the add failed.
+		;
+
+		test    al, al
+		jz      retpoint
+
+		;
+		; Now add it into our array.
+		;
+
+
+		                                  ; [ecx = CGameObjectArray]
+		push    dword ptr [ebp+0ch]       ; ObjectPtr
+		mov     edx, dword ptr [ebp+08h]  ; ObjectId
+		call    BugFix::AddGameObjectAtPos
+
+		or      eax, 01h
+		jmp     retpoint
+
+DoAddObjectAtPos:
+		;
+		; Call the original logic to add the new object...
+		;
+
+		cmp     dword ptr [esp+08h], 0
+		mov     eax, OFFS_ObjArrayAddObjectAtPos+5
+		jmp     eax
+
+retpoint:
+		pop     ebp
+		ret     08h
+	}
+}
+
+/*
+ * CGameObjectArray::DeleteAll
+ *
+ * Delete our internal object table.
+ *
+ */
+__declspec(naked) void BugFix::DeleteAllHook()
+{
+	__asm
+	{
+
+		push    ecx
+		push    ebx
+		push    ebp
+		push    esi
+		push    edi
+
+		push    ecx
+		call    BugFix::DeleteAllGameObjects
+		pop     ecx
+		mov     eax, OFFS_ObjArrayDeleteAll+5
+		jmp     eax
+	}
+}
+
+/*
+ * CGameObjectArray::GetGameObject
+ *
+ * Search our faster lookup table.
+ *
+ */
+__declspec(naked) void BugFix::GetGameObjectHook()
+{
+	__asm
+	{
+
+		mov     ecx, dword ptr [esp+04h] ; [in] NWN::OBJECTID ObjectId
+
+		;
+		; Test for invalid object id
+		;
+
+		cmp     ecx, NWN::INVALIDOBJID
+		jz      NoObjectFound_Before
+
+		;
+		; Search the internal table
+		;
+
+		push    dword ptr [esp+08h] ; save [out] CGameObject * * ObjectPtr
+
+		call    BugFix::GetGameObject
+		test    eax, eax
+		jz      NoObjectFound_After
+
+		pop     ecx
+		mov     dword ptr [ecx], eax
+		or      eax, 01h
+		ret     08h
+
+NoObjectFound_Before:
+		xor     eax, eax
+		mov     ecx, dword ptr [esp+08h] ; [out] CGameObject * * ObjectPtr
+		mov     dword ptr [ecx], eax
+		ret     08h
+
+NoObjectFound_After:
+		pop    ecx
+		mov    dword ptr [ecx], eax
+		ret    08h
+
+	}
+}
+
+static const unsigned long DeleteHook_RetPoint = OFFS_ObjArrayDelete + 6;
+
+/*
+ * CGameObjectArray::DeleteHook
+ *
+ * Remove the object from our internal object table.
+ *
+ */
+__declspec(naked) void BugFix::DeleteHook()
+{
+	__asm
+	{
+
+		push    ebp
+		mov     ebp, esp
+
+		;
+		; Try and delete the object from the game's array first.
+		;
+
+		push    dword ptr [ebp+0ch] ; [out] CGameObject * * ObjectPtr
+		push    dword ptr [ebp+08h] ; [in] NWN::ObjectId ObjectId
+		call    DoDeleteObject
+		test    al, al
+		jz      NoObjectFound
+
+		mov     ecx, dword ptr [ebp+08h] ; [in] NWN::OBJECTID ObjectId
+		call    BugFix::RemoveGameObject
+
+		or      eax, 01h
+NoObjectFound:
+		pop     ebp
+		ret     08h
+
+DoDeleteObject:
+
+		mov     eax, dword ptr [esp+04h]
+		mov     edx, eax
+		jmp     dword ptr [DeleteHook_RetPoint]
+
+	}
+}
+
+/*
+ * CServerAIMaster::AIUpdate
+ *
+ * Search our faster lookup table.
+ *
+ */
+__declspec(naked) void BugFix::AIMasterUpdateState_GetObjectHook()
+{
+	__asm
+	{
+
+		;
+		; Note, safe to NOT save eax/ecx/edx here !
+		;
+
+		mov     ecx, eax
+		call    BugFix::GetGameObject
+		test    eax, eax
+		jz      NoObjectFound
+
+		mov     edx, OFFS_AIMasterUpdateStateGotObj
+		jmp     edx
+
+NoObjectFound:
+		mov     eax, OFFS_AIMasterUpdateStateNoObj
+		jmp     eax
+
+	}
+}
+
+/*
+ * CServerAIMaster::AIUpdate
+ *
+ * Search our faster lookup table.
+ *
+ */
+__declspec(naked) void BugFix::AIMasterUpdateState_GetObject2Hook()
+{
+	__asm
+	{
+
+		;
+		; Note, safe to NOT save eax/ecx/edx here !
+		;
+
+		mov     ecx, eax
+		call    BugFix::GetGameObject
+		test    eax, eax
+		jz      NoObjectFound
+
+		mov     edi, eax
+		mov     edx, OFFS_AIMasterUpdateStateGotOb2
+		jmp     edx
+
+NoObjectFound:
+		mov     eax, OFFS_AIMasterUpdateStateNoObj2
+		jmp     eax
+
+	}
+}
+
+void __fastcall BugFix::AddGameObject(__in NWN::OBJECTID ObjectId, __in NWN::CGameObject * Object)
+{
+	ULONG MaskObjId = ObjectId & OBJARRAY_MASK;
+	NWN::CGameObjectArrayNode * SearchNode;
+	NWN::CGameObjectArrayNode * NewNode = new NWN::CGameObjectArrayNode;
+
+	NewNode->m_objectId = ObjectId;
+	NewNode->m_objectPtr = Object;
+	NewNode->m_nextNode = NULL;
+
+	if ((SearchNode = GameObjectNodes[MaskObjId]) == NULL)
+	{
+		GameObjectNodes[MaskObjId] = NewNode;
+#if BUGFIX_LOG_GAMEOBJACCESS
+		wxLogMessage(wxT("AddGameObject(%08x, %p) @ Toplevel"), ObjectId, Object);
+#endif
+		return;
+	}
+
+	while (SearchNode->m_nextNode != NULL)
+		SearchNode = SearchNode->m_nextNode;
+
+	SearchNode->m_nextNode = NewNode;
+
+#if BUGFIX_LOG_GAMEOBJACCESS
+	wxLogMessage(wxT("AddGameObject(%08x, %p) @ Subnode %p"), ObjectId, Object, SearchNode);
+#endif
+}
+
+void __fastcall BugFix::AddGameObjectAtPos(__in NWN::CGameObjectArray * GameObjArray, __in NWN::OBJECTID ObjectId, __in NWN::CGameObject * Object)
+{
+	ULONG MaskObjId;
+
+	//
+	// N.B.  The way the game handles the AddObjectAtPos case is a mess.  The
+	//       object is temporarily entered into the object array at multiple
+	//       lookup indicies !
+	//
+	//       Instead of recreating the messy algorithm for deciding the slot
+	//       to add the duplicate index in, we'll just take the data from the
+	//       game object array itself.
+	//
+	
+	if (GetGameObject( ObjectId ) != NULL)
+	{
+		if (ObjectId & 0x7F000000)
+			ObjectId =(GameObjArray->m_nNextCharArrayID[ 0 ] + 1);
+		else
+			ObjectId = (GameObjArray->m_nNextObjectArrayID[ 0 ] + 1);
+	}
+	
+	MaskObjId = ObjectId & OBJARRAY_MASK;
+
+	NWN::CGameObjectArrayNode * SearchNode;
+	NWN::CGameObjectArrayNode * NewNode = new NWN::CGameObjectArrayNode;
+
+	NewNode->m_objectId = ObjectId;
+	NewNode->m_objectPtr = Object;
+	NewNode->m_nextNode = NULL;
+
+	if ((SearchNode = GameObjectNodes[MaskObjId]) == NULL)
+	{
+		GameObjectNodes[MaskObjId] = NewNode;
+#if BUGFIX_LOG_GAMEOBJACCESS
+		wxLogMessage(wxT("AddGameObjectAtPos(%08x, %p) @ Toplevel"), ObjectId, Object);
+#endif
+		return;
+	}
+
+	while (SearchNode->m_nextNode != NULL)
+		SearchNode = SearchNode->m_nextNode;
+
+	SearchNode->m_nextNode = NewNode;
+
+#if BUGFIX_LOG_GAMEOBJACCESS
+	wxLogMessage(wxT("AddGameObjectAtPos(%08x, %p) @ Subnode %p"), ObjectId, Object, SearchNode);
+#endif
+}
+
+void __fastcall BugFix::RemoveGameObject(__in NWN::OBJECTID ObjectId)
+{
+	ULONG MaskObjId = ObjectId & OBJARRAY_MASK;
+	NWN::CGameObjectArrayNode * SearchNode;
+	NWN::CGameObjectArrayNode * * PrevNodeNext;
+#if BUGFIX_LOG_GAMEOBJACCESS
+	wxLogMessage(wxT("RemoveGameObject(%08x)"), ObjectId);
+#endif
+
+	PrevNodeNext = &GameObjectNodes[MaskObjId];
+
+	if ((SearchNode = *PrevNodeNext) == NULL)
+	{
+		wxLogMessage( wxT( "RemoveGameObject: Removing unknown game object %08X (toplevel node unmatched)" ), ObjectId );
+		return;
+	}
+
+	while (SearchNode->m_objectId != ObjectId)
+	{
+		if (SearchNode->m_nextNode == NULL)
+		{
+			wxLogMessage( wxT( "RemoveGameObject: Removing unknown game object %08X (overflow nodelist unmatched" ), ObjectId );
+			return;
+		}
+
+		PrevNodeNext = &SearchNode->m_nextNode;
+		SearchNode = SearchNode->m_nextNode;
+	}
+
+	*PrevNodeNext = SearchNode->m_nextNode;
+
+	delete SearchNode;
+}
+
+void __fastcall BugFix::DeleteAllGameObjects()
+{
+	for (int i = 0; i < OBJARRAY_SIZE; i += 1)
+	{
+		NWN::CGameObjectArrayNode * Next;
+
+		Next = GameObjectNodes[i];
+
+		while (Next != NULL)
+		{
+			NWN::CGameObjectArrayNode * Node;
+			Node = Next;
+			Next = Node->m_nextNode;
+
+			delete Node;
+		}
+
+		GameObjectNodes[i] = NULL;
+	}
+}
+
+NWN::CGameObject * __fastcall BugFix::GetGameObject(__in NWN::OBJECTID ObjectId)
+{
+	if (ObjectId == NWN::INVALIDOBJID)
+		return NULL;
+
+	ULONG MaskObjId = ObjectId & OBJARRAY_MASK;
+	NWN::CGameObjectArrayNode * SearchNode;
+
+	if ((SearchNode = GameObjectNodes[MaskObjId]) == NULL)
+		return NULL;
+
+	while (SearchNode->m_objectId != ObjectId)
+	{
+		if (SearchNode->m_nextNode == NULL)
+			return NULL;
+
+		SearchNode = SearchNode->m_nextNode;
+	}
+
+	return SearchNode->m_objectPtr;
+}
+
+NWN::CGameObjectArrayNode * BugFix::GameObjectNodes[ BugFix::OBJARRAY_SIZE ];

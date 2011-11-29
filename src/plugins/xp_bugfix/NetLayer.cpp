@@ -47,6 +47,33 @@ struct PlayerStateInfo
 NETLAYER_HANDLE Connections[MAX_PLAYERS];
 PlayerStateInfo PlayerState[MAX_PLAYERS];
 
+typedef
+void
+(__stdcall * OnPlayerConnectionCloseProc)(
+	__in unsigned long PlayerId,
+	__in void * Context
+	);
+
+typedef
+BOOL
+(__stdcall * OnPlayerConnectionReceiveProc)(
+	__in unsigned long PlayerId,
+	__in_bcount( Length ) const unsigned char * Data,
+	__in size_t Length,
+	__in void * Context
+	);
+
+typedef
+BOOL
+(__stdcall * OnPlayerConnectionSendProc)(
+	__in unsigned long PlayerId,
+	__in_bcount( Size ) unsigned char * Data,
+	__in unsigned long Size,
+	__in unsigned long Flags,
+	__in void * Context
+	);
+
+
 
 AuroraServerNetLayerCreateProc  AuroraServerNetLayerCreate_;
 AuroraServerNetLayerSendProc    AuroraServerNetLayerSend_;
@@ -54,6 +81,15 @@ AuroraServerNetLayerReceiveProc AuroraServerNetLayerReceive_;
 AuroraServerNetLayerTimeoutProc AuroraServerNetLayerTimeout_;
 AuroraServerNetLayerDestroyProc AuroraServerNetLayerDestroy_;
 AuroraServerNetLayerQueryProc   AuroraServerNetLayerQuery_;
+
+//
+// Packet filtering callouts.
+//
+
+void *                          PacketFilterContext;
+OnPlayerConnectionCloseProc     OnPlayerConnectionClose;
+OnPlayerConnectionReceiveProc   OnPlayerConnectionReceive;
+OnPlayerConnectionSendProc      OnPlayerConnectionSend;
 
 /***************************************************************************
     Debug output to the debugger before we can use wx logging safely.
@@ -97,6 +133,40 @@ DebugPrint(
 	DebugPrintV( Format, Ap );
 
 	va_end( Ap );
+}
+
+
+void
+__stdcall
+SetPacketFilterCallouts(
+	__in void * Context,
+	__in OnPlayerConnectionCloseProc OnClose,
+	__in OnPlayerConnectionReceiveProc OnReceive,
+	__in OnPlayerConnectionSendProc OnSend
+	)
+{
+	PacketFilterContext       = Context;
+	OnPlayerConnectionClose   = OnClose;
+	OnPlayerConnectionReceive = OnReceive;
+	OnPlayerConnectionSend    = OnSend;
+}
+
+const char *
+__stdcall
+GetPlayerAccountName(
+	__in unsigned long PlayerId
+	)
+{
+	if (PlayerId > MAX_PLAYERS)
+		return false;
+
+	if (!NetLayerInternal->Players[PlayerId].m_bPlayerInUse)
+		return false;
+
+	if (NetLayerInternal->Players[PlayerId].m_sPlayerName.m_sString == NULL)
+		return "";
+	else
+		return NetLayerInternal->Players[PlayerId].m_sPlayerName.m_sString;
 }
 
 
@@ -472,6 +542,24 @@ SendMessageToPlayer(
 			}
 		}
 
+		//
+		// Call the packet filter, if one was registered.
+		//
+
+		if (OnPlayerConnectionSend != NULL)
+		{
+			if (OnPlayerConnectionSend(
+				Player,
+				Data,
+				Size,
+				Flags,
+				PacketFilterContext) == FALSE)
+			{
+				DebugPrint("Packet filter blocked message send.\n");
+				return TRUE;
+			}
+		}
+
 		AuroraServerNetLayerSend_(
 			Connections[Player],
 			Data,
@@ -517,6 +605,17 @@ CheckForNewWindow(
 				__debugbreak( );
 
 			return;
+		}
+
+		//
+		// Call the packet filter, if one was registered.
+		//
+
+		if (OnPlayerConnectionClose != NULL)
+		{
+			OnPlayerConnectionClose(
+				Winfo->m_PlayerId,
+				PacketFilterContext);
 		}
 
 		//
@@ -636,6 +735,14 @@ FrameReceive(
 		"FrameReceive: Recv from SlidingWindow %p player %lu\n",
 		Winfo,
 		Winfo->m_PlayerId);
+
+	//
+	// Drop the message if we haven't initialized fully.  It will be resent
+	// anyway so this is ok.
+	//
+
+	if (NetLayerInternal == NULL)
+		return TRUE;
 
 	//
 	// Reinitialize the window if appropriate.
@@ -816,7 +923,7 @@ OnNetLayerWindowReceive(
 
 	if (Winfo->m_PlayerId != PlayerId)
 	{
-		wxLogMessage(wxT("OnNetLayerWindowReceive: *** SLIDING WINDOW PLAYER ID MISMATCH !! %lu, %lu, %lu (%p, %p)\n"),
+		wxLogMessage(wxT("OnNetLayerWindowReceive: *** SLIDING WINDOW PLAYER ID MISMATCH !! %lu, %lu, %lu (%p, %p)"),
 			PlayerId,
 			Winfo->m_PlayerId,
 			Pinfo->m_nSlidingWindowId,
@@ -834,6 +941,23 @@ OnNetLayerWindowReceive(
 			__debugbreak( );
 
 		return false;
+	}
+
+	//
+	// Call the packet filter, if one was registered.
+	//
+
+	if (OnPlayerConnectionReceive != NULL)
+	{
+		if (OnPlayerConnectionReceive(
+			PlayerId,
+			Data,
+			Length,
+			PacketFilterContext) == FALSE)
+		{
+			DebugPrint("Packet filter blocked message receive.\n");
+			return true;
+		}
 	}
 
 	//
@@ -859,6 +983,14 @@ OnNetLayerWindowSend(
 	sockaddr_in       sin;
 	int               slen;
 
+	//
+	// Drop the message if we haven't initialized fully.  It will be resent
+	// anyway so this is ok.
+	//
+
+	if (NetLayerInternal == NULL)
+		return true;
+
 	Pinfo = &NetLayerInternal->Players[ PlayerId ];
 	Winfo = &NetLayerInternal->Windows[ Pinfo->m_nSlidingWindowId ];
 
@@ -873,7 +1005,7 @@ OnNetLayerWindowSend(
 
 	if (Winfo->m_PlayerId != PlayerId)
 	{
-		wxLogMessage(wxT("OnNetLayerWindowSend: *** SLIDING WINDOW PLAYER ID MISMATCH !! %lu, %lu, %lu (%p, %p)\n"),
+		wxLogMessage(wxT("OnNetLayerWindowSend: *** SLIDING WINDOW PLAYER ID MISMATCH !! %lu, %lu, %lu (%p, %p)"),
 			PlayerId,
 			Winfo->m_PlayerId,
 			Pinfo->m_nSlidingWindowId,
@@ -897,7 +1029,7 @@ OnNetLayerWindowSend(
 
 	if (Winfo->m_ConnectionId >= NetI->NumConnections)
 	{
-		wxLogMessage(wxT("OnNetLayerWindowSend: *** ConnectionId for player %lu window %lu out of range !! %lu >= %lu (NetI %p)\n"),
+		wxLogMessage(wxT("OnNetLayerWindowSend: *** ConnectionId for player %lu window %lu out of range !! %lu >= %lu (NetI %p)"),
 			PlayerId,
 			Pinfo->m_nSlidingWindowId,
 			Winfo->m_ConnectionId,
@@ -963,7 +1095,7 @@ OnNetLayerWindowStreamError(
 	// drop the server's player state for that player.
 	//
 
-	wxLogMessage(wxT("OnNetLayerWindowStreamError: Stream error %lu for player %lu...\n"),
+	wxLogMessage(wxT("OnNetLayerWindowStreamError: Stream error %lu for player %lu..."),
 		PlayerId,
 		ErrorCode);
 	DebugPrint("OnNetLayerWindowStreamError: Stream error %lu for player %lu...\n",
