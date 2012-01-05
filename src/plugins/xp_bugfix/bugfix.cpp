@@ -21,8 +21,11 @@
 #include "..\..\misc\Patch.h"
 #include "StackTracer.h"
 #include "wx/fileconf.h"
+#define STRSAFE_NO_DEPRECATE
+#include <strsafe.h>
+#include "NetLayer.h"
 
-#define BUGFIX_VERSION "1.0.15"
+#define BUGFIX_VERSION "1.0.16"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -106,6 +109,7 @@ Patch _patches[] =
 	Patch( OFFS_AIMasterUpdateStateGetObj+1, (relativefunc)BugFix::AIMasterUpdateState_GetObjectHook ),
 	Patch( OFFS_AIMasterUpdateStateGetOb2, "\xe9", 1 ),
 	Patch( OFFS_AIMasterUpdateStateGetOb2+1, (relativefunc)BugFix::AIMasterUpdateState_GetObject2Hook ),
+	Patch( OFFS_TransitionBMPFixPatch, (relativefunc)BugFix::SetAreaTransitionBMPHook ),
 #endif
 
 	Patch()
@@ -1930,6 +1934,106 @@ NoObjectFound:
 		mov     eax, OFFS_AIMasterUpdateStateNoObj2
 		jmp     eax
 
+	}
+}
+
+const unsigned long AreaTransitionBMP_ReturnSkip = OFFS_TransitionBMPFixResume;
+const unsigned long AreaTransitionBMP_AddressOfSetAreaTransitionBMP = OFFS_SetAreaTransitionBMP;
+
+/* 
+ * CNWSMessage::SendServerToPlayerArea_ClientArea
+ *
+ * The server doesn't send the right load screen data to the client if there
+ * was a custom load screen.  This sends the right data if need be.
+ *
+ */
+__declspec(naked) void BugFix::SetAreaTransitionBMPHook()
+{
+	__asm
+	{
+
+		;
+		; Check if the load screen is set to 0, i.e. use default.
+		;
+
+		mov     eax, dword ptr [ecx+018h]
+		test    eax, eax
+		jz      UseDefaultLoadScreen
+
+		;
+		; Not using default, custom handling.
+		;
+
+		pushad
+		lea     ecx, dword ptr [ecx+01ch]
+
+		push    esi
+		push    ecx
+		push    eax
+		call    BugFix::HandleAreaTransitionBMP
+
+		;
+		; Return to after we wrote the load screen id in
+		; SendServerToPlayerArea_ClientArea because we sent that part of the
+		; message outselves.
+		;
+		; But still call CNWSPlayer::SetAreaTransitionBMP so the stack based
+		; string object is destructed properly.
+		;
+
+		popad
+		mov     dword ptr [esp], OFFS_TransitionBMPFixResume
+		jmp     dword ptr [AreaTransitionBMP_AddressOfSetAreaTransitionBMP]
+
+		;
+		; Just jump to CNWSPlayer::SetAreaTransitionBMP and let everything fall
+		; through as normal.
+		;
+
+UseDefaultLoadScreen:
+		jmp     dword ptr [AreaTransitionBMP_AddressOfSetAreaTransitionBMP]
+
+	}
+}
+
+void __stdcall BugFix::HandleAreaTransitionBMP(int LoadScreenId, struct CExoString *LoadScreenName, void *MessageObject)
+{
+	wxLogMessage( wxT( "HandleAreaTransitionBMP: Setting load screen id %d" ), LoadScreenId );
+
+	WriteWORD((unsigned short) LoadScreenId, MessageObject);
+
+	if (LoadScreenId == 1)
+	{
+		WriteCExoString(LoadScreenName, MessageObject);
+	}
+}
+
+__declspec(naked) void __fastcall BugFix::WriteWORD(unsigned short Value, void * MessageObject)
+{
+	__asm
+	{
+		push    10h ; bit length
+		push    ecx ; value to write
+		mov     ecx, edx ; set this to MessageObject
+		mov     eax, OFFS_CNWSMessage_WriteWORD
+		call    eax
+
+		ret
+	}
+}
+
+
+__declspec(naked) void __fastcall BugFix::WriteCExoString(struct CExoString * Value, void * MessageObject)
+{
+	__asm
+	{
+		push    20h ; bit length
+		push    ecx ; value to write
+		mov     ecx, edx ; set this to MessageObject
+		mov     eax, OFFS_CNWSMessage_WriteCExoString
+		call    eax
+
+		ret
 	}
 }
 

@@ -118,6 +118,7 @@ public:
 	static void DeleteHook();
 	static void AIMasterUpdateState_GetObjectHook();
 	static void AIMasterUpdateState_GetObject2Hook();
+	static void SetAreaTransitionBMPHook();
 
 private:
 
@@ -145,6 +146,10 @@ private:
 		__in const CONTEXT * Context,
 		__in ULONG_PTR TraceContext
 		);
+
+	static void __stdcall HandleAreaTransitionBMP(int LoadScreenId, struct CExoString * LoadScreenName, void * MessageObject);
+	static void __fastcall WriteWORD(unsigned short Value, void * MessageObject);
+	static void __fastcall WriteCExoString(struct CExoString * Value, void * MessageObject);
 
 	static void __fastcall AddGameObject(__in NWN::OBJECTID ObjectId, __in NWN::CGameObject * Object);
 	static void __fastcall AddGameObjectAtPos(__in NWN::CGameObjectArray * GameObjArray, __in NWN::OBJECTID ObjectId, __in NWN::CGameObject * Object);

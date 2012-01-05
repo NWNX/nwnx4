@@ -28,6 +28,7 @@ EXPORTS
 	DeleteHook
 	AIMasterUpdateState_GetObjectHook
 	AIMasterUpdateState_GetObject2Hook
+	SetAreaTransitionBMPHook
 	
 	SetPacketFilterCallouts
 	SendMessageToPlayer

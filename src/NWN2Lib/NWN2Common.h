@@ -431,6 +431,25 @@ namespace NWN
 	{
 		static const PLAYERID PLAYERID_INVALIDID = NWN::PLAYERID_INVALIDID;
 	};
+
+	struct CGameObjectArrayNode
+	{
+		NWN::OBJECTID          m_objectId;
+		CGameObject          * m_objectPtr;
+		CGameObjectArrayNode * m_nextNode;
+	};
+
+	C_ASSERT( sizeof( CGameObjectArrayNode ) == 0x0c );
+
+	struct CGameObjectArray
+	{
+		CGameObjectArrayNode * m_pArray[ 8192 ];
+		NWN::OBJECTID m_nNextObjectArrayID[ 2 ];
+		NWN::OBJECTID m_nNextCharArrayID[ 2 ] ;
+		BOOL m_bClientMode;
+	};
+
+	C_ASSERT( sizeof( CGameObjectArray ) == 0x8014 );
 }
 
 

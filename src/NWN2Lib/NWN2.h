@@ -166,6 +166,25 @@
 #define code4optRestart_SetBufferCount3 0x007CA627 // code4optRestart+0x170
 //#define code4initLow_BufferCountOffs   0x007a2703 // code4initLow+0x253
 
+#define OFFS_ObjArrayAddInternalObject 0x0040D3C0 // CGameObjectArray::AddInternalObject+0x0
+#define OFFS_ObjArrayAddObjectAtPos    0x0040D060 // CGameObjectArray::AddObjectAtPos+0x0
+#define OFFS_ObjArrayDeleteAll         0x0040E920 // CGameObjectArray::DeleteAll+0x0
+#define OFFS_ObjArrayGetGameObject     0x0054D190 // CGameObjectArray::GetGameObject+0x0
+#define OFFS_ObjArrayDelete            0x0040D470 // CGameObjectArray::Delete+0x0
+#define OFFS_AIMasterUpdateStateGetObj 0x0066F316 // CServerAIMaster::UpdateState+0x306
+#define OFFS_AIMasterUpdateStateNoObj  0x0066F41F // CServerAIMaster::UpdateState+0x40f
+#define OFFS_AIMasterUpdateStateGotObj 0x0066F36C // CServerAIMaster::UpdateState+0x35c
+
+#define OFFS_AIMasterUpdateStateGetOb2 0x0066F13C // CServerAIMaster::UpdateState+0x12c
+#define OFFS_AIMasterUpdateStateNoObj2 0x0066F2AF // CServerAIMaster::UpdateState+0x29f
+#define OFFS_AIMasterUpdateStateGotOb2 0x0066F192 // CServerAIMaster::UpdateState+0x182
+
+#define OFFS_TransitionBMPFixPatch     0x00560D2E // CNWSMessage::SendServerToPlayerArea_ClientArea+0x14e
+#define OFFS_TransitionBMPFixResume    0x00560D74 // CNWSMessage::SendServerToPlayerArea_ClientArea+0x194
+#define OFFS_SetAreaTransitionBMP      0x0056F2E0 // CNWSPlayer::SetAreaTransitionBMP
+#define OFFS_CNWSMessage_WriteWORD     0x0074DEF0 // CNWSMessage::WriteWORD
+#define OFFS_CNWSMessage_WriteCExoString 0x0074F180 // CNWSMessage::WriteCExoString
+
 
 #elif NWN2SERVER_VERSION == 0x01221588
 
