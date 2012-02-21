@@ -25,7 +25,7 @@
 #include <strsafe.h>
 #include "NetLayer.h"
 
-#define BUGFIX_VERSION "1.0.16"
+#define BUGFIX_VERSION "1.0.17"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -152,7 +152,7 @@ BugFix::BugFix()
 {
 	header = 
 		_T("NWNX BugFix Plugin V") _T( BUGFIX_VERSION ) _T("\n") \
-		_T("(c) 2008-2011 by Skywing \n") \
+		_T("(c) 2008-2012 by Skywing \n") \
 		_T("Visit NWNX at: http://www.nwnx.org\n") \
 		_T("Built for NWN2 version ") _T( NWN2_VERSION ) _T("\n");
 
@@ -347,7 +347,7 @@ void BugFix::GetFunctionClass(TCHAR* fClass)
 
 void BugFix::SetInt(char* sFunction, char* sParam1, int nParam2, int nValue)
 {
-	if (sFunction == wxT("GAMEOBJUPDATETIME"))
+	if (!strcmp(sFunction, "GAMEOBJUPDATETIME"))
 	{
 		Patch p( OFFS_GameObjectUpdateTime1, (char *)&nValue, 4 );
 
