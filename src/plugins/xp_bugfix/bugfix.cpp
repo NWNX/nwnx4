@@ -19,13 +19,14 @@
 
 #include "bugfix.h"
 #include "..\..\misc\Patch.h"
+#include "..\..\misc\IATHook.h"
 #include "StackTracer.h"
 #include "wx/fileconf.h"
 #define STRSAFE_NO_DEPRECATE
 #include <strsafe.h>
 #include "NetLayer.h"
 
-#define BUGFIX_VERSION "1.0.17"
+#define BUGFIX_VERSION "1.0.18"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -170,6 +171,8 @@ BugFix::BugFix()
 		perffreq.QuadPart /= 1000; // Split the difference
 
 	useGetTickCount = false;
+	verboseLogging = false;
+	rewriteClientUdpPort = true;
 
 	//
 	// If we started the server while near to tick count wraparound, then back
@@ -247,12 +250,25 @@ bool BugFix::Init(TCHAR* nwnxhome)
 	}
 
 	config.Read( "ReplaceNetLayer", &DoReplaceNetLayer, false );
-
 	config.Read( "UseGetTickCount", &useGetTickCount, false );
+	config.Read( "VerboseLogging", &verboseLogging, false );
+	config.Read( "RewriteClientUdpPort", &rewriteClientUdpPort, true );
 
 	if (useGetTickCount)
 	{
 		wxLogMessage(wxT("* Using GetTickCount as server time source (instead of QueryPerformanceCounter)."));
+	}
+
+	if (verboseLogging)
+	{
+		wxLogMessage(wxT("* Enabled verbose logging."));
+	}
+
+	if (rewriteClientUdpPort)
+	{
+		wxLogMessage(wxT("* Rewriting client UDP port number in packets."));
+
+		EnableRecvfromHook();
 	}
 
 	if (DoReplaceNetLayer)
@@ -2129,7 +2145,8 @@ void __fastcall BugFix::RemoveGameObject(__in NWN::OBJECTID ObjectId)
 
 	if ((SearchNode = *PrevNodeNext) == NULL)
 	{
-		wxLogMessage( wxT( "RemoveGameObject: Removing unknown game object %08X (toplevel node unmatched)" ), ObjectId );
+		if (plugin->verboseLogging)
+			wxLogMessage( wxT( "RemoveGameObject: Removing unknown game object %08X (toplevel node unmatched)" ), ObjectId );
 		return;
 	}
 
@@ -2137,7 +2154,8 @@ void __fastcall BugFix::RemoveGameObject(__in NWN::OBJECTID ObjectId)
 	{
 		if (SearchNode->m_nextNode == NULL)
 		{
-			wxLogMessage( wxT( "RemoveGameObject: Removing unknown game object %08X (overflow nodelist unmatched" ), ObjectId );
+			if (plugin->verboseLogging)
+				wxLogMessage( wxT( "RemoveGameObject: Removing unknown game object %08X (overflow nodelist unmatched" ), ObjectId );
 			return;
 		}
 
@@ -2191,6 +2209,115 @@ NWN::CGameObject * __fastcall BugFix::GetGameObject(__in NWN::OBJECTID ObjectId)
 	}
 
 	return SearchNode->m_objectPtr;
+}
+
+int __stdcall BugFix::recvfromHook(__in SOCKET s, __out char *buf, __in int len, __in int flags, __out struct sockaddr *from, __inout_opt int *fromlen)
+{
+	int rlen;
+	u_short port;
+	sockaddr_in *sin;
+
+	rlen = recvfrom(s, buf, len, flags, from, fromlen);
+
+	if (rlen <= 0)
+		return rlen;
+
+	if (!from || !fromlen || *fromlen < sizeof(sockaddr_in))
+		return rlen;
+
+	if (len < 6)
+		return rlen;
+
+	sin = (sockaddr_in *) from;
+	port = ntohs(sin->sin_port);
+
+	//
+	// Patch up the client data port field in the message to match that of the
+	// actual data port.  Some logic in nwn2server uses the client's claimed
+	// data port and not the actual data port for player lookups, which causes
+	// issues if two players are behind a NAT with a default configuration.
+	//
+
+	if (!memcmp(buf, "BNLM", 4))
+		*(u_short *)(buf+4) = port;
+	else if (!memcmp(buf, "BNXI", 4))
+		*(u_short *)(buf+4) = port;
+	else if (!memcmp(buf, "BNES", 4))
+		*(u_short *)(buf+4) = port;
+	else if (!memcmp(buf, "BNCS", 4))
+		*(u_short *)(buf+4) = port;
+	else
+		return rlen;
+
+	if (plugin->verboseLogging)
+		wxLogMessage(wxT("* Patched client data port in %.4s packet."), buf);
+
+	return rlen;
+}
+
+bool BugFix::EnableRecvfromHook()
+{
+	const SIZE_T NumHooks = 1;
+	HMODULE      Ws2_32;
+	SIZE_T       i;
+	ULONG        HookStatus[ NumHooks ];
+	PVOID        OrigAddresses[ NumHooks ];
+	PVOID        HookAddresses[ NumHooks ] =
+	{
+		recvfromHook
+	};
+	CONST CHAR  *Symbols[ NumHooks ] =
+	{
+		"recvfrom"
+	};
+
+	Ws2_32 = GetModuleHandleW( L"ws2_32.dll" );
+
+	if (!Ws2_32)
+		return false;
+
+	for (i = 0; i < NumHooks; i += 1)
+	{
+		OrigAddresses[ i ] = GetProcAddress( Ws2_32, Symbols[ i ] );
+
+		if (!OrigAddresses[ i ])
+		{
+			wxLogMessage(
+				wxT( "! Failed to resolve an import: %s" ),
+				Symbols[ i ]
+				);
+
+			return false;
+		}
+	}
+
+	if (!RedirectImageImports(
+		GetModuleHandleW( 0 ),
+		OrigAddresses,
+		HookAddresses,
+		HookStatus,
+		NumHooks))
+	{
+		wxLogMessage( wxT( "! Failed to hook imports." ) );
+		return false;
+	}
+
+	for (i = 0; i < NumHooks; i += 1)
+	{
+		if (!HookStatus[ i ])
+		{
+			wxLogMessage(
+				wxT( "! Failed to hook an import: %s" ),
+				Symbols[ i ]
+				);
+
+			return false;
+		}
+	}
+
+	wxLogMessage( wxT( "* ws2_32!recvfrom hook installed." ) );
+
+	return true;
 }
 
 NWN::CGameObjectArrayNode * BugFix::GameObjectNodes[ BugFix::OBJARRAY_SIZE ];

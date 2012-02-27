@@ -157,12 +157,18 @@ private:
 	static void __fastcall DeleteAllGameObjects();
 	static NWN::CGameObject * __fastcall GetGameObject(__in NWN::OBJECTID ObjectId);
 
+	static int __stdcall recvfromHook(__in SOCKET s, __out char *buf, __in int len, __in int flags, __out struct sockaddr *from, __inout_opt int *fromlen);
+
+	bool EnableRecvfromHook();
+
 	wxLogNWNX*    logger;
 	ULONG         lastlog;
 	HMODULE       nwn2mm;
 	LARGE_INTEGER perffreq;
 	bool          useGetTickCount;
 	ULONG         tickCountDelta;
+	bool          verboseLogging;
+	bool          rewriteClientUdpPort;
 
 	enum
 	{

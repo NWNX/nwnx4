@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\misc\IATHook.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\misc\log.cpp"
 				>
 			</File>
@@ -221,6 +225,10 @@
 			>
 			<File
 				RelativePath=".\bugfix.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\misc\IATHook.h"
 				>
 			</File>
 			<File
