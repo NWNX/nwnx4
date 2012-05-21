@@ -26,7 +26,7 @@
 #include <strsafe.h>
 #include "NetLayer.h"
 
-#define BUGFIX_VERSION "1.0.18"
+#define BUGFIX_VERSION "1.0.19"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -42,6 +42,10 @@ extern bool ReplaceNetLayer();
 BugFix* plugin;
 bool nocompress = true;
 long GameObjUpdateBurstSize = 102400; // 100K
+
+typedef int (__stdcall * RecvfromCalloutProc)(__in SOCKET s, __out char *buf, __in int len, __in int flags, __out struct sockaddr *from, __inout_opt int *fromlen);
+
+RecvfromCalloutProc RecvfromCallout;
 
 Patch _patches[] =
 {
@@ -2225,6 +2229,14 @@ int __stdcall BugFix::recvfromHook(__in SOCKET s, __out char *buf, __in int len,
 	if (!from || !fromlen || *fromlen < sizeof(sockaddr_in))
 		return rlen;
 
+	if (RecvfromCallout != NULL)
+	{
+		rlen = RecvfromCallout(s, buf, rlen, flags, from, fromlen);
+
+		if (rlen <= 0)
+			return rlen;
+	}
+
 	if (len < 6)
 		return rlen;
 
@@ -2321,3 +2333,11 @@ bool BugFix::EnableRecvfromHook()
 }
 
 NWN::CGameObjectArrayNode * BugFix::GameObjectNodes[ BugFix::OBJARRAY_SIZE ];
+
+RecvfromCalloutProc __stdcall SetRecvfromCallout(RecvfromCalloutProc Callout)
+{
+	RecvfromCalloutProc OldCallout = RecvfromCallout;
+	RecvfromCallout = Callout;
+
+	return OldCallout;
+}

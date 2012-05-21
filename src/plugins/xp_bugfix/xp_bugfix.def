@@ -34,3 +34,5 @@ EXPORTS
 	SendMessageToPlayer
 	GetPlayerAccountName
 	CallHandleMessage
+
+	SetRecvfromCallout
