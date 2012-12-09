@@ -185,6 +185,8 @@
 #define OFFS_CNWSMessage_WriteWORD     0x0074DEF0 // CNWSMessage::WriteWORD
 #define OFFS_CNWSMessage_WriteCExoString 0x0074F180 // CNWSMessage::WriteCExoString
 
+#define OFFS_CExoNetInternal_SendMessageToMst 0x006E212E // CExoNetInternal::SendMessageA+0xEE (sendto IAT ref)
+
 
 #elif NWN2SERVER_VERSION == 0x01221588
 

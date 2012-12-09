@@ -26,7 +26,7 @@
 #include <strsafe.h>
 #include "NetLayer.h"
 
-#define BUGFIX_VERSION "1.0.19"
+#define BUGFIX_VERSION "1.0.20"
 #define __NWN2_VERSION_STR(X) #X
 #define _NWN2_VERSION_STR(X) __NWN2_VERSION_STR(X)
 #define NWN2_VERSION _NWN2_VERSION_STR(NWN2SERVER_VERSION)
@@ -43,9 +43,16 @@ BugFix* plugin;
 bool nocompress = true;
 long GameObjUpdateBurstSize = 102400; // 100K
 
+//#define MASTER_SERVER_HOSTNAME "nw2master.bioware.com"
+#define MASTER_SERVER_HOSTNAME "nwn2.mst.valhallalegends.com"
+#define MASTER_SERVER_PORT     6121
+
+
 typedef int (__stdcall * RecvfromCalloutProc)(__in SOCKET s, __out char *buf, __in int len, __in int flags, __out struct sockaddr *from, __inout_opt int *fromlen);
 
 RecvfromCalloutProc RecvfromCallout;
+
+void *sendtoMstHookAddress = BugFix::sendtoMstHook;
 
 Patch _patches[] =
 {
@@ -115,6 +122,7 @@ Patch _patches[] =
 	Patch( OFFS_AIMasterUpdateStateGetOb2, "\xe9", 1 ),
 	Patch( OFFS_AIMasterUpdateStateGetOb2+1, (relativefunc)BugFix::AIMasterUpdateState_GetObject2Hook ),
 	Patch( OFFS_TransitionBMPFixPatch, (relativefunc)BugFix::SetAreaTransitionBMPHook ),
+	Patch( OFFS_CExoNetInternal_SendMessageToMst, (absolutefunc)&sendtoMstHookAddress ),
 #endif
 
 	Patch()
@@ -2265,6 +2273,49 @@ int __stdcall BugFix::recvfromHook(__in SOCKET s, __out char *buf, __in int len,
 		wxLogMessage(wxT("* Patched client data port in %.4s packet."), buf);
 
 	return rlen;
+}
+
+int __stdcall BugFix::sendtoMstHook(__in SOCKET s, __in const char *buf, __in int len, __in int flags, __in struct sockaddr_in *to, __in int tolen)
+{
+	static sockaddr_in sin = {0};
+
+	if (to->sin_port != htons(6121))
+		return sendto(s, buf, len, flags, (const struct sockaddr *) to, tolen);
+
+	static ULONG LastMstResolveTick = 0;
+
+	//
+	// If it has been 30 minute since the last time the Mst hostname was
+	// resolved, or this is the first send, resolve it now.
+	//
+
+	if ((LastMstResolveTick == 0) ||
+		(GetTickCount() - LastMstResolveTick) >= 1800000)
+	{
+		hostent *he = gethostbyname(MASTER_SERVER_HOSTNAME);
+
+		if (he == NULL)
+		{
+			wxLogMessage(wxT("* BugFix::sendtoMstHook: Failed to resolve ") wxT(MASTER_SERVER_HOSTNAME));
+		}
+		else
+		{
+			memcpy(&sin, to, tolen);
+			LastMstResolveTick = GetTickCount();
+			sin.sin_addr.s_addr = *(unsigned long *)he->h_addr;
+
+			wxLogMessage(wxT("* BugFix::sendtoMstHook: Master server hostname resolved."));
+		}
+	}
+
+	//
+	// Send a copy of the message to the emulation master server, then pass it
+	// on to the BioWare master server.
+	//
+
+	sendto(s, buf, len, flags, (const struct sockaddr *) &sin, tolen);
+
+	return sendto(s, buf, len, flags, (const struct sockaddr *) to, tolen);
 }
 
 bool BugFix::EnableRecvfromHook()

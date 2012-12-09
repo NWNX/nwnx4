@@ -120,6 +120,8 @@ public:
 	static void AIMasterUpdateState_GetObject2Hook();
 	static void SetAreaTransitionBMPHook();
 
+	static int __stdcall sendtoMstHook(__in SOCKET s, __in const char *buf, __in int len, __in int flags, __in struct sockaddr_in *to, __in int tolen);
+
 private:
 
 	bool Check();

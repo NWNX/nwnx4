@@ -212,6 +212,8 @@ struct CExoNetInternal
 	unsigned     NumConnections;      // 38
 	char         skip2[0x08];         // 3c
 	SocketInfo * ConnectionAddresses; // 44
+	char         skip3[0x1358];       // 48
+	sockaddr_in  MasterServerAddress;
 };
 
 C_ASSERT( offsetof( CExoNetInternal, ConnectionAddresses ) == 0x44 );
