@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="XP Pickpocket"
 	ProjectGUID="{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}"
 	RootNamespace="XPPickpocket"
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;;$(NOINHERIT)"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\include&quot;;&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib\msw&quot;;&quot;$(SolutionDir)..\lib\detours\include&quot;;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;XPPICKPOCKET_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,10 +61,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="madCHook.lib wxmsw28_core.lib wxbase28_net.lib wxbase28.lib wsock32.lib"
+				AdditionalDependencies="detours.lib wxmsw28d_core.lib wxbase28d_net.lib wxbase28d.lib wsock32.lib"
 				OutputFile="$(OutDir)\xp_pickpocket.dll"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\madcodehook&quot;"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\lib\wxwidgets\lib\vc_lib&quot;;&quot;$(SolutionDir)..\lib\detours\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
