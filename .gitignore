@@ -1,0 +1,21 @@
+/bin/
+*.obj
+*.dll
+*.pdb
+*.lib
+*.exp
+
+# vs2019 files
+.vs/
+
+# vs2005 files
+*.user
+*.suo
+*.ncb
+
+/src/*/Debug/
+/src/*/Release/
+/lib/detours/*/Debug/
+/lib/detours/*/Release/
+/src/plugins/*/Debug/
+/src/plugins/*/Release/
