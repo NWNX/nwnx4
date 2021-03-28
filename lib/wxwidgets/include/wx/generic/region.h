@@ -4,7 +4,6 @@
 // Author:      David Elliott
 // Modified by:
 // Created:     2004/04/12
-// RCS-ID:      $Id: region.h,v 1.10 2006/09/25 11:46:48 VZ Exp $
 // Copyright:   (c) 2004 David Elliott
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,12 +11,15 @@
 #ifndef _WX_GENERIC_REGION_H__
 #define _WX_GENERIC_REGION_H__
 
-class WXDLLEXPORT wxRegionGeneric : public wxRegionBase
+class WXDLLIMPEXP_CORE wxRegionGeneric : public wxRegionBase
 {
 public:
     wxRegionGeneric(wxCoord x, wxCoord y, wxCoord w, wxCoord h);
     wxRegionGeneric(const wxPoint& topLeft, const wxPoint& bottomRight);
     wxRegionGeneric(const wxRect& rect);
+    wxRegionGeneric(size_t n, const wxPoint *points, wxPolygonFillMode fillStyle = wxODDEVEN_RULE);
+    wxRegionGeneric(const wxBitmap& bmp);
+    wxRegionGeneric(const wxBitmap& bmp, const wxColour& transp, int tolerance = 0);
     wxRegionGeneric();
     virtual ~wxRegionGeneric();
 
@@ -26,8 +28,8 @@ public:
     virtual bool IsEmpty() const;
 
 protected:
-    virtual wxObjectRefData *CreateRefData() const;
-    virtual wxObjectRefData *CloneRefData(const wxObjectRefData *data) const;
+    virtual wxGDIRefData *CreateGDIRefData() const;
+    virtual wxGDIRefData *CloneGDIRefData(const wxGDIRefData *data) const;
 
     // wxRegionBase pure virtuals
     virtual bool DoIsEqual(const wxRegion& region) const;
@@ -42,10 +44,10 @@ protected:
     virtual bool DoSubtract(const wxRegion& region);
     virtual bool DoXor(const wxRegion& region);
 
-    friend class WXDLLEXPORT wxRegionIteratorGeneric;
+    friend class WXDLLIMPEXP_FWD_CORE wxRegionIteratorGeneric;
 };
 
-class WXDLLEXPORT wxRegionIteratorGeneric : public wxObject
+class WXDLLIMPEXP_CORE wxRegionIteratorGeneric : public wxObject
 {
 public:
     wxRegionIteratorGeneric();

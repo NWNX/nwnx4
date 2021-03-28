@@ -4,13 +4,14 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     10.09.00
-// RCS-ID:      $Id: radiobox.h,v 1.41 2006/10/31 16:39:07 VZ Exp $
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_RADIOBOX_H_BASE_
 #define _WX_RADIOBOX_H_BASE_
+
+#include "wx/defs.h"
 
 #if wxUSE_RADIOBOX
 
@@ -20,13 +21,13 @@
 
 #include "wx/dynarray.h"
 
-class WXDLLEXPORT wxToolTip;
+class WXDLLIMPEXP_FWD_CORE wxToolTip;
 
 WX_DEFINE_EXPORTED_ARRAY_PTR(wxToolTip *, wxToolTipArray);
 
 #endif // wxUSE_TOOLTIPS
 
-extern WXDLLEXPORT_DATA(const wxChar) wxRadioBoxNameStr[];
+extern WXDLLIMPEXP_DATA_CORE(const char) wxRadioBoxNameStr[];
 
 // ----------------------------------------------------------------------------
 // wxRadioBoxBase is not a normal base class, but rather a mix-in because the
@@ -34,7 +35,7 @@ extern WXDLLEXPORT_DATA(const wxChar) wxRadioBoxNameStr[];
 // example, it is a wxStaticBox in wxUniv and wxMSW but not in other ports
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxRadioBoxBase : public wxItemContainerImmutable
+class WXDLLIMPEXP_CORE wxRadioBoxBase : public wxItemContainerImmutable
 {
 public:
     virtual ~wxRadioBoxBase();
@@ -49,7 +50,8 @@ public:
     unsigned int GetColumnCount() const { return m_numCols; }
     unsigned int GetRowCount() const { return m_numRows; }
 
-    // return the item above/below/to the left/right of the given one
+    // return the next active (i.e. shown and not disabled) item above/below/to
+    // the left/right of the given one
     int GetNextItem(int item, wxDirection dir, long style) const;
 
 #if wxUSE_TOOLTIPS
@@ -84,14 +86,6 @@ public:
     }
 
 
-    // deprecated functions
-    // --------------------
-
-#if WXWIN_COMPATIBILITY_2_4
-    wxDEPRECATED( int GetNumberOfRowsOrCols() const );
-    wxDEPRECATED( void SetNumberOfRowsOrCols(int n) );
-#endif // WXWIN_COMPATIBILITY_2_4
-
 protected:
     wxRadioBoxBase()
     {
@@ -103,6 +97,8 @@ protected:
         m_itemsTooltips = NULL;
 #endif // wxUSE_TOOLTIPS
     }
+
+    virtual wxBorder GetDefaultBorder() const { return wxBORDER_NONE; }
 
     // return the number of items in major direction (which depends on whether
     // we have wxRA_SPECIFY_COLS or wxRA_SPECIFY_ROWS style)
@@ -166,13 +162,11 @@ private:
 #elif defined(__WXGTK__)
     #include "wx/gtk1/radiobox.h"
 #elif defined(__WXMAC__)
-    #include "wx/mac/radiobox.h"
+    #include "wx/osx/radiobox.h"
 #elif defined(__WXCOCOA__)
     #include "wx/cocoa/radiobox.h"
 #elif defined(__WXPM__)
     #include "wx/os2/radiobox.h"
-#elif defined(__WXPALMOS__)
-    #include "wx/palmos/radiobox.h"
 #endif
 
 #endif // wxUSE_RADIOBOX

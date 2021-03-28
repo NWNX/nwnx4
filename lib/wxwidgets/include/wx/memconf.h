@@ -6,7 +6,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     22.01.00
-// RCS-ID:      $Id: memconf.h,v 1.6 2005/09/23 12:48:44 MR Exp $
 // Copyright:   (c) 2000 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,7 +45,7 @@ public:
     {
     }
 
-    DECLARE_NO_COPY_CLASS(wxMemoryConfig)
+    wxDECLARE_NO_COPY_CLASS(wxMemoryConfig);
 };
 
 #endif // wxUSE_CONFIG

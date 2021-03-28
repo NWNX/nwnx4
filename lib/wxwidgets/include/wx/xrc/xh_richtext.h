@@ -1,9 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        wx/xrc/xh_text.h
+// Name:        wx/xrc/xh_richtext.h
 // Purpose:     XML resource handler for wxRichTextCtrl
 // Author:      Julian Smart
 // Created:     2006-11-08
-// RCS-ID:      $Id: xh_richtext.h,v 1.1 2006/11/08 15:45:09 JS Exp $
 // Copyright:   (c) 2006 Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -15,7 +14,7 @@
 
 #if wxUSE_XRC && wxUSE_RICHTEXT
 
-class WXDLLIMPEXP_XRC wxRichTextCtrlXmlHandler : public wxXmlResourceHandler
+class WXDLLIMPEXP_RICHTEXT wxRichTextCtrlXmlHandler : public wxXmlResourceHandler
 {
     DECLARE_DYNAMIC_CLASS(wxRichTextCtrlXmlHandler)
 

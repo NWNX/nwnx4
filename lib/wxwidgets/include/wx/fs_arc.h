@@ -3,7 +3,6 @@
 // Purpose:     Archive file system
 // Author:      Vaclav Slavik, Mike Wetherell
 // Copyright:   (c) 1999 Vaclav Slavik, (c) 2006 Mike Wetherell
-// CVS-ID:      $Id: fs_arc.h,v 1.4 2006/10/30 11:56:10 ABX Exp $
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +46,7 @@ private:
 
     wxString DoFind();
 
-    DECLARE_NO_COPY_CLASS(wxArchiveFSHandler)
+    wxDECLARE_NO_COPY_CLASS(wxArchiveFSHandler);
     DECLARE_DYNAMIC_CLASS(wxArchiveFSHandler)
 };
 

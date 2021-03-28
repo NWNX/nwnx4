@@ -4,7 +4,6 @@
 // Author:      Guilhem Lavaux
 // Modified by: (or rather rewritten by) Vadim Zeitlin
 // Created:     04/22/98
-// RCS-ID:      $Id: tokenzr.h,v 1.22 2006/01/06 21:41:54 VZ Exp $
 // Copyright:   (c) Guilhem Lavaux
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -21,7 +20,7 @@
 // ----------------------------------------------------------------------------
 
 // default: delimiters are usual white space characters
-#define wxDEFAULT_DELIMITERS (_T(" \t\r\n"))
+#define wxDEFAULT_DELIMITERS (wxT(" \t\r\n"))
 
 // wxStringTokenizer mode flags which determine its behaviour
 enum wxStringTokenizerMode
@@ -72,12 +71,12 @@ public:
     // get current tokenizer state
         // returns the part of the string which remains to tokenize (*not* the
         // initial string)
-    wxString GetString() const { return m_string.substr(m_pos); }
+    wxString GetString() const { return wxString(m_pos, m_string.end()); }
 
         // returns the current position (i.e. one index after the last
         // returned token or 0 if GetNextToken() has never been called) in the
         // original string
-    size_t GetPosition() const { return m_pos; }
+    size_t GetPosition() const { return m_pos - m_string.begin(); }
 
     // misc
         // get the current mode - can be different from the one passed to the
@@ -111,10 +110,24 @@ public:
 protected:
     bool IsOk() const { return m_mode != wxTOKEN_INVALID; }
 
-    wxString m_string,              // the string we tokenize
-             m_delims;              // all possible delimiters
+    bool DoHasMoreTokens() const;
 
-    size_t   m_pos;                 // the current position in m_string
+    enum MoreTokensState
+    {
+        MoreTokens_Unknown,
+        MoreTokens_Yes,
+        MoreTokens_No
+    };
+
+    MoreTokensState m_hasMoreTokens;
+
+    wxString m_string;              // the string we tokenize
+    wxString::const_iterator m_stringEnd;
+    // FIXME-UTF8: use wxWcharBuffer
+    wxWxCharBuffer m_delims;        // all possible delimiters
+    size_t m_delimsLen;
+
+    wxString::const_iterator m_pos; // the current position in m_string
 
     wxStringTokenizerMode m_mode;   // see wxTOKEN_XXX values
 

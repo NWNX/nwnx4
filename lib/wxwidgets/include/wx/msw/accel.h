@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     31/7/98
-// RCS-ID:      $Id: accel.h,v 1.19 2006/10/30 19:26:02 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,13 +11,13 @@
 #ifndef _WX_ACCEL_H_
 #define _WX_ACCEL_H_
 
-class WXDLLIMPEXP_CORE wxWindow;
+class WXDLLIMPEXP_FWD_CORE wxWindow;
 
 // ----------------------------------------------------------------------------
 // the accel table has all accelerators for a given window or menu
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxAcceleratorTable : public wxObject
+class WXDLLIMPEXP_CORE wxAcceleratorTable : public wxObject
 {
 public:
     // default ctor

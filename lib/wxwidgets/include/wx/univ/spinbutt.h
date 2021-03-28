@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     21.01.01
-// RCS-ID:      $Id: spinbutt.h,v 1.14 2006/10/30 12:20:12 VS Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,10 +18,10 @@
 // ----------------------------------------------------------------------------
 
 // actions supported by this control
-#define wxACTION_SPIN_INC    _T("inc")
-#define wxACTION_SPIN_DEC    _T("dec")
+#define wxACTION_SPIN_INC    wxT("inc")
+#define wxACTION_SPIN_DEC    wxT("dec")
 
-class WXDLLEXPORT wxSpinButton : public wxSpinButtonBase,
+class WXDLLIMPEXP_CORE wxSpinButton : public wxSpinButtonBase,
                                  public wxControlWithArrows
 {
 public:
@@ -104,7 +103,7 @@ private:
 // wxStdScrollBarInputHandler) and processes keyboard events too
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxStdSpinButtonInputHandler : public wxStdInputHandler
+class WXDLLIMPEXP_CORE wxStdSpinButtonInputHandler : public wxStdInputHandler
 {
 public:
     wxStdSpinButtonInputHandler(wxInputHandler *inphand);

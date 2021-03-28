@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     25.08.00
-// RCS-ID:      $Id: statbmp.h,v 1.13 2006/02/08 21:46:51 VZ Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -18,7 +17,7 @@
 // wxStaticBitmap
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxStaticBitmap : public wxStaticBitmapBase
+class WXDLLIMPEXP_CORE wxStaticBitmap : public wxStaticBitmapBase
 {
 public:
     wxStaticBitmap()

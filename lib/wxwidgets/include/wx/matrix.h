@@ -4,7 +4,6 @@
 // Author:       Chris Breeze, Julian Smart
 // Modified by:  Klaas Holwerda
 // Created:      01/02/97
-// RCS-ID:       $Id: matrix.h,v 1.17 2006/06/15 18:14:22 ABX Exp $
 // Copyright:    (c) Julian Smart, Chris Breeze
 // Licence:      wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -32,7 +31,7 @@
 //  at a certain coordinate and angle within another parent picture.
 //  At all times m_isIdentity is set if the matrix itself is an Identity matrix.
 //  It is used where possible to optimize calculations.
-class WXDLLEXPORT wxTransformMatrix: public wxObject
+class WXDLLIMPEXP_CORE wxTransformMatrix: public wxObject
 {
 public:
     wxTransformMatrix(void);
@@ -94,7 +93,7 @@ public:
     // Is the matrix the identity matrix?
     // Only returns a flag, which is set whenever an operation
     // is done.
-    inline bool IsIdentity(void) const { return m_isIdentity; };
+    inline bool IsIdentity(void) const { return m_isIdentity; }
 
     // This does an actual check.
     inline bool IsIdentity1(void) const ;

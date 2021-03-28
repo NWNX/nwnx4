@@ -1,10 +1,9 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        helpbase.h
+// Name:        wx/helpbase.h
 // Purpose:     Help system base classes
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: helpbase.h,v 1.32 2005/10/26 09:31:53 JS Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -32,7 +31,7 @@ enum wxHelpSearchMode
 };
 
 // Defines the API for help controllers
-class WXDLLEXPORT wxHelpControllerBase: public wxObject
+class WXDLLIMPEXP_CORE wxHelpControllerBase: public wxObject
 {
 public:
     inline wxHelpControllerBase(wxWindow* parentWindow = NULL) { m_parentWindow = parentWindow; }
@@ -57,7 +56,7 @@ public:
     virtual bool DisplaySection(int sectionNo) = 0;
 
     // Display the section using a context id
-    virtual bool DisplayContextPopup(int WXUNUSED(contextId)) { return false; };
+    virtual bool DisplayContextPopup(int WXUNUSED(contextId)) { return false; }
 
     // Display the text in a popup, if possible
     virtual bool DisplayTextPopup(const wxString& WXUNUSED(text), const wxPoint& WXUNUSED(pos)) { return false; }
@@ -82,7 +81,7 @@ public:
         wxPoint *WXUNUSED(pos) = NULL,
         bool *WXUNUSED(newFrameEachTime) = NULL)
     {
-        return (wxFrame*) NULL; // does nothing by default
+        return NULL; // does nothing by default
     }
 
     virtual bool Quit() = 0;

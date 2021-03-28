@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: control.h,v 1.55 2006/09/04 13:34:59 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -15,7 +14,7 @@
 #include "wx/dynarray.h"
 
 // General item class
-class WXDLLEXPORT wxControl : public wxControlBase
+class WXDLLIMPEXP_CORE wxControl : public wxControlBase
 {
 public:
     wxControl() { }
@@ -35,7 +34,6 @@ public:
             const wxValidator& validator = wxDefaultValidator,
             const wxString& name = wxControlNameStr);
 
-    virtual ~wxControl();
 
     // Simulates an event
     virtual void Command(wxCommandEvent& event) { ProcessCommand(event); }
@@ -59,8 +57,8 @@ public:
     virtual bool MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result);
 
     // For ownerdraw items
-    virtual bool MSWOnDraw(WXDRAWITEMSTRUCT *WXUNUSED(item)) { return false; };
-    virtual bool MSWOnMeasure(WXMEASUREITEMSTRUCT *WXUNUSED(item)) { return false; };
+    virtual bool MSWOnDraw(WXDRAWITEMSTRUCT *WXUNUSED(item)) { return false; }
+    virtual bool MSWOnMeasure(WXMEASUREITEMSTRUCT *WXUNUSED(item)) { return false; }
 
     const wxArrayLong& GetSubcontrols() const { return m_subControls; }
 
@@ -123,12 +121,8 @@ protected:
     // one
     virtual WXHBRUSH DoMSWControlColor(WXHDC pDC, wxColour colBg, WXHWND hWnd);
 
-    // this is a helper for the derived class GetClassDefaultAttributes()
-    // implementation: it returns the right colours for the classes which
-    // contain something else (e.g. wxListBox, wxTextCtrl, ...) instead of
-    // being simple controls (such as wxButton, wxCheckBox, ...)
-    static wxVisualAttributes
-        GetCompositeControlsDefaultAttributes(wxWindowVariant variant);
+    // Look in our GetSubcontrols() for the windows with the given ID.
+    virtual wxWindow *MSWFindItem(long id, WXHWND hWnd) const;
 
     // for controls like radiobuttons which are really composite this array
     // holds the ids (not HWNDs!) of the sub controls

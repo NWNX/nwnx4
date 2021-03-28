@@ -3,7 +3,6 @@
 // Purpose:     XML resource handler for wxStaticLine
 // Author:      Vaclav Slavik
 // Created:     2000/09/00
-// RCS-ID:      $Id: xh_stlin.h,v 1.8 2006/10/03 14:53:32 VZ Exp $
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

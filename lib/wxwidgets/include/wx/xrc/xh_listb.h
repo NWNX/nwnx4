@@ -3,7 +3,6 @@
 // Purpose:     XML resource handler for wxListbox
 // Author:      Bob Mitchell & Vaclav Slavik
 // Created:     2000/07/29
-// RCS-ID:      $Id: xh_listb.h,v 1.8 2006/10/03 14:53:31 VZ Exp $
 // Copyright:   (c) 2000 Bob Mitchell & Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

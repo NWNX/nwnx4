@@ -1,8 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        imagpcx.h
+// Name:        wx/imagpcx.h
 // Purpose:     wxImage PCX handler
 // Author:      Guillermo Rodriguez Garcia <guille@iies.es>
-// RCS-ID:      $Id: imagpcx.h,v 1.10 2006/02/08 21:44:23 VZ Exp $
 // Copyright:   (c) 1999 Guillermo Rodriguez Garcia
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -18,7 +17,7 @@
 //-----------------------------------------------------------------------------
 
 #if wxUSE_PCX
-class WXDLLEXPORT wxPCXHandler : public wxImageHandler
+class WXDLLIMPEXP_CORE wxPCXHandler : public wxImageHandler
 {
 public:
     inline wxPCXHandler()

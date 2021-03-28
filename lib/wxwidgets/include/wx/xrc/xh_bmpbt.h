@@ -3,7 +3,6 @@
 // Purpose:     XML resource handler for bitmap buttons
 // Author:      Brian Gavin
 // Created:     2000/03/05
-// RCS-ID:      $Id: xh_bmpbt.h,v 1.10 2006/10/03 14:53:30 VZ Exp $
 // Copyright:   (c) 2000 Brian Gavin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

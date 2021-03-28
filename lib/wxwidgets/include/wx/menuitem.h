@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     25.10.99
-// RCS-ID:      $Id: menuitem.h,v 1.37 2006/09/05 21:00:41 VZ Exp $
 // Copyright:   (c) 1999 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,25 +25,25 @@
 // forward declarations
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxAcceleratorEntry;
-class WXDLLEXPORT wxMenuItem;
-class WXDLLEXPORT wxMenu;
+class WXDLLIMPEXP_FWD_CORE wxAcceleratorEntry;
+class WXDLLIMPEXP_FWD_CORE wxMenuItem;
+class WXDLLIMPEXP_FWD_CORE wxMenu;
 
 // ----------------------------------------------------------------------------
 // wxMenuItem is an item in the menu which may be either a normal item, a sub
 // menu or a separator
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxMenuItemBase : public wxObject
+class WXDLLIMPEXP_CORE wxMenuItemBase : public wxObject
 {
 public:
     // creation
-    static wxMenuItem *New(wxMenu *parentMenu = (wxMenu *)NULL,
+    static wxMenuItem *New(wxMenu *parentMenu = NULL,
                            int itemid = wxID_SEPARATOR,
                            const wxString& text = wxEmptyString,
                            const wxString& help = wxEmptyString,
                            wxItemKind kind = wxITEM_NORMAL,
-                           wxMenu *subMenu = (wxMenu *)NULL);
+                           wxMenu *subMenu = NULL);
 
     // destruction: wxMenuItem will delete its submenu
     virtual ~wxMenuItemBase();
@@ -56,26 +55,39 @@ public:
     // get/set id
     void SetId(int itemid) { m_id = itemid; }
     int  GetId() const { return m_id; }
-    bool IsSeparator() const { return m_id == wxID_SEPARATOR; }
 
     // the item's text (or name)
     //
-    // NB: the item's text includes the accelerators and mnemonics info (if
+    // NB: the item's label includes the accelerators and mnemonics info (if
     //     any), i.e. it may contain '&' or '_' or "\t..." and thus is
-    //     different from the item's label which only contains the text shown
-    //     in the menu
-    virtual void SetText(const wxString& str);
-    wxString GetLabel() const { return GetLabelFromText(m_text); }
-    const wxString& GetText() const { return m_text; }
+    //     different from the item's text which only contains the text shown
+    //     in the menu. This used to be called SetText.
+    virtual void SetItemLabel(const wxString& str);
 
-    // get the label from text (implemented in platform-specific code)
-    static wxString GetLabelFromText(const wxString& text);
+    // return the item label including any mnemonics and accelerators.
+    // This used to be called GetText.
+    virtual wxString GetItemLabel() const { return m_text; }
+
+    // return just the text of the item label, without any mnemonics
+    // This used to be called GetLabel.
+    virtual wxString GetItemLabelText() const { return GetLabelText(m_text); }
+
+    // return just the text part of the given label (implemented in platform-specific code)
+    // This used to be called GetLabelFromText.
+    static wxString GetLabelText(const wxString& label);
 
     // what kind of menu item we are
     wxItemKind GetKind() const { return m_kind; }
     void SetKind(wxItemKind kind) { m_kind = kind; }
+    bool IsSeparator() const { return m_kind == wxITEM_SEPARATOR; }
 
-    virtual void SetCheckable(bool checkable) { m_kind = checkable ? wxITEM_CHECK : wxITEM_NORMAL; }
+    bool IsCheck() const { return m_kind == wxITEM_CHECK; }
+    bool IsRadio() const { return m_kind == wxITEM_RADIO; }
+
+    virtual void SetCheckable(bool checkable)
+        { m_kind = checkable ? wxITEM_CHECK : wxITEM_NORMAL; }
+
+    // Notice that this doesn't quite match SetCheckable().
     bool IsCheckable() const
         { return m_kind == wxITEM_CHECK || m_kind == wxITEM_RADIO; }
 
@@ -108,23 +120,37 @@ public:
     virtual void SetAccel(wxAcceleratorEntry *accel);
 #endif // wxUSE_ACCEL
 
+#if WXWIN_COMPATIBILITY_2_8
     // compatibility only, use new functions in the new code
-    void SetName(const wxString& str) { SetText(str); }
-    const wxString& GetName() const { return GetText(); }
+    wxDEPRECATED( void SetName(const wxString& str) );
+    wxDEPRECATED( wxString GetName() const );
+
+    // Now use GetItemLabelText
+    wxDEPRECATED( wxString GetLabel() const ) ;
+
+    // Now use GetItemLabel
+    wxDEPRECATED( const wxString& GetText() const );
+
+    // Now use GetLabelText to strip the accelerators
+    static wxDEPRECATED( wxString GetLabelFromText(const wxString& text) );
+
+    // Now use SetItemLabel
+    wxDEPRECATED( virtual void SetText(const wxString& str) );
+#endif // WXWIN_COMPATIBILITY_2_8
 
     static wxMenuItem *New(wxMenu *parentMenu,
                            int itemid,
                            const wxString& text,
                            const wxString& help,
                            bool isCheckable,
-                           wxMenu *subMenu = (wxMenu *)NULL)
+                           wxMenu *subMenu = NULL)
     {
         return New(parentMenu, itemid, text, help,
                    isCheckable ? wxITEM_CHECK : wxITEM_NORMAL, subMenu);
     }
 
 protected:
-    int           m_id;             // numeric id of the item >= 0 or wxID_ANY or wxID_SEPARATOR
+    wxWindowIDRef m_id;             // numeric id of the item >= 0 or wxID_ANY or wxID_SEPARATOR
     wxMenu       *m_parentMenu,     // the menu we belong to
                  *m_subMenu;        // our sub menu or NULL
     wxString      m_text,           // label of the item
@@ -134,12 +160,12 @@ protected:
     bool          m_isEnabled;      // is enabled?
 
     // this ctor is for the derived classes only, we're never created directly
-    wxMenuItemBase(wxMenu *parentMenu = (wxMenu *)NULL,
+    wxMenuItemBase(wxMenu *parentMenu = NULL,
                    int itemid = wxID_SEPARATOR,
                    const wxString& text = wxEmptyString,
                    const wxString& help = wxEmptyString,
                    wxItemKind kind = wxITEM_NORMAL,
-                   wxMenu *subMenu = (wxMenu *)NULL);
+                   wxMenu *subMenu = NULL);
 
 private:
     // and, if we have one ctor, compiler won't generate a default copy one, so
@@ -147,6 +173,17 @@ private:
     wxMenuItemBase(const wxMenuItemBase& item);
     wxMenuItemBase& operator=(const wxMenuItemBase& item);
 };
+
+#if WXWIN_COMPATIBILITY_2_8
+inline void wxMenuItemBase::SetName(const wxString &str)
+    { SetItemLabel(str); }
+inline wxString wxMenuItemBase::GetName() const
+    { return GetItemLabel(); }
+inline wxString wxMenuItemBase::GetLabel() const
+    { return GetLabelText(m_text); }
+inline const wxString& wxMenuItemBase::GetText() const { return m_text; }
+inline void wxMenuItemBase::SetText(const wxString& text) { SetItemLabel(text); }
+#endif // WXWIN_COMPATIBILITY_2_8
 
 // ----------------------------------------------------------------------------
 // include the real class declaration
@@ -157,8 +194,6 @@ private:
 #else // !wxUSE_BASE_CLASSES_ONLY
 #if defined(__WXUNIVERSAL__)
     #include "wx/univ/menuitem.h"
-#elif defined(__WXPALMOS__)
-    #include "wx/palmos/menuitem.h"
 #elif defined(__WXMSW__)
     #include "wx/msw/menuitem.h"
 #elif defined(__WXMOTIF__)
@@ -168,7 +203,7 @@ private:
 #elif defined(__WXGTK__)
     #include "wx/gtk1/menuitem.h"
 #elif defined(__WXMAC__)
-    #include "wx/mac/menuitem.h"
+    #include "wx/osx/menuitem.h"
 #elif defined(__WXCOCOA__)
     #include "wx/cocoa/menuitem.h"
 #elif defined(__WXPM__)

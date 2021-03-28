@@ -4,9 +4,8 @@
 // Notes:       Based on htmlhelp.cpp, implementing a monolithic
 //              HTML Help controller class,  by Vaclav Slavik
 // Author:      Harm van der Heijden, Vaclav Slavik, Julian Smart
-// RCS-ID:      $Id: helpdlg.h,v 1.5 2006/09/05 20:45:45 VZ Exp $
 // Copyright:   (c) Harm van der Heijden, Vaclav Slavik, Julian Smart
-// Licence:     wxWidgets licence
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_HELPDLG_H_
@@ -32,8 +31,8 @@
 #include "wx/html/helpwnd.h"
 #include "wx/html/htmprint.h"
 
-class WXDLLIMPEXP_HTML wxHtmlHelpController;
-class WXDLLIMPEXP_HTML wxHtmlHelpWindow;
+class WXDLLIMPEXP_FWD_HTML wxHtmlHelpController;
+class WXDLLIMPEXP_FWD_HTML wxHtmlHelpWindow;
 
 class WXDLLIMPEXP_HTML wxHtmlHelpDialog : public wxDialog
 {
@@ -66,7 +65,7 @@ public:
     void SetTitleFormat(const wxString& format);
 
     // Override to add custom buttons to the toolbar
-    virtual void AddToolbarButtons(wxToolBar* WXUNUSED(toolBar), int WXUNUSED(style)) {};
+    virtual void AddToolbarButtons(wxToolBar* WXUNUSED(toolBar), int WXUNUSED(style)) {}
 
 protected:
     void Init(wxHtmlHelpData* data = NULL);
@@ -81,7 +80,7 @@ protected:
     wxHtmlHelpController* m_helpController;
 
     DECLARE_EVENT_TABLE()
-    DECLARE_NO_COPY_CLASS(wxHtmlHelpDialog)
+    wxDECLARE_NO_COPY_CLASS(wxHtmlHelpDialog);
 };
 
 #endif

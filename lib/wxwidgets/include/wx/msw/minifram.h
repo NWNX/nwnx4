@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: minifram.h,v 1.14 2005/09/23 12:50:13 MR Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -14,7 +13,7 @@
 
 #include "wx/frame.h"
 
-class WXDLLEXPORT wxMiniFrame : public wxFrame
+class WXDLLIMPEXP_CORE wxMiniFrame : public wxFrame
 {
 public:
   wxMiniFrame() { }

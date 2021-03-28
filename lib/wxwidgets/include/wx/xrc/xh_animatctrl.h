@@ -3,7 +3,6 @@
 // Purpose:     XML resource handler for wxAnimationCtrl
 // Author:      Francesco Montorsi
 // Created:     2006-10-15
-// RCS-ID:      $Id: xh_animatctrl.h,v 1.1 2006/10/21 13:59:21 RR Exp $
 // Copyright:   (c) 2006 Francesco Montorsi
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

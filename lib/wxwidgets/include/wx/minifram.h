@@ -5,18 +5,17 @@
 // Modified by:
 // Created:
 // Copyright:   (c) Julian Smart
-// RCS-ID:      $Id: minifram.h,v 1.12 2006/11/04 13:01:30 VZ Exp $
 // Licence:     wxWindows Licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_MINIFRAM_H_BASE_
-#define _WX_MINIFRAMH_BASE_
+#define _WX_MINIFRAM_H_BASE_
 
 #include "wx/defs.h"
 
-#if defined(__WXPALMOS__)
-#include "wx/palmos/minifram.h"
-#elif defined(__WXMSW__)
+#if wxUSE_MINIFRAME
+
+#if defined(__WXMSW__)
 #include "wx/msw/minifram.h"
 #elif defined(__WXMOTIF__)
 #include "wx/motif/minifram.h"
@@ -27,7 +26,7 @@
 #elif defined(__WXX11__)
 #include "wx/x11/minifram.h"
 #elif defined(__WXMAC__)
-#include "wx/mac/minifram.h"
+#include "wx/osx/minifram.h"
 #elif defined(__WXPM__)
 #include "wx/os2/minifram.h"
 #else
@@ -37,5 +36,5 @@
 typedef wxFrame wxMiniFrame;
 #endif
 
-#endif
-    // _WX_MINIFRAM_H_BASE_
+#endif // wxUSE_MINIFRAME
+#endif // _WX_MINIFRAM_H_BASE_

@@ -1,10 +1,9 @@
 /*
 /////////////////////////////////////////////////////////////////////////////
-// Name:        microwin.h
+// Name:        wx/msw/microwin.h
 // Purpose:     Extra implementation for MicroWindows
 // Author:      Julian Smart
 // Created:     2001-05-31
-// RCS-ID:      $Id: microwin.h,v 1.8 2005/09/23 12:50:13 MR Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

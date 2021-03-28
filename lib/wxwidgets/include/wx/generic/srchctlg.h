@@ -3,7 +3,6 @@
 // Purpose:     generic wxSearchCtrl class
 // Author:      Vince Harron
 // Created:     2006-02-19
-// RCS-ID:      $Id: srchctlg.h,v 1.6 2007/01/19 05:27:14 RD Exp $
 // Copyright:   Vince Harron
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -15,14 +14,14 @@
 
 #include "wx/bitmap.h"
 
-class WXDLLEXPORT wxSearchButton;
-class WXDLLEXPORT wxSearchTextCtrl;
+class WXDLLIMPEXP_FWD_CORE wxSearchButton;
+class WXDLLIMPEXP_FWD_CORE wxSearchTextCtrl;
 
 // ----------------------------------------------------------------------------
 // wxSearchCtrl is a combination of wxTextCtrl and wxSearchButton
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxSearchCtrl : public wxSearchCtrlBase
+class WXDLLIMPEXP_CORE wxSearchCtrl : public wxSearchCtrlBase
 {
 public:
     // creation
@@ -47,10 +46,12 @@ public:
                 const wxValidator& validator = wxDefaultValidator,
                 const wxString& name = wxSearchCtrlNameStr);
 
+#if wxUSE_MENUS
     // get/set search button menu
     // --------------------------
     virtual void SetMenu( wxMenu* menu );
     virtual wxMenu* GetMenu();
+#endif // wxUSE_MENUS
 
     // get/set search options
     // ----------------------
@@ -60,17 +61,12 @@ public:
     virtual void ShowCancelButton( bool show );
     virtual bool IsCancelButtonVisible() const;
 
-#if wxABI_VERSION >= 20802
     // TODO: In 2.9 these should probably be virtual, and declared in the base class...
     void SetDescriptiveText(const wxString& text);
     wxString GetDescriptiveText() const;
-#endif
 
     // accessors
     // ---------
-
-    virtual wxString GetValue() const;
-    virtual void SetValue(const wxString& value);
 
     virtual wxString GetRange(long from, long to) const;
 
@@ -194,14 +190,21 @@ public:
 
     // wxWindow overrides
     virtual bool SetFont(const wxFont& font);
+    virtual bool SetBackgroundColour(const wxColour& colour);
 
     // search control generic only
     void SetSearchBitmap( const wxBitmap& bitmap );
-    void SetSearchMenuBitmap( const wxBitmap& bitmap );
     void SetCancelBitmap( const wxBitmap& bitmap );
+#if wxUSE_MENUS
+    void SetSearchMenuBitmap( const wxBitmap& bitmap );
+#endif // wxUSE_MENUS
 
 protected:
-    virtual void DoSetValue(const wxString& value, int flags = 0);
+    virtual void DoSetValue(const wxString& value, int flags);
+    virtual wxString DoGetValue() const;
+
+    virtual bool DoLoadFile(const wxString& file, int fileType);
+    virtual bool DoSaveFile(const wxString& file, int fileType);
 
     // override the base class virtuals involved into geometry calculations
     virtual wxSize DoGetBestSize() const;
@@ -215,31 +218,56 @@ protected:
     virtual wxBitmap RenderSearchBitmap( int x, int y, bool renderDrop );
     virtual wxBitmap RenderCancelBitmap( int x, int y );
 
-    virtual void OnSearchButton( wxCommandEvent& event );
+    void OnCancelButton( wxCommandEvent& event );
 
     void OnSetFocus( wxFocusEvent& event );
     void OnSize( wxSizeEvent& event );
-    
+
+    bool HasMenu() const
+    {
+#if wxUSE_MENUS
+        return m_menu != NULL;
+#else // !wxUSE_MENUS
+        return false;
+#endif // wxUSE_MENUS/!wxUSE_MENUS
+    }
+
 private:
     friend class wxSearchButton;
 
+    // Implement pure virtual function inherited from wxCompositeWindow.
+    virtual wxWindowList GetCompositeWindowParts() const;
+
+    // Position the child controls using the current window size.
+    void DoLayoutControls();
+
+#if wxUSE_MENUS
     void PopupSearchMenu();
+#endif // wxUSE_MENUS
 
     // the subcontrols
     wxSearchTextCtrl *m_text;
     wxSearchButton *m_searchButton;
     wxSearchButton *m_cancelButton;
+#if wxUSE_MENUS
     wxMenu *m_menu;
+#endif // wxUSE_MENUS
 
     bool m_searchButtonVisible;
     bool m_cancelButtonVisible;
 
     bool m_searchBitmapUser;
-    bool m_searchMenuBitmapUser;
     bool m_cancelBitmapUser;
+#if wxUSE_MENUS
+    bool m_searchMenuBitmapUser;
+#endif // wxUSE_MENUS
+
     wxBitmap m_searchBitmap;
-    wxBitmap m_searchMenuBitmap;
     wxBitmap m_cancelBitmap;
+#if wxUSE_MENUS
+    wxBitmap m_searchMenuBitmap;
+#endif // wxUSE_MENUS
+
 private:
     DECLARE_DYNAMIC_CLASS(wxSearchCtrl)
 

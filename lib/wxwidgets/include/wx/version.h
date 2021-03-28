@@ -4,7 +4,6 @@
  *  Author:      Julian Smart
  *  Modified by: Ryan Norton (Converted to C)
  *  Created:     29/01/98
- *  RCS-ID:      $Id: version.h,v 1.87.2.3 2007/03/15 09:54:05 CE Exp $
  *  Copyright:   (c) 1998 Julian Smart
  *  Licence:     wxWindows licence
  */
@@ -26,11 +25,11 @@
  */
 
 /*  NB: this file is parsed by automatic tools so don't change its format! */
-#define wxMAJOR_VERSION      2
-#define wxMINOR_VERSION      8
-#define wxRELEASE_NUMBER     3
+#define wxMAJOR_VERSION      3
+#define wxMINOR_VERSION      0
+#define wxRELEASE_NUMBER     5
 #define wxSUBRELEASE_NUMBER  0
-#define wxVERSION_STRING   _T("wxWidgets 2.8.3")
+#define wxVERSION_STRING   wxT("wxWidgets 3.0.5")
 
 /*  nothing to update below this line when updating the version */
 /*  ---------------------------------------------------------------------------- */
@@ -54,7 +53,7 @@
 #define wxMAKE_VERSION_STRING_T(x, y, z) \
     wxSTRINGIZE_T(x) wxSTRINGIZE_T(y) wxSTRINGIZE_T(z)
 #define wxMAKE_VERSION_DOT_STRING_T(x, y, z) \
-    wxSTRINGIZE_T(x) _T(".") wxSTRINGIZE_T(y) _T(".") wxSTRINGIZE_T(z)
+    wxSTRINGIZE_T(x) wxT(".") wxSTRINGIZE_T(y) wxT(".") wxSTRINGIZE_T(z)
 
 /*  these are used by src/msw/version.rc and should always be ASCII, not Unicode */
 #define wxVERSION_NUM_STRING \

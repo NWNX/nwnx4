@@ -1,10 +1,9 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        paper.h
+// Name:        wx/paper.h
 // Purpose:     Paper database types and classes
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: paper.h,v 1.14 2006/01/18 16:45:25 JS Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -30,7 +29,7 @@
 #define WXADDPAPER(paperId, platformId, name, w, h) AddPaperType(paperId, 0, name, w, h)
 #endif
 
-class WXDLLEXPORT wxPrintPaperType: public wxObject
+class WXDLLIMPEXP_CORE wxPrintPaperType: public wxObject
 {
 public:
     wxPrintPaperType();
@@ -68,9 +67,9 @@ private:
 
 WX_DECLARE_STRING_HASH_MAP(wxPrintPaperType*, wxStringToPrintPaperTypeHashMap);
 
-class WXDLLEXPORT wxPrintPaperTypeList;
+class WXDLLIMPEXP_FWD_CORE wxPrintPaperTypeList;
 
-class WXDLLEXPORT wxPrintPaperDatabase
+class WXDLLIMPEXP_CORE wxPrintPaperDatabase
 {
 public:
     wxPrintPaperDatabase();
@@ -115,7 +114,7 @@ private:
     // DECLARE_DYNAMIC_CLASS(wxPrintPaperDatabase)
 };
 
-extern WXDLLEXPORT_DATA(wxPrintPaperDatabase*) wxThePrintPaperDatabase;
+extern WXDLLIMPEXP_DATA_CORE(wxPrintPaperDatabase*) wxThePrintPaperDatabase;
 
 
 #endif

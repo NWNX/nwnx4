@@ -5,7 +5,6 @@
 // Modified by:
 // Created:     14/4/2006
 // Copyright:   (c) Vadim Zeitlin, Francesco Montorsi
-// RCS-ID:      $Id: clrpickerg.h,v 1.5 2006/07/25 11:41:50 ABX Exp $
 // Licence:     wxWindows Licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -13,20 +12,14 @@
 #define _WX_CLRPICKER_H_
 
 #include "wx/button.h"
-#include "wx/cmndata.h"
+#include "wx/bmpbuttn.h"
+#include "wx/colourdata.h"
 
 //-----------------------------------------------------------------------------
 // wxGenericColourButton: a button which brings up a wxColourDialog
 //-----------------------------------------------------------------------------
 
-// show the colour in HTML form (#AABBCC) as colour button label
-#define wxCLRBTN_SHOW_LABEL     100
-
-// the default style
-#define wxCLRBTN_DEFAULT_STYLE  (wxCLRBTN_SHOW_LABEL)
-
-
-class WXDLLIMPEXP_CORE wxGenericColourButton : public wxButton,
+class WXDLLIMPEXP_CORE wxGenericColourButton : public wxBitmapButton,
                                                public wxColourPickerWidgetBase
 {
 public:
@@ -70,6 +63,7 @@ public:
 
 
 protected:
+    wxBitmap    m_bitmap;
 
     wxSize DoGetBestSize() const;
 

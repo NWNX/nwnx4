@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     14.08.00
-// RCS-ID:      $Id: inpcons.h,v 1.12 2006/09/14 19:36:38 VZ Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,8 +11,8 @@
 #ifndef _WX_UNIV_INPCONS_H_
 #define _WX_UNIV_INPCONS_H_
 
-class WXDLLEXPORT wxInputHandler;
-class WXDLLEXPORT wxWindow;
+class WXDLLIMPEXP_FWD_CORE wxInputHandler;
+class WXDLLIMPEXP_FWD_CORE wxWindow;
 
 #include "wx/object.h"
 #include "wx/event.h"
@@ -28,14 +27,14 @@ typedef wxString wxControlAction;
 // the list of actions which apply to all controls (other actions are defined
 // in the controls headers)
 
-#define wxACTION_NONE    _T("")           // no action to perform
+#define wxACTION_NONE    wxT("")           // no action to perform
 
 // ----------------------------------------------------------------------------
 // wxInputConsumer: mix-in class for handling wxControlActions (used by
 // wxControl and wxTopLevelWindow).
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxInputConsumer
+class WXDLLIMPEXP_CORE wxInputConsumer
 {
 public:
     wxInputConsumer() { m_inputHandler = NULL; }

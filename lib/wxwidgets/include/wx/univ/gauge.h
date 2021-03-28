@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.02.01
-// RCS-ID:      $Id: gauge.h,v 1.11 2005/09/25 20:49:35 MW Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,7 +15,7 @@
 // wxGauge: a progress bar
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxGauge : public wxGaugeBase
+class WXDLLIMPEXP_CORE wxGauge : public wxGaugeBase
 {
 public:
     wxGauge() { Init(); }

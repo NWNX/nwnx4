@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     2005-03-12
-// RCS-ID:      $Id: propdlg.h,v 1.11 2006/10/09 07:36:24 PC Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -18,7 +17,7 @@
 
 #include "wx/dialog.h"
 
-class WXDLLIMPEXP_CORE wxBookCtrlBase;
+class WXDLLIMPEXP_FWD_CORE wxBookCtrlBase;
 
 //-----------------------------------------------------------------------------
 // wxPropertySheetDialog
@@ -50,29 +49,32 @@ class WXDLLIMPEXP_CORE wxBookCtrlBase;
 // kind of book control.
 //-----------------------------------------------------------------------------
 
-// Use the platform default
-#define wxPROPSHEET_DEFAULT         0x0001
+enum wxPropertySheetDialogFlags
+{
+    // Use the platform default
+    wxPROPSHEET_DEFAULT = 0x0001,
 
-// Use a notebook
-#define wxPROPSHEET_NOTEBOOK        0x0002
+    // Use a notebook
+    wxPROPSHEET_NOTEBOOK = 0x0002,
 
-// Use a toolbook
-#define wxPROPSHEET_TOOLBOOK        0x0004
+    // Use a toolbook
+    wxPROPSHEET_TOOLBOOK = 0x0004,
 
-// Use a choicebook
-#define wxPROPSHEET_CHOICEBOOK      0x0008
+    // Use a choicebook
+    wxPROPSHEET_CHOICEBOOK = 0x0008,
 
-// Use a listbook
-#define wxPROPSHEET_LISTBOOK        0x0010
+    // Use a listbook
+    wxPROPSHEET_LISTBOOK = 0x0010,
 
-// Use a wxButtonToolBar toolbook
-#define wxPROPSHEET_BUTTONTOOLBOOK  0x0020
+    // Use a wxButtonToolBar toolbook
+    wxPROPSHEET_BUTTONTOOLBOOK = 0x0020,
 
-// Use a treebook
-#define wxPROPSHEET_TREEBOOK        0x0040
+    // Use a treebook
+    wxPROPSHEET_TREEBOOK = 0x0040,
 
-// Shrink dialog to fit current page
-#define wxPROPSHEET_SHRINKTOFIT     0x0100
+    // Shrink dialog to fit current page
+    wxPROPSHEET_SHRINKTOFIT = 0x0100
+};
 
 class WXDLLIMPEXP_ADV wxPropertySheetDialog : public wxDialog
 {
@@ -103,8 +105,16 @@ public:
     void SetBookCtrl(wxBookCtrlBase* book) { m_bookCtrl = book; }
     wxBookCtrlBase* GetBookCtrl() const { return m_bookCtrl; }
 
+    // Override function in base
+    virtual wxWindow* GetContentWindow() const;
+
     // Set and get the inner sizer
+
+    // Keep old version with a typo in it for ABI compatibility.
     void SetInnerSize(wxSizer* sizer) { m_innerSizer = sizer; }
+#if wxABI_VERSION >= 30003
+    void SetInnerSizer(wxSizer* sizer) { m_innerSizer = sizer; }
+#endif
     wxSizer* GetInnerSizer() const { return m_innerSizer ; }
 
     // Set and get the book style

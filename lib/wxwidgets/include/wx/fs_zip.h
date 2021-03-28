@@ -3,7 +3,6 @@
 // Purpose:     wxZipFSHandler typedef for compatibility
 // Author:      Mike Wetherell
 // Copyright:   (c) 2006 Mike Wetherell
-// CVS-ID:      $Id: fs_zip.h,v 1.34 2006/10/30 11:56:10 ABX Exp $
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 

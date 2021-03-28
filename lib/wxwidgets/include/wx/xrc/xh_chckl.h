@@ -3,7 +3,6 @@
 // Purpose:     XML resource handler for wxCheckListBox
 // Author:      Bob Mitchell
 // Created:     2000/03/21
-// RCS-ID:      $Id: xh_chckl.h,v 1.10 2006/10/03 14:53:30 VZ Exp $
 // Copyright:   (c) 2000 Bob Mitchell and Verant Interactive
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

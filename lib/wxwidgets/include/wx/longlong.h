@@ -5,7 +5,6 @@
 // Author:      Jeffrey C. Ollie <jeff@ollie.clive.ia.us>, Vadim Zeitlin
 // Modified by:
 // Created:     10.02.99
-// RCS-ID:      $Id: longlong.h,v 1.74 2006/08/18 15:27:30 JS Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -67,8 +66,8 @@
         #define wxUSE_LONGLONG_NATIVE 0
     #endif
 
-    class WXDLLIMPEXP_BASE wxLongLongWx;
-    class WXDLLIMPEXP_BASE wxULongLongWx;
+    class WXDLLIMPEXP_FWD_BASE wxLongLongWx;
+    class WXDLLIMPEXP_FWD_BASE wxULongLongWx;
 #if defined(__VISUALC__) && !defined(__WIN32__)
     #define wxLongLong wxLongLongWx
     #define wxULongLong wxULongLongWx
@@ -86,8 +85,8 @@
 
 #ifndef wxUSE_LONGLONG_WX
     #define wxUSE_LONGLONG_WX 0
-    class WXDLLIMPEXP_BASE wxLongLongNative;
-    class WXDLLIMPEXP_BASE wxULongLongNative;
+    class WXDLLIMPEXP_FWD_BASE wxLongLongNative;
+    class WXDLLIMPEXP_FWD_BASE wxULongLongNative;
     typedef wxLongLongNative wxLongLong;
     typedef wxULongLongNative wxULongLong;
 #endif
@@ -113,9 +112,9 @@ public:
         // from long long
     wxLongLongNative(wxLongLong_t ll) : m_ll(ll) { }
         // from 2 longs
-    wxLongLongNative(long hi, unsigned long lo) : m_ll(0)
+    wxLongLongNative(wxInt32 hi, wxUint32 lo)
     {
-        // assign first to avoid precision loss!
+        // cast to wxLongLong_t first to avoid precision loss!
         m_ll = ((wxLongLong_t) hi) << 32;
         m_ll |= (wxLongLong_t) lo;
     }
@@ -160,11 +159,11 @@ public:
 
     // accessors
         // get high part
-    long GetHi() const
-        { return wx_truncate_cast(long, m_ll >> 32); }
+    wxInt32 GetHi() const
+        { return wx_truncate_cast(wxInt32, m_ll >> 32); }
         // get low part
-    unsigned long GetLo() const
-        { return wx_truncate_cast(unsigned long, m_ll); }
+    wxUint32 GetLo() const
+        { return wx_truncate_cast(wxUint32, m_ll); }
 
         // get absolute value
     wxLongLongNative Abs() const { return wxLongLongNative(*this).Abs(); }
@@ -177,7 +176,7 @@ public:
     long ToLong() const
     {
         wxASSERT_MSG( (m_ll >= LONG_MIN) && (m_ll <= LONG_MAX),
-                      _T("wxLongLong to long conversion loss of precision") );
+                      wxT("wxLongLong to long conversion loss of precision") );
 
         return wx_truncate_cast(long, m_ll);
     }
@@ -350,9 +349,9 @@ public:
         // from long long
     wxULongLongNative(wxULongLong_t ll) : m_ll(ll) { }
         // from 2 longs
-    wxULongLongNative(unsigned long hi, unsigned long lo) : m_ll(0)
+    wxULongLongNative(wxUint32 hi, wxUint32 lo) : m_ll(0)
     {
-        // assign first to avoid precision loss!
+        // cast to wxLongLong_t first to avoid precision loss!
         m_ll = ((wxULongLong_t) hi) << 32;
         m_ll |= (wxULongLong_t) lo;
     }
@@ -392,11 +391,11 @@ public:
 
     // accessors
         // get high part
-    unsigned long GetHi() const
-        { return wx_truncate_cast(unsigned long, m_ll >> 32); }
+    wxUint32 GetHi() const
+        { return wx_truncate_cast(wxUint32, m_ll >> 32); }
         // get low part
-    unsigned long GetLo() const
-        { return wx_truncate_cast(unsigned long, m_ll); }
+    wxUint32 GetLo() const
+        { return wx_truncate_cast(wxUint32, m_ll); }
 
         // convert to native ulong long
     wxULongLong_t GetValue() const { return m_ll; }
@@ -404,15 +403,20 @@ public:
         // convert to ulong with range checking in debug mode (only!)
     unsigned long ToULong() const
     {
-        wxASSERT_MSG( m_ll <= LONG_MAX,
-                      _T("wxULongLong to long conversion loss of precision") );
+        wxASSERT_MSG( m_ll <= ULONG_MAX,
+                      wxT("wxULongLong to long conversion loss of precision") );
 
         return wx_truncate_cast(unsigned long, m_ll);
     }
 
         // convert to double
-#ifdef _MSC_VER
-    double ToDouble() const { return wx_truncate_cast(double, (__int64) m_ll); }
+        //
+        // For some completely obscure reasons compiling the cast below with
+        // VC6 in DLL builds only (!) results in "error C2520: conversion from
+        // unsigned __int64 to double not implemented, use signed __int64" so
+        // we must use a different version for that compiler.
+#ifdef __VISUALC6__
+    double ToDouble() const;
 #else
     double ToDouble() const { return wx_truncate_cast(double, m_ll); }
 #endif
@@ -683,7 +687,7 @@ public:
     long ToLong() const
     {
         wxASSERT_MSG( (m_hi == 0l) || (m_hi == -1l),
-                      _T("wxLongLong to long conversion loss of precision") );
+                      wxT("wxLongLong to long conversion loss of precision") );
 
         return (long)m_lo;
     }
@@ -908,7 +912,7 @@ public:
     unsigned long ToULong() const
     {
         wxASSERT_MSG( m_hi == 0ul,
-                      _T("wxULongLong to long conversion loss of precision") );
+                      wxT("wxULongLong to long conversion loss of precision") );
 
         return (unsigned long)m_lo;
     }
@@ -1062,7 +1066,7 @@ inline wxULongLong operator+(unsigned long l, const wxULongLong& ull) { return u
 inline wxLongLong operator-(unsigned long l, const wxULongLong& ull)
 {
     wxULongLong ret = wxULongLong(l) - ull;
-    return wxLongLong((long)ret.GetHi(),ret.GetLo());
+    return wxLongLong((wxInt32)ret.GetHi(),ret.GetLo());
 }
 
 #if wxUSE_LONGLONG_NATIVE && wxUSE_STREAMS
@@ -1074,6 +1078,66 @@ WXDLLIMPEXP_BASE class wxTextInputStream &operator>>(class wxTextInputStream &st
 WXDLLIMPEXP_BASE class wxTextInputStream &operator>>(class wxTextInputStream &stream, wxLongLong_t &value);
 
 #endif
+
+// ----------------------------------------------------------------------------
+// Specialize numeric_limits<> for our long long wrapper classes.
+// ----------------------------------------------------------------------------
+
+#if wxUSE_LONGLONG_NATIVE
+
+// VC6 is known to not have __int64 specializations of numeric_limits<> in its
+// <limits> anyhow so don't bother including it, especially as it results in
+// tons of warnings because the standard header itself uses obsolete template
+// specialization syntax.
+#ifndef __VISUALC6__
+
+#include <limits>
+
+namespace std
+{
+
+#ifdef __clang__
+  // libstdc++ (used by Clang) uses struct for numeric_limits; unlike gcc, clang
+  // warns about this
+  template<> struct numeric_limits<wxLongLong>  : public numeric_limits<wxLongLong_t> {};
+  template<> struct numeric_limits<wxULongLong> : public numeric_limits<wxULongLong_t> {};
+#else
+  template<> class numeric_limits<wxLongLong>  : public numeric_limits<wxLongLong_t> {};
+  template<> class numeric_limits<wxULongLong> : public numeric_limits<wxULongLong_t> {};
+#endif
+
+} // namespace std
+
+#endif // !VC6
+
+#endif // wxUSE_LONGLONG_NATIVE
+
+// ----------------------------------------------------------------------------
+// Specialize wxArgNormalizer to allow using wxLongLong directly with wx pseudo
+// vararg functions.
+// ----------------------------------------------------------------------------
+
+// Notice that this must be done here and not in wx/strvararg.h itself because
+// we can't include wx/longlong.h from there as this header itself includes
+// wx/string.h which includes wx/strvararg.h too, so to avoid the circular
+// dependencies we can only do it here (or add another header just for this but
+// it doesn't seem necessary).
+#include "wx/strvararg.h"
+
+template<>
+struct WXDLLIMPEXP_BASE wxArgNormalizer<wxLongLong>
+{
+     wxArgNormalizer(wxLongLong value,
+                     const wxFormatString *fmt, unsigned index)
+         : m_value(value)
+     {
+         wxASSERT_ARG_TYPE( fmt, index, wxFormatString::Arg_LongLongInt );
+     }
+
+     wxLongLong_t get() const { return m_value.GetValue(); }
+
+     wxLongLong m_value;
+};
 
 #endif // wxUSE_LONGLONG
 

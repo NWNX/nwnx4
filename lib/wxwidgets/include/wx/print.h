@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:
-// RCS-ID:      $Id: print.h,v 1.12 2006/09/15 16:45:48 PC Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows Licence
 /////////////////////////////////////////////////////////////////////////////
@@ -22,7 +21,7 @@
 
 #elif defined(__WXMAC__)
 
-#include "wx/mac/printmac.h"
+#include "wx/osx/printmac.h"
 
 #elif defined(__WXPM__)
 

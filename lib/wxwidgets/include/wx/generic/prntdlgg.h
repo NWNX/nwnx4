@@ -1,11 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        prntdlgg.h
+// Name:        wx/generic/prntdlgg.h
 // Purpose:     wxGenericPrintDialog, wxGenericPrintSetupDialog,
 //              wxGenericPageSetupDialog
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: prntdlgg.h,v 1.30 2006/10/08 21:55:26 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -23,17 +22,18 @@
 #include "wx/printdlg.h"
 #include "wx/listctrl.h"
 
+#include "wx/dc.h"
 #if wxUSE_POSTSCRIPT
     #include "wx/dcps.h"
 #endif
 
-class WXDLLEXPORT wxTextCtrl;
-class WXDLLEXPORT wxButton;
-class WXDLLEXPORT wxCheckBox;
-class WXDLLEXPORT wxComboBox;
-class WXDLLEXPORT wxStaticText;
-class WXDLLEXPORT wxRadioBox;
-class WXDLLEXPORT wxPageSetupData;
+class WXDLLIMPEXP_FWD_CORE wxTextCtrl;
+class WXDLLIMPEXP_FWD_CORE wxButton;
+class WXDLLIMPEXP_FWD_CORE wxCheckBox;
+class WXDLLIMPEXP_FWD_CORE wxComboBox;
+class WXDLLIMPEXP_FWD_CORE wxStaticText;
+class WXDLLIMPEXP_FWD_CORE wxRadioBox;
+class WXDLLIMPEXP_FWD_CORE wxPageSetupDialogData;
 
 // ----------------------------------------------------------------------------
 // constants
@@ -77,7 +77,7 @@ enum
 // wxPostScriptNativeData
 //----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxPostScriptPrintNativeData: public wxPrintNativeDataBase
+class WXDLLIMPEXP_CORE wxPostScriptPrintNativeData: public wxPrintNativeDataBase
 {
 public:
     wxPostScriptPrintNativeData();
@@ -136,11 +136,11 @@ private:
 // Windows using PostScript print/preview)
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxGenericPrintDialog : public wxPrintDialogBase
+class WXDLLIMPEXP_CORE wxGenericPrintDialog : public wxPrintDialogBase
 {
 public:
     wxGenericPrintDialog(wxWindow *parent,
-                         wxPrintDialogData* data = (wxPrintDialogData*)NULL);
+                         wxPrintDialogData* data = NULL);
     wxGenericPrintDialog(wxWindow *parent, wxPrintData* data);
 
     virtual ~wxGenericPrintDialog();
@@ -181,7 +181,7 @@ private:
     DECLARE_DYNAMIC_CLASS(wxGenericPrintDialog)
 };
 
-class WXDLLEXPORT wxGenericPrintSetupDialog : public wxDialog
+class WXDLLIMPEXP_CORE wxGenericPrintSetupDialog : public wxDialog
 {
 public:
     // There are no configuration options for the dialog, so we
@@ -219,7 +219,7 @@ private:
 #endif
     // wxUSE_POSTSCRIPT
 
-class WXDLLEXPORT wxGenericPageSetupDialog : public wxPageSetupDialogBase
+class WXDLLIMPEXP_CORE wxGenericPageSetupDialog : public wxPageSetupDialogBase
 {
 public:
     wxGenericPageSetupDialog(wxWindow *parent = NULL,

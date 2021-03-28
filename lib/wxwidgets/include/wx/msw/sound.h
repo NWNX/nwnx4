@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: sound.h,v 1.6 2005/09/23 12:50:15 MR Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -19,14 +18,14 @@ class WXDLLIMPEXP_ADV wxSound : public wxSoundBase
 public:
     wxSound();
     wxSound(const wxString& fileName, bool isResource = false);
-    wxSound(int size, const wxByte* data);
+    wxSound(size_t size, const void* data);
     virtual ~wxSound();
 
     // Create from resource or file
     bool Create(const wxString& fileName, bool isResource = false);
 
     // Create from data
-    bool Create(int size, const wxByte* data);
+    bool Create(size_t size, const void* data);
 
     bool IsOk() const { return m_data != NULL; }
 
@@ -43,7 +42,7 @@ private:
     // data of this object
     class wxSoundData *m_data;
 
-    DECLARE_NO_COPY_CLASS(wxSound)
+    wxDECLARE_NO_COPY_CLASS(wxSound);
 };
 
 #endif // wxUSE_SOUND

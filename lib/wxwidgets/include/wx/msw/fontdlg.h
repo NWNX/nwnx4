@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: fontdlg.h,v 1.11 2006/03/30 14:04:06 ABX Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -16,7 +15,7 @@
 // wxFontDialog
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxFontDialog : public wxFontDialogBase
+class WXDLLIMPEXP_CORE wxFontDialog : public wxFontDialogBase
 {
 public:
     wxFontDialog() : wxFontDialogBase() { /* must be Create()d later */ }

@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     15.08.00
-// RCS-ID:      $Id: statbox.h,v 1.15 2006/02/08 21:46:52 VZ Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +11,7 @@
 #ifndef _WX_UNIV_STATBOX_H_
 #define _WX_UNIV_STATBOX_H_
 
-class WXDLLEXPORT wxStaticBox : public wxStaticBoxBase
+class WXDLLIMPEXP_CORE wxStaticBox : public wxStaticBoxBase
 {
 public:
     wxStaticBox() { }

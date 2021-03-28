@@ -1,10 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        ole/uuid.h
+// Name:        wx/msw/ole/uuid.h
 // Purpose:     encapsulates an UUID with some added helper functions
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     11.07.97
-// RCS-ID:      $Id: uuid.h,v 1.12 2005/09/23 12:50:23 MR Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 //
@@ -14,7 +13,7 @@
 #ifndef   _WX_OLEUUID_H
 #define   _WX_OLEUUID_H
 
-#include "wx/wxchar.h"
+#include "wx/chartype.h"
 // ------------------------------------------------------------------
 // UUID (Universally Unique IDentifier) definition
 // ------------------------------------------------------------------
@@ -44,7 +43,7 @@ typedef unsigned char uchar;
 // ------------------------------------------------------------------
 
 // uses RPC functions to create/convert Universally Unique Identifiers
-class WXDLLEXPORT Uuid
+class WXDLLIMPEXP_CORE Uuid
 {
 private:
   UUID  m_uuid;
@@ -73,6 +72,10 @@ public:
   // set value of UUID
   bool Set(const wxChar *pc); // from a string, returns true if ok
   void Set(const UUID& uuid); // from another UUID (never fails)
+
+  // comparison operators
+  bool operator==(const Uuid& uuid) const;
+  bool operator!=(const Uuid& uuid) const { return !(*this == uuid); }
 
   // accessors
   operator const UUID*()   const { return &m_uuid;               }

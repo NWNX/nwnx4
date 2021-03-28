@@ -4,7 +4,6 @@
 // Author:      John Labenski
 // Modified by:
 // Created:     07.02.04 (extracted from textdlgg.cpp)
-// RCS-ID:      $Id: numdlgg.h,v 1.6 2006/01/26 15:33:27 ABX Exp $
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -19,16 +18,16 @@
 #include "wx/dialog.h"
 
 #if wxUSE_SPINCTRL
-    class WXDLLEXPORT wxSpinCtrl;
+    class WXDLLIMPEXP_FWD_CORE wxSpinCtrl;
 #else
-    class WXDLLEXPORT wxTextCtrl;
+    class WXDLLIMPEXP_FWD_CORE wxTextCtrl;
 #endif // wxUSE_SPINCTRL
 
 // ----------------------------------------------------------------------------
 // wxNumberEntryDialog: a dialog with spin control, [ok] and [cancel] buttons
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxNumberEntryDialog : public wxDialog
+class WXDLLIMPEXP_CORE wxNumberEntryDialog : public wxDialog
 {
 public:
     wxNumberEntryDialog(wxWindow *parent,
@@ -57,22 +56,22 @@ protected:
 private:
     DECLARE_EVENT_TABLE()
     DECLARE_DYNAMIC_CLASS(wxNumberEntryDialog)
-    DECLARE_NO_COPY_CLASS(wxNumberEntryDialog)
+    wxDECLARE_NO_COPY_CLASS(wxNumberEntryDialog);
 };
 
 // ----------------------------------------------------------------------------
 // function to get a number from user
 // ----------------------------------------------------------------------------
 
-long WXDLLEXPORT
-wxGetNumberFromUser(const wxString& message,
-                    const wxString& prompt,
-                    const wxString& caption,
-                    long value = 0,
-                    long min = 0,
-                    long max = 100,
-                    wxWindow *parent = (wxWindow *)NULL,
-                    const wxPoint& pos = wxDefaultPosition);
+WXDLLIMPEXP_CORE long
+    wxGetNumberFromUser(const wxString& message,
+                        const wxString& prompt,
+                        const wxString& caption,
+                        long value = 0,
+                        long min = 0,
+                        long max = 100,
+                        wxWindow *parent = NULL,
+                        const wxPoint& pos = wxDefaultPosition);
 
 #endif // wxUSE_NUMBERDLG
 

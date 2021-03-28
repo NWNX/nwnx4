@@ -4,7 +4,6 @@
 // Author:      Guilhem Lavaux, Vadim Zeitlin, Vaclav Slavik
 // Modified by:
 // Created:     20/07/98
-// RCS-ID:      $Id: dynlib.h,v 1.60 2005/11/20 21:23:53 VZ Exp $
 // Copyright:   (c) 1998 Guilhem Lavaux
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -19,20 +18,12 @@
 #include "wx/string.h"
 #include "wx/dynarray.h"
 
-#if defined(__OS2__) || defined(__EMX__)
-#include "wx/os2/private.h"
-#endif
-
-#ifdef __WXMSW__
-#include "wx/msw/private.h"
-#endif
-
 // note that we have our own dlerror() implementation under Darwin
 #if (defined(HAVE_DLERROR) && !defined(__EMX__)) || defined(__DARWIN__)
     #define wxHAVE_DYNLIB_ERROR
 #endif
 
-class WXDLLIMPEXP_BASE wxDynamicLibraryDetailsCreator;
+class WXDLLIMPEXP_FWD_BASE wxDynamicLibraryDetailsCreator;
 
 // ----------------------------------------------------------------------------
 // conditional compilation
@@ -41,15 +32,16 @@ class WXDLLIMPEXP_BASE wxDynamicLibraryDetailsCreator;
 // Note: __OS2__/EMX has to be tested first, since we want to use
 // native version, even if configure detected presence of DLOPEN.
 #if defined(__OS2__) || defined(__EMX__) || defined(__WINDOWS__)
-    typedef HMODULE             wxDllType;
+    typedef WXHMODULE           wxDllType;
+#elif defined(__DARWIN__)
+    // Don't include dlfcn.h on Darwin, we may be using our own replacements.
+    typedef void               *wxDllType;
 #elif defined(HAVE_DLOPEN)
     #include <dlfcn.h>
     typedef void               *wxDllType;
 #elif defined(HAVE_SHL_LOAD)
     #include <dl.h>
     typedef shl_t               wxDllType;
-#elif defined(__DARWIN__)
-    typedef void               *wxDllType;
 #elif defined(__WXMAC__)
     #include <CodeFragments.h>
     typedef CFragConnectionID   wxDllType;
@@ -72,8 +64,20 @@ enum wxDLFlags
     wxDL_VERBATIM   = 0x00000008,   // attempt to load the supplied library
                                     // name without appending the usual dll
                                     // filename extension.
+
+    // this flag is obsolete, don't use
     wxDL_NOSHARE    = 0x00000010,   // load new DLL, don't reuse already loaded
                                     // (only for wxPluginManager)
+
+    wxDL_QUIET      = 0x00000020,   // don't log an error if failed to load
+
+    // this flag is dangerous, for internal use of wxMSW only, don't use at all
+    // and especially don't use directly, use wxLoadedDLL instead if you really
+    // do need it
+    wxDL_GET_LOADED = 0x00000040,   // Win32 only: return handle of already
+                                    // loaded DLL or NULL otherwise; Unload()
+                                    // should not be called so don't forget to
+                                    // Detach() if you use this function
 
     wxDL_DEFAULT    = wxDL_NOW      // default flags correspond to Win32
 };
@@ -103,7 +107,64 @@ enum wxPluginCategory
 // type only once, as the first parameter, and creating a variable of this type
 // called "pfn<name>" initialized with the "name" from the "dynlib"
 #define wxDYNLIB_FUNCTION(type, name, dynlib) \
-    type pfn ## name = (type)(dynlib).GetSymbol(_T(#name))
+    type pfn ## name = (type)(dynlib).GetSymbol(wxT(#name))
+
+
+// a more convenient function replacing wxDYNLIB_FUNCTION above
+//
+// it uses the convention that the type of the function is its name suffixed
+// with "_t" but it doesn't define a variable but just assigns the loaded value
+// to it and also allows to pass it the prefix to be used instead of hardcoding
+// "pfn" (the prefix can be "m_" or "gs_pfn" or whatever)
+//
+// notice that this function doesn't generate error messages if the symbol
+// couldn't be loaded, the caller should generate the appropriate message
+#define wxDL_INIT_FUNC(pfx, name, dynlib) \
+    pfx ## name = (name ## _t)(dynlib).RawGetSymbol(#name)
+
+#ifdef __WINDOWS__
+
+// same as wxDL_INIT_FUNC() but appends 'A' or 'W' to the function name, see
+// wxDynamicLibrary::GetSymbolAorW()
+#define wxDL_INIT_FUNC_AW(pfx, name, dynlib) \
+    pfx ## name = (name ## _t)(dynlib).GetSymbolAorW(#name)
+
+#endif // __WINDOWS__
+
+// the following macros can be used to redirect a whole library to a class and
+// check at run-time if the library is present and contains all required
+// methods
+//
+// notice that they are supposed to be used inside a class which has "m_ok"
+// member variable indicating if the library had been successfully loaded
+
+// helper macros constructing the name of the variable storing the function
+// pointer and the name of its type from the function name
+#define wxDL_METHOD_NAME(name) m_pfn ## name
+#define wxDL_METHOD_TYPE(name) name ## _t
+
+// parameters are:
+//  - rettype: return type of the function, e.g. "int"
+//  - name: name of the function, e.g. "foo"
+//  - args: function signature in parentheses, e.g. "(int x, int y)"
+//  - argnames: the names of the parameters in parentheses, e.g. "(x, y)"
+//  - defret: the value to return if the library wasn't successfully loaded
+#define wxDL_METHOD_DEFINE( rettype, name, args, argnames, defret ) \
+    typedef rettype (* wxDL_METHOD_TYPE(name)) args ; \
+    wxDL_METHOD_TYPE(name) wxDL_METHOD_NAME(name); \
+    rettype name args \
+        { return m_ok ? wxDL_METHOD_NAME(name) argnames : defret; }
+
+#define wxDL_VOIDMETHOD_DEFINE( name, args, argnames ) \
+    typedef void (* wxDL_METHOD_TYPE(name)) args ; \
+    wxDL_METHOD_TYPE(name) wxDL_METHOD_NAME(name); \
+    void name args \
+        { if ( m_ok ) wxDL_METHOD_NAME(name) argnames ; }
+
+#define wxDL_METHOD_LOAD(lib, name) \
+    wxDL_METHOD_NAME(name) = \
+        (wxDL_METHOD_TYPE(name)) lib.GetSymbol(#name, &m_ok); \
+    if ( !m_ok ) return false
 
 // ----------------------------------------------------------------------------
 // wxDynamicLibraryDetails: contains details about a loaded wxDynamicLibrary
@@ -170,7 +231,7 @@ public:
     static wxDllType         GetProgramHandle();
 
     // return the platform standard DLL extension (with leading dot)
-    static const wxChar *GetDllExt() { return ms_dllext; }
+    static wxString GetDllExt(wxDynamicLibraryCategory cat = wxDL_LIBRARY);
 
     wxDynamicLibrary() : m_handle(0) { }
     wxDynamicLibrary(const wxString& libname, int flags = wxDL_DEFAULT)
@@ -242,7 +303,7 @@ public:
 #endif
     }
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
     // this function is useful for loading functions from the standard Windows
     // DLLs: such functions have an 'A' (in ANSI build) or 'W' (in Unicode, or
     // wide character build) suffix if they take string parameters
@@ -264,7 +325,7 @@ public:
     {
         return RawGetSymbolAorW(m_handle, name);
     }
-#endif // __WXMSW__
+#endif // __WINDOWS__
 
     // return all modules/shared libraries in the address space of this process
     //
@@ -287,6 +348,19 @@ public:
     static wxString GetPluginsDirectory();
 
 
+#ifdef __WINDOWS__
+    // return the handle (HMODULE/HINSTANCE) of the DLL with the given name
+    // and/or containing the specified address: for XP and later systems only
+    // the address is used and the name is ignored but for the previous systems
+    // only the name (which may be either a full path to the DLL or just its
+    // base name, possibly even without extension) is used
+    //
+    // the returned handle reference count is not incremented so it doesn't
+    // need to be freed using FreeLibrary() but it also means that it can
+    // become invalid if the DLL is unloaded
+    static WXHMODULE MSWGetModuleHandle(const wxString& name, void *addr);
+#endif // __WINDOWS__
+
 protected:
     // common part of GetSymbol() and HasSymbol()
     void *DoGetSymbol(const wxString& name, bool *success = 0) const;
@@ -297,17 +371,36 @@ protected:
 #endif // wxHAVE_DYNLIB_ERROR
 
 
-    // platform specific shared lib suffix.
-    static const wxChar *ms_dllext;
-
     // the handle to DLL or NULL
     wxDllType m_handle;
 
     // no copy ctor/assignment operators (or we'd try to unload the library
     // twice)
-    DECLARE_NO_COPY_CLASS(wxDynamicLibrary)
+    wxDECLARE_NO_COPY_CLASS(wxDynamicLibrary);
 };
 
+#ifdef __WINDOWS__
+
+// ----------------------------------------------------------------------------
+// wxLoadedDLL is a MSW-only internal helper class allowing to dynamically bind
+// to a DLL already loaded into the project address space
+// ----------------------------------------------------------------------------
+
+class wxLoadedDLL : public wxDynamicLibrary
+{
+public:
+    wxLoadedDLL(const wxString& dllname)
+        : wxDynamicLibrary(dllname, wxDL_GET_LOADED | wxDL_VERBATIM | wxDL_QUIET)
+    {
+    }
+
+    ~wxLoadedDLL()
+    {
+        Detach();
+    }
+};
+
+#endif // __WINDOWS__
 
 // ----------------------------------------------------------------------------
 // Interesting defines

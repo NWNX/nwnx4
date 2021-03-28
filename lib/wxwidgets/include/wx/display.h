@@ -3,7 +3,6 @@
 // Purpose:     wxDisplay class
 // Author:      Royce Mitchell III, Vadim Zeitlin
 // Created:     06/21/02
-// RCS-ID:      $Id: display.h,v 1.26 2006/10/02 05:37:56 PC Exp $
 // Copyright:   (c) 2002-2006 wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -22,22 +21,22 @@
     WX_DECLARE_EXPORTED_OBJARRAY(wxVideoMode, wxArrayVideoModes);
 
     // default, uninitialized, video mode object
-    extern WXDLLEXPORT_DATA(const wxVideoMode) wxDefaultVideoMode;
+    extern WXDLLIMPEXP_DATA_CORE(const wxVideoMode) wxDefaultVideoMode;
 #endif // wxUSE_DISPLAY
 
-class WXDLLEXPORT wxWindow;
-class WXDLLEXPORT wxPoint;
-class WXDLLEXPORT wxRect;
-class WXDLLIMPEXP_BASE wxString;
+class WXDLLIMPEXP_FWD_CORE wxWindow;
+class WXDLLIMPEXP_FWD_CORE wxPoint;
+class WXDLLIMPEXP_FWD_CORE wxRect;
+class WXDLLIMPEXP_FWD_BASE wxString;
 
-class WXDLLEXPORT wxDisplayFactory;
-class WXDLLEXPORT wxDisplayImpl;
+class WXDLLIMPEXP_FWD_CORE wxDisplayFactory;
+class WXDLLIMPEXP_FWD_CORE wxDisplayImpl;
 
 // ----------------------------------------------------------------------------
 // wxDisplay: represents a display/monitor attached to the system
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxDisplay
+class WXDLLIMPEXP_CORE wxDisplay
 {
 public:
     // initialize the object containing all information about the given
@@ -62,7 +61,7 @@ public:
 
     // find the display where the given window lies, return wxNOT_FOUND if it
     // is not shown at all
-    static int GetFromWindow(wxWindow *window);
+    static int GetFromWindow(const wxWindow *window);
 
 
     // return true if the object was initialized successfully
@@ -122,7 +121,7 @@ private:
     wxDisplayImpl *m_impl;
 
 
-    DECLARE_NO_COPY_CLASS(wxDisplay)
+    wxDECLARE_NO_COPY_CLASS(wxDisplay);
 };
 
 #endif // _WX_DISPLAY_H_BASE_

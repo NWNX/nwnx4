@@ -3,7 +3,6 @@
 // Purpose:     XML resource handler for wxFrame
 // Author:      Vaclav Slavik & Aleks.
 // Created:     2000/03/05
-// RCS-ID:      $Id: xh_frame.h,v 1.8 2006/10/03 14:53:31 VZ Exp $
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////

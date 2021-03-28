@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     15.09.00
-// RCS-ID:      $Id: textctrl.h,v 1.25 2006/10/08 22:39:49 VZ Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,8 +11,8 @@
 #ifndef _WX_UNIV_TEXTCTRL_H_
 #define _WX_UNIV_TEXTCTRL_H_
 
-class WXDLLEXPORT wxCaret;
-class WXDLLEXPORT wxTextCtrlCommandProcessor;
+class WXDLLIMPEXP_FWD_CORE wxCaret;
+class WXDLLIMPEXP_FWD_CORE wxTextCtrlCommandProcessor;
 
 #include "wx/scrolwin.h"    // for wxScrollHelper
 
@@ -24,49 +23,49 @@ class WXDLLEXPORT wxTextCtrlCommandProcessor;
 // ----------------------------------------------------------------------------
 
 // cursor movement and also selection and delete operations
-#define wxACTION_TEXT_GOTO          _T("goto")  // to pos in numArg
-#define wxACTION_TEXT_FIRST         _T("first") // go to pos 0
-#define wxACTION_TEXT_LAST          _T("last")  // go to last pos
-#define wxACTION_TEXT_HOME          _T("home")
-#define wxACTION_TEXT_END           _T("end")
-#define wxACTION_TEXT_LEFT          _T("left")
-#define wxACTION_TEXT_RIGHT         _T("right")
-#define wxACTION_TEXT_UP            _T("up")
-#define wxACTION_TEXT_DOWN          _T("down")
-#define wxACTION_TEXT_WORD_LEFT     _T("wordleft")
-#define wxACTION_TEXT_WORD_RIGHT    _T("wordright")
-#define wxACTION_TEXT_PAGE_UP       _T("pageup")
-#define wxACTION_TEXT_PAGE_DOWN     _T("pagedown")
+#define wxACTION_TEXT_GOTO          wxT("goto")  // to pos in numArg
+#define wxACTION_TEXT_FIRST         wxT("first") // go to pos 0
+#define wxACTION_TEXT_LAST          wxT("last")  // go to last pos
+#define wxACTION_TEXT_HOME          wxT("home")
+#define wxACTION_TEXT_END           wxT("end")
+#define wxACTION_TEXT_LEFT          wxT("left")
+#define wxACTION_TEXT_RIGHT         wxT("right")
+#define wxACTION_TEXT_UP            wxT("up")
+#define wxACTION_TEXT_DOWN          wxT("down")
+#define wxACTION_TEXT_WORD_LEFT     wxT("wordleft")
+#define wxACTION_TEXT_WORD_RIGHT    wxT("wordright")
+#define wxACTION_TEXT_PAGE_UP       wxT("pageup")
+#define wxACTION_TEXT_PAGE_DOWN     wxT("pagedown")
 
 // clipboard operations
-#define wxACTION_TEXT_COPY          _T("copy")
-#define wxACTION_TEXT_CUT           _T("cut")
-#define wxACTION_TEXT_PASTE         _T("paste")
+#define wxACTION_TEXT_COPY          wxT("copy")
+#define wxACTION_TEXT_CUT           wxT("cut")
+#define wxACTION_TEXT_PASTE         wxT("paste")
 
 // insert text at the cursor position: the text is in strArg of PerformAction
-#define wxACTION_TEXT_INSERT        _T("insert")
+#define wxACTION_TEXT_INSERT        wxT("insert")
 
 // if the action starts with either of these prefixes and the rest of the
 // string is one of the movement commands, it means to select/delete text from
 // the current cursor position to the new one
-#define wxACTION_TEXT_PREFIX_SEL    _T("sel")
-#define wxACTION_TEXT_PREFIX_DEL    _T("del")
+#define wxACTION_TEXT_PREFIX_SEL    wxT("sel")
+#define wxACTION_TEXT_PREFIX_DEL    wxT("del")
 
 // mouse selection
-#define wxACTION_TEXT_ANCHOR_SEL    _T("anchorsel")
-#define wxACTION_TEXT_EXTEND_SEL    _T("extendsel")
-#define wxACTION_TEXT_SEL_WORD      _T("wordsel")
-#define wxACTION_TEXT_SEL_LINE      _T("linesel")
+#define wxACTION_TEXT_ANCHOR_SEL    wxT("anchorsel")
+#define wxACTION_TEXT_EXTEND_SEL    wxT("extendsel")
+#define wxACTION_TEXT_SEL_WORD      wxT("wordsel")
+#define wxACTION_TEXT_SEL_LINE      wxT("linesel")
 
 // undo or redo
-#define wxACTION_TEXT_UNDO          _T("undo")
-#define wxACTION_TEXT_REDO          _T("redo")
+#define wxACTION_TEXT_UNDO          wxT("undo")
+#define wxACTION_TEXT_REDO          wxT("redo")
 
 // ----------------------------------------------------------------------------
 // wxTextCtrl
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxTextCtrl : public wxTextCtrlBase,
+class WXDLLIMPEXP_CORE wxTextCtrl : public wxTextCtrlBase,
                                public wxScrollHelper
 {
 public:
@@ -83,7 +82,7 @@ public:
                long style = 0,
                const wxValidator& validator = wxDefaultValidator,
                const wxString& name = wxTextCtrlNameStr)
-        : wxScrollHelper(this) 
+        : wxScrollHelper(this)
     {
         Init();
 
@@ -103,8 +102,6 @@ public:
 
     // implement base class pure virtuals
     // ----------------------------------
-
-    virtual wxString GetValue() const;
 
     virtual int GetLineLength(wxTextCoord lineNo) const;
     virtual wxString GetLineText(wxTextCoord lineNo) const;
@@ -234,9 +231,8 @@ public:
     virtual bool Enable(bool enable = true);
 
     // more readable flag testing methods
-    bool IsPassword() const { return (GetWindowStyle() & wxTE_PASSWORD) != 0; }
-    bool WrapLines() const
-        { return !IsSingleLine() && !(GetWindowStyle() & wxHSCROLL); }
+    bool IsPassword() const { return HasFlag(wxTE_PASSWORD); }
+    bool WrapLines() const { return m_wrapLines; }
 
     // only for wxStdTextCtrlInputHandler
     void RefreshSelection();
@@ -261,6 +257,7 @@ protected:
 
     // implements Set/ChangeValue()
     virtual void DoSetValue(const wxString& value, int flags = 0);
+    virtual wxString DoGetValue() const;
 
     // common part of all ctors
     void Init();
@@ -410,7 +407,7 @@ protected:
     wxCoord GetLineHeight() const
     {
         // this one should be already precalculated
-        wxASSERT_MSG( m_heightLine != -1, _T("should have line height") );
+        wxASSERT_MSG( m_heightLine != -1, wxT("should have line height") );
 
         return m_heightLine;
     }
@@ -500,7 +497,8 @@ private:
     // flags
     bool m_isModified:1,
          m_isEditable:1,
-         m_hasCaret:1;
+         m_hasCaret:1,
+         m_wrapLines:1; // can't be changed after creation
 
     // the rectangle (in client coordinates) to draw text inside
     wxRect m_rectText;

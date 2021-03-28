@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     04.11.99
-// RCS-ID:      $Id: fontmap.h,v 1.29 2006/06/07 17:49:26 VZ Exp $
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -25,13 +24,13 @@
 #endif // wxUSE_GUI
 
 #if wxUSE_CONFIG && wxUSE_FILECONFIG
-    class WXDLLIMPEXP_BASE wxConfigBase;
+    class WXDLLIMPEXP_FWD_BASE wxConfigBase;
 #endif // wxUSE_CONFIG
 
-class WXDLLIMPEXP_CORE wxFontMapper;
+class WXDLLIMPEXP_FWD_CORE wxFontMapper;
 
 #if wxUSE_GUI
-    class WXDLLIMPEXP_CORE wxWindow;
+    class WXDLLIMPEXP_FWD_CORE wxWindow;
 #endif // wxUSE_GUI
 
 // ============================================================================
@@ -50,7 +49,7 @@ class WXDLLIMPEXP_CORE wxFontMapper;
 class WXDLLIMPEXP_BASE wxFontMapperBase
 {
 public:
-    // constructtor and such
+    // constructor and such
     // ---------------------
 
     // default ctor
@@ -122,7 +121,7 @@ public:
     void SetConfigPath(const wxString& prefix);
 
     // return default config path
-    static const wxChar *GetDefaultConfigPath();
+    static const wxString& GetDefaultConfigPath();
 #endif // wxUSE_CONFIG
 
 
@@ -170,7 +169,7 @@ private:
 
     friend class wxFontMapperPathChanger;
 
-    DECLARE_NO_COPY_CLASS(wxFontMapperBase)
+    wxDECLARE_NO_COPY_CLASS(wxFontMapperBase);
 };
 
 // ----------------------------------------------------------------------------
@@ -264,7 +263,7 @@ protected:
     wxWindow *m_windowParent;
 
 private:
-    DECLARE_NO_COPY_CLASS(wxFontMapper)
+    wxDECLARE_NO_COPY_CLASS(wxFontMapper);
 };
 
 #endif // wxUSE_GUI

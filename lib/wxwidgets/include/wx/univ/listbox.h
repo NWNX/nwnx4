@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     30.08.00
-// RCS-ID:      $Id: listbox.h,v 1.29 2006/09/14 19:36:38 VZ Exp $
 // Copyright:   (c) 2000 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,34 +20,34 @@
 // ----------------------------------------------------------------------------
 
 // change the current item
-#define wxACTION_LISTBOX_SETFOCUS   _T("setfocus")  // select the item
-#define wxACTION_LISTBOX_MOVEDOWN   _T("down")      // select item below
-#define wxACTION_LISTBOX_MOVEUP     _T("up")        // select item above
-#define wxACTION_LISTBOX_PAGEDOWN   _T("pagedown")  // go page down
-#define wxACTION_LISTBOX_PAGEUP     _T("pageup")    // go page up
-#define wxACTION_LISTBOX_START      _T("start")     // go to first item
-#define wxACTION_LISTBOX_END        _T("end")       // go to last item
-#define wxACTION_LISTBOX_FIND       _T("find")      // find item by 1st letter
+#define wxACTION_LISTBOX_SETFOCUS   wxT("setfocus")  // select the item
+#define wxACTION_LISTBOX_MOVEDOWN   wxT("down")      // select item below
+#define wxACTION_LISTBOX_MOVEUP     wxT("up")        // select item above
+#define wxACTION_LISTBOX_PAGEDOWN   wxT("pagedown")  // go page down
+#define wxACTION_LISTBOX_PAGEUP     wxT("pageup")    // go page up
+#define wxACTION_LISTBOX_START      wxT("start")     // go to first item
+#define wxACTION_LISTBOX_END        wxT("end")       // go to last item
+#define wxACTION_LISTBOX_FIND       wxT("find")      // find item by 1st letter
 
 // do something with the current item
-#define wxACTION_LISTBOX_ACTIVATE   _T("activate")  // activate (choose)
-#define wxACTION_LISTBOX_TOGGLE     _T("toggle")    // togglee selected state
-#define wxACTION_LISTBOX_SELECT     _T("select")    // sel this, unsel others
-#define wxACTION_LISTBOX_SELECTADD  _T("selectadd") // add to selection
-#define wxACTION_LISTBOX_UNSELECT   _T("unselect")  // unselect
-#define wxACTION_LISTBOX_ANCHOR     _T("selanchor") // anchor selection
+#define wxACTION_LISTBOX_ACTIVATE   wxT("activate")  // activate (choose)
+#define wxACTION_LISTBOX_TOGGLE     wxT("toggle")    // togglee selected state
+#define wxACTION_LISTBOX_SELECT     wxT("select")    // sel this, unsel others
+#define wxACTION_LISTBOX_SELECTADD  wxT("selectadd") // add to selection
+#define wxACTION_LISTBOX_UNSELECT   wxT("unselect")  // unselect
+#define wxACTION_LISTBOX_ANCHOR     wxT("selanchor") // anchor selection
 
 // do something with the selection globally (not for single selection ones)
-#define wxACTION_LISTBOX_SELECTALL   _T("selectall")   // select all items
-#define wxACTION_LISTBOX_UNSELECTALL _T("unselectall") // unselect all items
-#define wxACTION_LISTBOX_SELTOGGLE   _T("togglesel")   // invert the selection
-#define wxACTION_LISTBOX_EXTENDSEL   _T("extend")      // extend to item
+#define wxACTION_LISTBOX_SELECTALL   wxT("selectall")   // select all items
+#define wxACTION_LISTBOX_UNSELECTALL wxT("unselectall") // unselect all items
+#define wxACTION_LISTBOX_SELTOGGLE   wxT("togglesel")   // invert the selection
+#define wxACTION_LISTBOX_EXTENDSEL   wxT("extend")      // extend to item
 
 // ----------------------------------------------------------------------------
 // wxListBox: a list of selectable items
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxListBox : public wxListBoxBase, public wxScrollHelper
+class WXDLLIMPEXP_CORE wxListBox : public wxListBoxBase, public wxScrollHelper
 {
 public:
     // ctors and such
@@ -96,16 +95,13 @@ public:
                 const wxString& name = wxListBoxNameStr);
 
     // implement the listbox interface defined by wxListBoxBase
-    virtual void Clear();
-    virtual void Delete(unsigned int n);
+    virtual void DoClear();
+    virtual void DoDeleteOneItem(unsigned int n);
 
-    virtual unsigned int GetCount() const
-        { return (unsigned int)m_strings->GetCount(); }
-    virtual wxString GetString(unsigned int n) const
-        { return m_strings->Item(n); }
+    virtual unsigned int GetCount() const;
+    virtual wxString GetString(unsigned int n) const;
     virtual void SetString(unsigned int n, const wxString& s);
-    virtual int FindString(const wxString& s, bool bCase = false) const
-        { return m_strings->Index(s, bCase); }
+    virtual int FindString(const wxString& s, bool bCase = false) const;
 
     virtual bool IsSelected(int n) const
         { return m_selections.Index(n) != wxNOT_FOUND; }
@@ -114,17 +110,19 @@ public:
 
 protected:
     virtual void DoSetSelection(int n, bool select);
-    virtual int DoAppendOnly(const wxString& item);
-    virtual int DoAppend(const wxString& item);
-    virtual void DoInsertItems(const wxArrayString& items, unsigned int pos);
-    virtual void DoSetItems(const wxArrayString& items, void **clientData);
+
+    virtual int DoInsertItems(const wxArrayStringsAdapter& items,
+                              unsigned int pos,
+                              void **clientData,
+                              wxClientDataType type);
+
+    // universal wxComboBox implementation internally uses wxListBox
+    friend class WXDLLIMPEXP_FWD_CORE wxComboBox;
 
     virtual void DoSetFirstItem(int n);
 
     virtual void DoSetItemClientData(unsigned int n, void* clientData);
     virtual void* DoGetItemClientData(unsigned int n) const;
-    virtual void DoSetItemClientObject(unsigned int n, wxClientData* clientData);
-    virtual wxClientData* DoGetItemClientObject(unsigned int n) const;
 
 public:
     // override some more base class methods
@@ -202,14 +200,16 @@ protected:
     virtual void DoDraw(wxControlRenderer *renderer);
     virtual wxBorder GetDefaultBorder() const;
 
+    // special hook for wxCheckListBox which allows it to update its internal
+    // data when a new item is inserted into the listbox
+    virtual void OnItemInserted(unsigned int WXUNUSED(pos)) { }
+
+
     // common part of all ctors
     void Init();
 
     // event handlers
     void OnSize(wxSizeEvent& event);
-
-    // common part of Clear() and DoSetItems(): clears everything
-    virtual void DoClear();
 
     // refresh the given item(s) or everything
     void RefreshItems(int from, int count);
@@ -245,7 +245,11 @@ protected:
 
     // the array containing all items (it is sorted if the listbox has
     // wxLB_SORT style)
-    wxArrayString* m_strings;
+    union
+    {
+        wxArrayString *unsorted;
+        wxSortedArrayString *sorted;
+    } m_strings;
 
     // this array contains the indices of the selected items (for the single
     // selection listboxes only the first element of it is used and contains

@@ -4,7 +4,6 @@
 // Author:      John Labenski
 // Modified by:
 // Created:     07.02.04 (extracted from wx/textdlg.h)
-// RCS-ID:      $Id: numdlg.h,v 1.5 2006/01/26 15:33:18 ABX Exp $
 // Copyright:   (c) John Labenski
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
