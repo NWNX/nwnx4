@@ -16,7 +16,7 @@
 
 class WXDLLIMPEXP_CORE wxStaticBitmap : public wxStaticBitmapBase
 {
-    DECLARE_DYNAMIC_CLASS(wxStaticBitmap)
+    wxDECLARE_DYNAMIC_CLASS(wxStaticBitmap);
 
 public:
     wxStaticBitmap() { }
@@ -27,7 +27,7 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = 0,
-        const wxString& name = wxStaticBitmapNameStr)
+        const wxString& name = wxASCII_STR(wxStaticBitmapNameStr))
     {
         Create(parent, id, label, pos, size, style, name);
     }
@@ -37,7 +37,7 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = 0,
-        const wxString& name = wxStaticBitmapNameStr);
+        const wxString& name = wxASCII_STR(wxStaticBitmapNameStr));
 
     virtual void SetBitmap(const wxBitmap& bitmap);
 

@@ -32,6 +32,12 @@ public:
         return &m_error;
     }
 
+    // Check if any error actually occurred.
+    operator bool() const
+    {
+        return m_error != NULL;
+    }
+
     operator GError*() const
     {
         return m_error;

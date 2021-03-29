@@ -38,14 +38,14 @@ bool Plugin::Init(TCHAR* parameter)
 
 string Plugin::ProcessQueryFunction(string function)
 {
-	if (function == _T("GET SUBCLASS"))
+	if (function == "GET SUBCLASS")
 		return subClass; 
-	else if (function == _T("GET VERSION"))
+	else if (function == "GET VERSION")
 		return version; 
-	else if (function == _T("GET DESCRIPTION"))
+	else if (function == "GET DESCRIPTION")
 		return description;
 	else
-		return _T("");
+		return "";
 }
 
 void Plugin::GetFunctionClass(TCHAR* fClass)

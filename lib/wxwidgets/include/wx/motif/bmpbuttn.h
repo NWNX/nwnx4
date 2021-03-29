@@ -22,18 +22,18 @@ public:
     virtual ~wxBitmapButton();
     wxBitmapButton(wxWindow *parent, wxWindowID id, const wxBitmap& bitmap,
         const wxPoint& pos = wxDefaultPosition,
-        const wxSize& size = wxDefaultSize, long style = wxBU_AUTODRAW,
+        const wxSize& size = wxDefaultSize, long style = 0,
         const wxValidator& validator = wxDefaultValidator,
-        const wxString& name = wxButtonNameStr)
+        const wxString& name = wxASCII_STR(wxButtonNameStr))
     {
         Create(parent, id, bitmap, pos, size, style, validator, name);
     }
 
     bool Create(wxWindow *parent, wxWindowID id, const wxBitmap& bitmap,
         const wxPoint& pos = wxDefaultPosition,
-        const wxSize& size = wxDefaultSize, long style = wxBU_AUTODRAW,
+        const wxSize& size = wxDefaultSize, long style = 0,
         const wxValidator& validator = wxDefaultValidator,
-        const wxString& name = wxButtonNameStr);
+        const wxString& name = wxASCII_STR(wxButtonNameStr));
 
     // Implementation
     virtual void ChangeBackgroundColour();
@@ -52,7 +52,7 @@ protected:
 
     WXPixmap m_insensPixmap;
 
-    DECLARE_DYNAMIC_CLASS(wxBitmapButton)
+    wxDECLARE_DYNAMIC_CLASS(wxBitmapButton);
 };
 
 #endif // _WX_BMPBUTTN_H_

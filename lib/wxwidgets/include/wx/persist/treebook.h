@@ -38,7 +38,7 @@ public:
     {
     }
 
-    virtual void Save() const
+    virtual void Save() const wxOVERRIDE
     {
         const wxTreebook * const book = GetTreeBook();
 
@@ -51,7 +51,7 @@ public:
                 if ( !expanded.empty() )
                     expanded += wxPERSIST_TREEBOOK_EXPANDED_SEP;
 
-                expanded += wxString::Format("%u", static_cast<unsigned>(n));
+                expanded += wxString::Format(wxASCII_STR("%u"), static_cast<unsigned>(n));
             }
         }
 
@@ -60,7 +60,7 @@ public:
         wxPersistentBookCtrl::Save();
     }
 
-    virtual bool Restore()
+    virtual bool Restore() wxOVERRIDE
     {
         wxTreebook * const book = GetTreeBook();
 
@@ -83,7 +83,7 @@ public:
         return wxPersistentBookCtrl::Restore();
     }
 
-    virtual wxString GetKind() const { return wxPERSIST_TREEBOOK_KIND; }
+    virtual wxString GetKind() const wxOVERRIDE { return wxPERSIST_TREEBOOK_KIND; }
 
     wxTreebook *GetTreeBook() const { return static_cast<wxTreebook *>(Get()); }
 };

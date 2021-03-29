@@ -13,7 +13,7 @@
 
 #if wxUSE_WEBKIT
 
-#if !defined(__WXMAC__) && !defined(__WXCOCOA__)
+#if !defined(__WXMAC__)
 #error "wxWebKitCtrl not implemented for this platform"
 #endif
 
@@ -28,7 +28,7 @@ extern WXDLLIMPEXP_DATA_CORE(const char) wxWebKitCtrlNameStr[];
 class WXDLLIMPEXP_CORE wxWebKitCtrl : public wxControl
 {
 public:
-    DECLARE_DYNAMIC_CLASS(wxWebKitCtrl)
+    wxDECLARE_DYNAMIC_CLASS(wxWebKitCtrl);
 
     wxWebKitCtrl() {}
     wxWebKitCtrl(wxWindow *parent,
@@ -37,7 +37,7 @@ public:
                     const wxPoint& pos = wxDefaultPosition,
                     const wxSize& size = wxDefaultSize, long style = 0,
                     const wxValidator& validator = wxDefaultValidator,
-                    const wxString& name = wxWebKitCtrlNameStr)
+                    const wxString& name = wxASCII_STR(wxWebKitCtrlNameStr))
     {
         Create(parent, winID, strURL, pos, size, style, validator, name);
     }
@@ -47,7 +47,7 @@ public:
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize, long style = 0,
                 const wxValidator& validator = wxDefaultValidator,
-                const wxString& name = wxWebKitCtrlNameStr);
+                const wxString& name = wxASCII_STR(wxWebKitCtrlNameStr));
     virtual ~wxWebKitCtrl();
 
     void LoadURL(const wxString &url);
@@ -87,9 +87,9 @@ public:
     int GetScrollPos();
 
     // don't hide base class virtuals
-    virtual void SetScrollPos( int orient, int pos, bool refresh = true )
+    virtual void SetScrollPos( int orient, int pos, bool refresh = true ) wxOVERRIDE
         { return wxControl::SetScrollPos(orient, pos, refresh); }
-    virtual int GetScrollPos( int orient ) const
+    virtual int GetScrollPos( int orient ) const wxOVERRIDE
         { return wxControl::GetScrollPos(orient); }
 
     //we need to resize the webview when the control size changes
@@ -97,8 +97,8 @@ public:
     void OnMove(wxMoveEvent &event);
     void OnMouseEvents(wxMouseEvent &event);
 protected:
-    DECLARE_EVENT_TABLE()
-    void MacVisibilityChanged();
+    wxDECLARE_EVENT_TABLE();
+    void MacVisibilityChanged() wxOVERRIDE;
 
 private:
     wxWindow *m_parent;
@@ -107,6 +107,10 @@ private:
     wxString m_pageTitle;
 
     OSXWebViewPtr m_webView;
+
+    WX_NSObject m_frameLoadMonitor;
+    WX_NSObject m_policyDelegate;
+    WX_NSObject m_UIDelegate;
 
     // we may use this later to setup our own mouse events,
     // so leave it in for now.
@@ -140,7 +144,7 @@ enum {
 
 class WXDLLIMPEXP_CORE wxWebKitBeforeLoadEvent : public wxCommandEvent
 {
-    DECLARE_DYNAMIC_CLASS( wxWebKitBeforeLoadEvent )
+    wxDECLARE_DYNAMIC_CLASS(wxWebKitBeforeLoadEvent);
 
 public:
     bool IsCancelled() { return m_cancelled; }
@@ -161,11 +165,11 @@ protected:
 
 class WXDLLIMPEXP_CORE wxWebKitStateChangedEvent : public wxCommandEvent
 {
-    DECLARE_DYNAMIC_CLASS( wxWebKitStateChangedEvent )
+    wxDECLARE_DYNAMIC_CLASS(wxWebKitStateChangedEvent);
 
 public:
     int GetState() { return m_state; }
-    void SetState(const int state) { m_state = state; }
+    void SetState(int state) { m_state = state; }
     wxString GetURL() { return m_url; }
     void SetURL(const wxString& url) { m_url = url; }
 
@@ -180,7 +184,7 @@ protected:
 
 class WXDLLIMPEXP_CORE wxWebKitNewWindowEvent : public wxCommandEvent
 {
-    DECLARE_DYNAMIC_CLASS( wxWebKitNewWindowEvent )
+    wxDECLARE_DYNAMIC_CLASS(wxWebKitNewWindowEvent);
 public:
     wxString GetURL() const { return m_url; }
     void SetURL(const wxString& url) { m_url = url; }

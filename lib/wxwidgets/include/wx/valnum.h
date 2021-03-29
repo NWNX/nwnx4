@@ -48,7 +48,11 @@ public:
 
     // Override base class method to not do anything but always return success:
     // we don't need this as we do our validation on the fly here.
-    virtual bool Validate(wxWindow * WXUNUSED(parent)) { return true; }
+    virtual bool Validate(wxWindow * WXUNUSED(parent)) wxOVERRIDE { return true; }
+
+    // Override base class method to check that the window is a text control or
+    // combobox.
+    virtual void SetWindow(wxWindow *win) wxOVERRIDE;
 
 protected:
     wxNumValidatorBase(int style)
@@ -142,26 +146,30 @@ public:
 
     typedef typename BaseValidator::LongestValueType LongestValueType;
 
-    // FIXME-VC6: This compiler fails to compile the assert below with a
-    // nonsensical error C2248: "'LongestValueType' : cannot access protected
-    // typedef declared in class 'wxIntegerValidatorBase'" so just disable the
-    // check for it.
-#ifndef __VISUALC6__
     wxCOMPILE_TIME_ASSERT
     (
         sizeof(ValueType) <= sizeof(LongestValueType),
         UnsupportedType
     );
-#endif // __VISUALC6__
 
     void SetMin(ValueType min)
     {
-        this->DoSetMin(min);
+        this->DoSetMin(static_cast<LongestValueType>(min));
+    }
+
+    ValueType GetMin() const
+    {
+        return static_cast<ValueType>(this->DoGetMin());
     }
 
     void SetMax(ValueType max)
     {
-        this->DoSetMax(max);
+        this->DoSetMax(static_cast<LongestValueType>(max));
+    }
+
+    ValueType GetMax() const
+    {
+        return static_cast<ValueType>(this->DoGetMax());
     }
 
     void SetRange(ValueType min, ValueType max)
@@ -170,7 +178,13 @@ public:
         SetMax(max);
     }
 
-    virtual bool TransferToWindow()
+    void GetRange(ValueType& min, ValueType& max) const
+    {
+        min = GetMin();
+        max = GetMax();
+    }
+
+    virtual bool TransferToWindow()  wxOVERRIDE
     {
         if ( m_value )
         {
@@ -178,13 +192,13 @@ public:
             if ( !control )
                 return false;
 
-            control->SetValue(NormalizeValue(*m_value));
+            control->SetValue(NormalizeValue(static_cast<LongestValueType>(*m_value)));
         }
 
         return true;
     }
 
-    virtual bool TransferFromWindow()
+    virtual bool TransferFromWindow() wxOVERRIDE
     {
         if ( m_value )
         {
@@ -217,7 +231,7 @@ protected:
 
     // Implement wxNumValidatorBase virtual method which is the same for
     // both integer and floating point numbers.
-    virtual wxString NormalizeString(const wxString& s) const
+    virtual wxString NormalizeString(const wxString& s) const wxOVERRIDE
     {
         LongestValueType value;
         return BaseValidator::FromString(s, &value) ? NormalizeValue(value)
@@ -230,9 +244,15 @@ private:
     // wxNUM_VAL_ZERO_AS_BLANK flag.
     wxString NormalizeValue(LongestValueType value) const
     {
+        // We really want to compare with the exact 0 here, so disable gcc
+        // warning about doing this.
+        wxGCC_WARNING_SUPPRESS(float-equal)
+
         wxString s;
         if ( value != 0 || !BaseValidator::HasFlag(wxNUM_VAL_ZERO_AS_BLANK) )
             s = this->ToString(value);
+
+        wxGCC_WARNING_RESTORE(float-equal)
 
         return s;
     }
@@ -284,7 +304,9 @@ protected:
     static bool FromString(const wxString& s, LongestValueType *value);
 
     void DoSetMin(LongestValueType min) { m_min = min; }
+    LongestValueType DoGetMin() const { return m_min; }
     void DoSetMax(LongestValueType max) { m_max = max; }
+    LongestValueType DoGetMax() const { return m_max; }
 
     bool IsInRange(LongestValueType value) const
     {
@@ -292,7 +314,7 @@ protected:
     }
 
     // Implement wxNumValidatorBase pure virtual method.
-    virtual bool IsCharOk(const wxString& val, int pos, wxChar ch) const;
+    virtual bool IsCharOk(const wxString& val, int pos, wxChar ch) const wxOVERRIDE;
 
 private:
     // Minimal and maximal values accepted (inclusive).
@@ -325,7 +347,7 @@ public:
         this->DoSetMax(std::numeric_limits<ValueType>::max());
     }
 
-    virtual wxObject *Clone() const { return new wxIntegerValidator(*this); }
+    virtual wxObject *Clone() const wxOVERRIDE { return new wxIntegerValidator(*this); }
 
 private:
     wxDECLARE_NO_ASSIGN_CLASS(wxIntegerValidator);
@@ -354,6 +376,11 @@ public:
     // supported by the type handled by the validator.
     void SetPrecision(unsigned precision) { m_precision = precision; }
 
+    // Set multiplier applied for displaying the value, e.g. 100 if the value
+    // should be displayed in percents, so that the variable containing 0.5
+    // would be displayed as 50.
+    void SetFactor(double factor) { m_factor = factor; }
+
 protected:
     // Notice that we can't use "long double" here because it's not supported
     // by wxNumberFormatter yet, so restrict ourselves to just double (and
@@ -363,12 +390,14 @@ protected:
     wxFloatingPointValidatorBase(int style)
         : wxNumValidatorBase(style)
     {
+        m_factor = 1.0;
     }
 
     wxFloatingPointValidatorBase(const wxFloatingPointValidatorBase& other)
         : wxNumValidatorBase(other)
     {
         m_precision = other.m_precision;
+        m_factor = other.m_factor;
 
         m_min = other.m_min;
         m_max = other.m_max;
@@ -376,10 +405,12 @@ protected:
 
     // Provide methods for wxNumValidator use.
     wxString ToString(LongestValueType value) const;
-    static bool FromString(const wxString& s, LongestValueType *value);
+    bool FromString(const wxString& s, LongestValueType *value) const;
 
     void DoSetMin(LongestValueType min) { m_min = min; }
+    LongestValueType DoGetMin() const { return m_min; }
     void DoSetMax(LongestValueType max) { m_max = max; }
+    LongestValueType DoGetMax() const { return m_max; }
 
     bool IsInRange(LongestValueType value) const
     {
@@ -387,11 +418,14 @@ protected:
     }
 
     // Implement wxNumValidatorBase pure virtual method.
-    virtual bool IsCharOk(const wxString& val, int pos, wxChar ch) const;
+    virtual bool IsCharOk(const wxString& val, int pos, wxChar ch) const wxOVERRIDE;
 
 private:
     // Maximum number of decimals digits after the decimal separator.
     unsigned m_precision;
+
+    // Factor applied for the displayed the value.
+    double m_factor;
 
     // Minimal and maximal values accepted (inclusive).
     LongestValueType m_min, m_max;
@@ -430,19 +464,21 @@ public:
         this->SetPrecision(precision);
     }
 
-    virtual wxObject *Clone() const
+    virtual wxObject *Clone() const wxOVERRIDE
     {
         return new wxFloatingPointValidator(*this);
     }
 
 private:
+    typedef typename Base::LongestValueType LongestValueType;
+
     void DoSetMinMax()
     {
         // NB: Do not use min(), it's not the smallest representable value for
         //     the floating point types but rather the smallest representable
         //     positive value.
-        this->DoSetMin(-std::numeric_limits<ValueType>::max());
-        this->DoSetMax( std::numeric_limits<ValueType>::max());
+        this->DoSetMin(static_cast<LongestValueType>(-std::numeric_limits<ValueType>::max()));
+        this->DoSetMax(static_cast<LongestValueType>( std::numeric_limits<ValueType>::max()));
     }
 };
 

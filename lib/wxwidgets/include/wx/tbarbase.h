@@ -177,8 +177,8 @@ public:
 
     void Toggle() { Toggle(!IsToggled()); }
 
-    virtual void SetNormalBitmap(const wxBitmap& bmp) { m_bmpNormal = bmp; }
-    virtual void SetDisabledBitmap(const wxBitmap& bmp) { m_bmpDisabled = bmp; }
+    void SetNormalBitmap(const wxBitmap& bmp) { m_bmpNormal = bmp; }
+    void SetDisabledBitmap(const wxBitmap& bmp) { m_bmpDisabled = bmp; }
 
     virtual void SetLabel(const wxString& label) { m_label = label; }
 
@@ -265,7 +265,7 @@ protected:
     wxMenu *m_dropdownMenu;
 #endif
 
-    DECLARE_DYNAMIC_CLASS_NO_COPY(wxToolBarToolBase)
+    wxDECLARE_DYNAMIC_CLASS_NO_COPY(wxToolBarToolBase);
 };
 
 // a list of toolbar tools
@@ -482,8 +482,13 @@ public:
     // return true if this is a vertical toolbar, otherwise false
     bool IsVertical() const;
 
+    // returns one of wxTB_TOP, wxTB_BOTTOM, wxTB_LEFT, wxTB_RIGHT
+    // indicating where the toolbar is placed in the associated frame
+    int GetDirection() const;
+
     // these methods allow to access tools by their index in the toolbar
     size_t GetToolsCount() const { return m_tools.GetCount(); }
+    wxToolBarToolBase *GetToolByPos(int pos) { return m_tools[pos]; }
     const wxToolBarToolBase *GetToolByPos(int pos) const { return m_tools[pos]; }
 
 #if WXWIN_COMPATIBILITY_2_8
@@ -592,15 +597,15 @@ public:
                           wxEmptyString, wxEmptyString);
     }
 
-    
+
     // implementation only from now on
     // -------------------------------
 
     // Do the toolbar button updates (check for EVT_UPDATE_UI handlers)
-    virtual void UpdateWindowUI(long flags = wxUPDATE_UI_NONE) ;
+    virtual void UpdateWindowUI(long flags = wxUPDATE_UI_NONE) wxOVERRIDE ;
 
     // don't want toolbars to accept the focus
-    virtual bool AcceptsFocus() const { return false; }
+    virtual bool AcceptsFocus() const wxOVERRIDE { return false; }
 
 #if wxUSE_MENUS
     // Set dropdown menu
@@ -609,7 +614,7 @@ public:
 
 protected:
     // choose the default border for this window
-    virtual wxBorder GetDefaultBorder() const { return wxBORDER_NONE; }
+    virtual wxBorder GetDefaultBorder() const wxOVERRIDE { return wxBORDER_NONE; }
 
     // to implement in derived classes
     // -------------------------------
@@ -695,7 +700,7 @@ protected:
     wxCoord m_defaultWidth, m_defaultHeight;
 
 private:
-    DECLARE_EVENT_TABLE()
+    wxDECLARE_EVENT_TABLE();
     wxDECLARE_NO_COPY_CLASS(wxToolBarBase);
 };
 

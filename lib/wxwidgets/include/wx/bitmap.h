@@ -71,9 +71,9 @@ protected:
 #if defined(__WXDFB__) || \
     defined(__WXMAC__) || \
     defined(__WXGTK__) || \
-    defined(__WXCOCOA__) || \
     defined(__WXMOTIF__) || \
-    defined(__WXX11__)
+    defined(__WXX11__) || \
+    defined(__WXQT__)
     #define wxUSE_BITMAP_BASE 1
 #else
     #define wxUSE_BITMAP_BASE 0
@@ -97,16 +97,11 @@ class WXDLLIMPEXP_CORE wxBitmapHelpers
 public:
     // Create a new wxBitmap from the PNG data in the given buffer.
     static wxBitmap NewFromPNGData(const void* data, size_t size);
-
-#ifdef __VISUALC6__
-    // Work around compiler bug with incorrect wxBitmap size, see #18453.
-    char wxDummyVC6Fix;
-#endif // __VISUALC6__
 };
 
 
-// All ports except wxMSW and wxOS2 use wxBitmapHandler and wxBitmapBase as
-// base class for wxBitmapHandler; wxMSW and wxOS2 use wxGDIImageHandler as
+// All ports except wxMSW use wxBitmapHandler and wxBitmapBase as
+// base class for wxBitmapHandler; wxMSW uses wxGDIImageHandler as
 // base class since it allows some code reuse there.
 #if wxUSE_BITMAP_BASE
 
@@ -151,7 +146,7 @@ private:
     wxString      m_extension;
     wxBitmapType  m_type;
 
-    DECLARE_ABSTRACT_CLASS(wxBitmapHandler)
+    wxDECLARE_ABSTRACT_CLASS(wxBitmapHandler);
 };
 
 // ----------------------------------------------------------------------------
@@ -172,7 +167,7 @@ public:
     wxBitmap(const wxSize& sz, int depth = wxBITMAP_SCREEN_DEPTH);
     wxBitmap(const char* const* bits);
     wxBitmap(const wxString &filename, wxBitmapType type = wxBITMAP_TYPE_XPM);
-    wxBitmap(const wxImage& image, int depth = wxBITMAP_SCREEN_DEPTH);
+    wxBitmap(const wxImage& image, int depth = wxBITMAP_SCREEN_DEPTH, double scale = 1.0);
 
     static void InitStandardHandlers();
     */
@@ -180,7 +175,7 @@ public:
     virtual bool Create(int width, int height, int depth = wxBITMAP_SCREEN_DEPTH) = 0;
     virtual bool Create(const wxSize& sz, int depth = wxBITMAP_SCREEN_DEPTH) = 0;
     virtual bool CreateScaled(int w, int h, int d, double logicalScale)
-        { return Create(w*logicalScale,h*logicalScale,d); }
+        { return Create(wxRound(w*logicalScale), wxRound(h*logicalScale), d); }
 
     virtual int GetHeight() const = 0;
     virtual int GetWidth() const = 0;
@@ -194,7 +189,7 @@ public:
     virtual double GetScaledWidth() const { return GetWidth() / GetScaleFactor(); }
     virtual double GetScaledHeight() const { return GetHeight() / GetScaleFactor(); }
     virtual wxSize GetScaledSize() const
-    { return wxSize(GetScaledWidth(), GetScaledHeight()); }
+        { return wxSize(wxRound(GetScaledWidth()), wxRound(GetScaledHeight())); }
 
 #if wxUSE_IMAGE
     virtual wxImage ConvertToImage() const = 0;
@@ -229,9 +224,12 @@ public:
     virtual bool CopyFromIcon(const wxIcon& icon) = 0;
 
     // implementation:
+#if WXWIN_COMPATIBILITY_3_0
+    // deprecated
     virtual void SetHeight(int height) = 0;
     virtual void SetWidth(int width) = 0;
     virtual void SetDepth(int depth) = 0;
+#endif
 
     // Format handling
     static inline wxList& GetHandlers() { return sm_handlers; }
@@ -259,7 +257,7 @@ public:
 protected:
     static wxList sm_handlers;
 
-    DECLARE_ABSTRACT_CLASS(wxBitmapBase)
+    wxDECLARE_ABSTRACT_CLASS(wxBitmapBase);
 };
 
 #endif // wxUSE_BITMAP_BASE
@@ -292,12 +290,9 @@ protected:
 #elif defined(__WXMAC__)
     #define wxBITMAP_DEFAULT_TYPE    wxBITMAP_TYPE_PICT_RESOURCE
     #include "wx/osx/bitmap.h"
-#elif defined(__WXCOCOA__)
-    #define wxBITMAP_DEFAULT_TYPE    wxBITMAP_TYPE_BMP_RESOURCE
-    #include "wx/cocoa/bitmap.h"
-#elif defined(__WXPM__)
-    #define wxBITMAP_DEFAULT_TYPE    wxBITMAP_TYPE_BMP_RESOURCE
-    #include "wx/os2/bitmap.h"
+#elif defined(__WXQT__)
+    #define wxBITMAP_DEFAULT_TYPE    wxBITMAP_TYPE_XPM
+    #include "wx/qt/bitmap.h"
 #endif
 
 #if wxUSE_IMAGE
@@ -310,7 +305,8 @@ wxBitmap::
 #endif
 ConvertToDisabled(unsigned char brightness) const
 {
-    return ConvertToImage().ConvertToDisabled(brightness);
+    const wxImage imgDisabled = ConvertToImage().ConvertToDisabled(brightness);
+    return wxBitmap(imgDisabled, -1, GetScaleFactor());
 }
 #endif // wxUSE_IMAGE
 

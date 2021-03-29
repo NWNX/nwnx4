@@ -74,10 +74,10 @@ protected:
     }
 
     // same as the version above except it will look up wxClassInfo by name on
-    // its own
+    // its own. Note that className must be ASCII
     void AddDependency(const char *className)
     {
-        m_namedDependencies.Add(className);
+        m_namedDependencies.Add(wxASCII_STR(className));
     }
 
 
@@ -113,7 +113,7 @@ private:
     } m_state;
 
 
-    DECLARE_CLASS(wxModule)
+    wxDECLARE_CLASS(wxModule);
 };
 
 #endif // _WX_MODULE_H_

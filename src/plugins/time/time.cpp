@@ -54,16 +54,16 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 Timer::Timer()
 {
-	header = _T(
+	header = 
 		"NWNX Timer Plugin V.0.0.2\n" \
 		"(c) 2007 by Ingmar Stieger (Papillon)\n" \
-		"visit us at http://www.nwnx.org\n");
+		"visit us at http://www.nwnx.org\n";
 
-	description = _T(
-		"This plugin provides highly accurate timers.");
+	description = 
+		"This plugin provides highly accurate timers.";
 
-	subClass = _T("TIME");
-	version = _T("0.0.2");
+	subClass = "TIME";
+	version = "0.0.2";
 
 	QueryPerformanceFrequency(&liFrequency);
 }
@@ -171,7 +171,7 @@ char* Timer::GetString(char* sFunction, char* sParam1, int nParam2)
 	else
 	{
 		// Process generic functions
-		wxString query = ProcessQueryFunction(function.c_str());
+		wxString query = ProcessQueryFunction(function.ToStdString().c_str());
 		if (query != wxT(""))
 		{
 			sprintf_s(returnBuffer, MAX_BUFFER, "%s", query);
