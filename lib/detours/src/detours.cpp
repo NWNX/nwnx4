@@ -920,7 +920,7 @@ LONG WINAPI DetourTransactionCommitEx(PVOID **pppFailedPointer)
 #endif // DETOURS_IA64
 
         if (GetThreadContext(t->hThread, &cxt)) {
-            for (DetourOperation *o = s_pPendingOperations; o != NULL; o = o->pNext) {
+            for (o = s_pPendingOperations; o != NULL; o = o->pNext) {
                 if (o->fIsRemove) {
                     if (cxt.DETOURS_EIP >= (DETOURS_EIP_TYPE)(ULONG_PTR)o->pTrampoline &&
                         cxt.DETOURS_EIP < (DETOURS_EIP_TYPE)(ULONG_PTR)o->pTrampoline + sizeof(o->pTrampoline)) {
