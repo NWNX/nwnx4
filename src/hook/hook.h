@@ -27,7 +27,7 @@
 #include <unordered_map>
 #include "detours.h"
 #include "crashdump.h"
-#include "ini.h"
+#include "../misc/ini.h"
 #include "../misc/log.h"
 #include "../misc/shmem.h"
 #include "../plugins/plugin.h"

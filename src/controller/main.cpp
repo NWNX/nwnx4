@@ -18,17 +18,16 @@
 
 ***************************************************************************/
 
-#include "stdwx.h"
 #include "controller.h"
 #include "service.h"
-#include "wx/fileconf.h"
+#include "../misc/ini.h"
 
 enum actions { no_action, run_interactive, run_service };
 BOOL STARTUP_ACTION;
 
 NWNXController* controller;
 
-wxLogNWNX* logger;
+LogNWNX* logger;
 int serviceNo;
 
 void start_worker(void);
@@ -36,20 +35,15 @@ DWORD WINAPI workerProcessThread(LPVOID);
 void process_command_line(int argc,char *argv[]);
 int main(int argc,char *argv[]);
 
-const wxString header = 
-	wxT("\nNWN Extender 4 Server Controller V.0.0.9\n") \
-	wxT("(c) 2008 by Ingmar Stieger (Papillon)\n") \
-	wxT("visit us at http://www.nwnx.org\n");
-
 void start_worker()
 {
 	DWORD dwThreadId;
-	HANDLE hThread; 
+	HANDLE hThread;
 
-	wxLogTrace(TRACE_VERBOSE, wxT("Starting worker..."));
+	logger->Trace("Starting worker...");
 
 	// Start the worker thread
-	hThread = CreateThread(NULL, 0, workerProcessThread, NULL, 0, &dwThreadId);                
+	hThread = CreateThread(NULL, 0, workerProcessThread, NULL, 0, &dwThreadId);
 }
 
 // The thread that does the actual work
@@ -72,30 +66,36 @@ DWORD WINAPI workerProcessThread(LPVOID lpParam)
 
 void process_command_line(int argc,char *argv[])
 {
-	wxString logfile = wxT("nwnx_controller.txt");
+	std::string logfile = "nwnx_controller.txt";
 
 	// decide on log target (depending on whether
-	// we run interactive or as a service). 
+	// we run interactive or as a service).
 	logger = NULL;
 	for (int i = 0; i < argc; i++)
 	{
 		if (
 			(_stricmp(argv[i], "-interactive") == 0) ||
-			(_stricmp(argv[i], "-help") == 0)			
-			) 
+			(_stricmp(argv[i], "-help") == 0)
+			)
 		{
-			logger = new wxLogNWNX(NULL, header);
+			logger = new LogNWNX();
 			break;
 		}
 	}
-	if (argc == 1) 
-		logger = new wxLogNWNX();
+	if (argc == 1)
+		logger = new LogNWNX();
 	if (!logger)
-		logger = new wxLogNWNX(logfile, header);
+		logger = new LogNWNX(logfile);
 
-	if (argc == 1) 
+	logger->Info(
+		"\nNWN Extender 4 Server Controller V.0.0.9\n"
+		"(c) 2008 by Ingmar Stieger (Papillon)\n"
+		"visit us at http://www.nwnx.org\n"
+	);
+
+	if (argc == 1)
 	{
-		wxLogError(wxT("No command line parameters specified.\nUse -help for a list of valid parameters."));
+		logger->Err("No command line parameters specified.\nUse -help for a list of valid parameters.");
 		return;
 	}
 
@@ -122,13 +122,13 @@ void process_command_line(int argc,char *argv[])
 	{
 		if (_stricmp(argv[i], "-help") == 0)
 		{
-			wxLogMessage(wxT("Valid parameters are:\n"));
-			wxLogMessage(wxT("   -serviceno          Specify service instance number"));
-			wxLogMessage(wxT("   -startservice       Start the NWNX service"));
-			wxLogMessage(wxT("   -stopservice        Stop the NWNX service"));
-			wxLogMessage(wxT("   -installservice     Install the NWNX service"));
-			wxLogMessage(wxT("   -uninstallservice   Uninstall the NWNX service"));
-			wxLogMessage(wxT("   -interactive        Start in interactive mode"));
+			logger->Info("Valid parameters are:\n");
+			logger->Info("   -serviceno          Specify service instance number");
+			logger->Info("   -startservice       Start the NWNX service");
+			logger->Info("   -stopservice        Stop the NWNX service");
+			logger->Info("   -installservice     Install the NWNX service");
+			logger->Info("   -uninstallservice   Uninstall the NWNX service");
+			logger->Info("   -interactive        Start in interactive mode");
 
 			STARTUP_ACTION = no_action;
 		}
@@ -184,18 +184,18 @@ int main(int argc,char *argv[])
 	process_command_line(argc, argv);
 
 	// open ini file
-	wxString inifile(wxT("nwnx.ini")); 
-	wxLogTrace(TRACE_VERBOSE, wxT("Reading inifile %s"), inifile);
-	wxFileConfig* config = new wxFileConfig(wxEmptyString, wxEmptyString, 
-		inifile, wxEmptyString, wxCONFIG_USE_RELATIVE_PATH|wxCONFIG_USE_NO_ESCAPE_CHARACTERS);
+	std::string inifile("nwnx.ini");
+	logger->Trace("Reading inifile %s", inifile);
+	auto iniParser = INI::Parser(inifile.c_str());
+	INI::Level* config = &iniParser.top();
 
 	// Setup temporary directories
-	wxString tempPath;
-	config->Read(wxT("nwn2temp"), &tempPath);
-	if (tempPath != wxT(""))
+	std::string tempPath;
+	config->get("nwn2temp", &tempPath);
+	if (tempPath != "")
 	{
-		SetEnvironmentVariable(wxT("TEMP"), tempPath);
-		SetEnvironmentVariable(wxT("TMP"), tempPath);
+		SetEnvironmentVariable("TEMP", tempPath.c_str());
+		SetEnvironmentVariable("TMP", tempPath.c_str());
 	}
 
 	controller = new NWNXController(config);
@@ -203,23 +203,23 @@ int main(int argc,char *argv[])
 	if (STARTUP_ACTION == run_interactive)
 	{
 		// start in interactive mode
-		wxLogMessage(wxT("Running in interactive mode."));
-		wxLogMessage(wxT("Press enter to stop the controller."));
-		wxLogMessage(wxT("NWNX will continue to run within nwnserver."));
+		logger->Info("Running in interactive mode.");
+		logger->Info("Press enter to stop the controller.");
+		logger->Info("NWNX will continue to run within nwnserver.");
 		start_worker();
 		getc(stdin);
 	}
 	else if (STARTUP_ACTION == run_service)
 	{
-		// start as service 
+		// start as service
 		TCHAR serviceName[64];
-		_stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
+		snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
 
-		SERVICE_TABLE_ENTRY DispatchTable[] = {{ serviceName, NWNXServiceStart}, { NULL, NULL }}; 
-		if (!StartServiceCtrlDispatcher(DispatchTable)) 
-		{ 
-			wxLogError(wxT("* StartServiceCtrlDispatcher (%d)"), GetLastError()); 
-		} 
+		SERVICE_TABLE_ENTRY DispatchTable[] = {{ serviceName, NWNXServiceStart}, { NULL, NULL }};
+		if (!StartServiceCtrlDispatcher(DispatchTable))
+		{
+			logger->Err("* StartServiceCtrlDispatcher (%d)", GetLastError());
+		}
 
 	}
 	return 0;

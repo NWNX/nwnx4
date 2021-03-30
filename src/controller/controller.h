@@ -24,21 +24,21 @@
 
 #include <windows.h>
 #include <stdio.h>
-#include <tchar.h>
+#include <string>
 #include "detours.h"
-#include "wx/fileconf.h"
 #include "udp.h"
 #include "../misc/log.h"
 #include "../misc/shmem.h"
+#include "../misc/ini.h"
 
 #define arrayof(x)		(sizeof(x)/sizeof(x[0]))
-#define IDC_SENDMESSAGE_EDIT    0x3FC 
-#define IDC_SENDMESSAGE_BUTTON  0x400 
+#define IDC_SENDMESSAGE_EDIT    0x3FC
+#define IDC_SENDMESSAGE_BUTTON  0x400
 
 class NWNXController
 {
 public:
-    NWNXController(wxFileConfig *config);
+    NWNXController(INI::Level *config);
     ~NWNXController();
 
 	void startServerProcess();
@@ -51,8 +51,8 @@ public:
 		return gracefulShutdownTimeout;
     };
 
-	wxString parameters;
-	wxString gracefulShutdownMessage;
+	std::string parameters;
+	std::string gracefulShutdownMessage;
 	bool processWatchdog;
 	bool gamespyWatchdog;
 	int gamespyPort;
@@ -65,14 +65,14 @@ public:
 	long gamespyDelay;
 
 private:
-	wxFileConfig *config;
+	INI::Level *config;
 
 	CUDP *udp;
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 
 	unsigned long tick;
-	wxString nwnhome;
+	std::string nwnhome;
 	bool initialized;
 	bool shuttingDown;
 

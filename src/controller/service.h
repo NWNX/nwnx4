@@ -19,7 +19,6 @@
 ***************************************************************************/
 
 #include "windows.h"
-#include "tchar.h"
 #include "../misc/log.h"
 #include "controller.h"
 

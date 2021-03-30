@@ -420,7 +420,8 @@ void init()
     unsigned char* hookAt;
 
 	std::string logfile = std::string(*nwnxhome) + "\\nwnx.txt";
-	logger = new LogNWNX(logfile, header);
+	logger = new LogNWNX(logfile);
+	logger->Info(header);
 
 	// signal controller that we are ready
 	if (!SetEvent(shmem->ready_event))

@@ -27,22 +27,18 @@
 class LogNWNX
 {
 public:
+    LogNWNX();
     LogNWNX(std::string);
-    LogNWNX(std::string, std::string);
-    LogNWNX(std::string, std::string, long);
-
 
     void Trace(const std::string format...);
     void Debug(const std::string format...);
     void Info(const std::string format...);
     void Warn(const std::string format...);
     void Err(const std::string format...);
-
 protected:
-    std::ofstream m_fileStream;
+    std::ostream* m_outStream;
 
-    std::string fName;
-    std::string header;
+    std::string filePath;
 
     void LogNWNX::Log(const std::string format...);
     void LogNWNX::LogStr(const std::string message);

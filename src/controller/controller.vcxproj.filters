@@ -27,9 +27,6 @@
     <ClCompile Include="service.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdwx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="udp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -47,10 +44,10 @@
     <ClInclude Include="..\misc\shmem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdwx.h">
+    <ClInclude Include="udp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="udp.h">
+    <ClInclude Include="..\misc\ini.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

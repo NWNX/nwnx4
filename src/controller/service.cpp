@@ -18,22 +18,22 @@
 
 ***************************************************************************/
 
-#include "stdwx.h"
 #include "service.h"
 
-SERVICE_STATUS_HANDLE NWNXServiceStatusHandle; 
+extern LogNWNX* logger;
+SERVICE_STATUS_HANDLE NWNXServiceStatusHandle;
 SERVICE_STATUS NWNXServiceStatus;
 
 SC_HANDLE getSCManager()
 {
-	// Return a handle to the SC Manager database. 
- 	SC_HANDLE schSCManager = OpenSCManager( 
-    NULL,                    // local machine 
-    NULL,                    // ServicesActive database 
-    SC_MANAGER_ALL_ACCESS);  // full access rights 
- 
-	if (schSCManager == NULL) 
-		wxLogError(wxT("* Failed to connect to service manager (%d)"), GetLastError());
+	// Return a handle to the SC Manager database.
+ 	SC_HANDLE schSCManager = OpenSCManager(
+    NULL,                    // local machine
+    NULL,                    // ServicesActive database
+    SC_MANAGER_ALL_ACCESS);  // full access rights
+
+	if (schSCManager == NULL)
+		logger->Err("* Failed to connect to service manager (%d)", GetLastError());
 
 	return schSCManager;
 }
@@ -43,45 +43,45 @@ BOOL installservice(int serviceNo)
 	SC_HANDLE schSCManager, schService;
 	SERVICE_DESCRIPTION sdBuf;
 
-    TCHAR szPath[MAX_PATH], cmdLine[MAX_PATH]; 
-	TCHAR serviceName[64];
-	TCHAR displayName[64];
+    char szPath[MAX_PATH], cmdLine[MAX_PATH];
+	char serviceName[64];
+	char displayName[64];
 
-	wxLogMessage(wxT("* Installing NWNX Service %d..."), serviceNo);
+	logger->Info("* Installing NWNX Service %d...", serviceNo);
 
 	schSCManager = getSCManager();
-	if (NULL == schSCManager) 
+	if (NULL == schSCManager)
 		return FALSE;
 
     if(!GetModuleFileName(NULL, szPath, MAX_PATH ) )
     {
-		wxLogError(wxT("* GetModuleFileName failed (%d)"), GetLastError()); 
+		logger->Err("* GetModuleFileName failed (%d)", GetLastError());
         return FALSE;
     }
 
-	_stprintf_s(serviceName, 64, _T("NWNX4-%d"), serviceNo);
-	_stprintf_s(displayName, 64, _T("NWNX4 Service %d"), serviceNo);
-	_stprintf_s(cmdLine, MAX_PATH, _T("%s -serviceno %d -runservice"), szPath, serviceNo);
-	sdBuf.lpDescription = _T("Neverwinter Nights Extender 4 service instance");
+	snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+    snprintf(displayName, 64, "NWNX4 Service %d", serviceNo);
+    snprintf(cmdLine, MAX_PATH, "%s -serviceno %d -runservice", szPath, serviceNo);
+	sdBuf.lpDescription = "Neverwinter Nights Extender 4 service instance";
 
-    schService = CreateService( 
-        schSCManager,              // SCManager database 
-        serviceName,		       // name of service 
-        displayName,               // service name to display 
-        SERVICE_ALL_ACCESS,        // desired access 
-        SERVICE_WIN32_OWN_PROCESS, // service type 
-        SERVICE_DEMAND_START,      // start type 
-        SERVICE_ERROR_NORMAL,      // error control type 
-        cmdLine,                   // path to service's binary 
-        NULL,                      // no load ordering group 
-        NULL,                      // no tag identifier 
-        NULL,                      // no dependencies 
-        NULL,                      // LocalSystem account 
-        NULL);                     // no password 
- 
-    if (schService == NULL) 
+    schService = CreateService(
+        schSCManager,              // SCManager database
+        serviceName,		       // name of service
+        displayName,               // service name to display
+        SERVICE_ALL_ACCESS,        // desired access
+        SERVICE_WIN32_OWN_PROCESS, // service type
+        SERVICE_DEMAND_START,      // start type
+        SERVICE_ERROR_NORMAL,      // error control type
+        cmdLine,                   // path to service's binary
+        NULL,                      // no load ordering group
+        NULL,                      // no tag identifier
+        NULL,                      // no dependencies
+        NULL,                      // LocalSystem account
+        NULL);                     // no password
+
+    if (schService == NULL)
     {
-		wxLogError(wxT("* CreateService failed (%d)"), GetLastError()); 
+		logger->Err("* CreateService failed (%d)", GetLastError());
         return FALSE;
     }
 
@@ -90,11 +90,11 @@ BOOL installservice(int serviceNo)
         SERVICE_CONFIG_DESCRIPTION, // change: description
         &sdBuf) )                   // value: new description
     {
-        wxLogError(wxT("ChangeServiceConfig2 failed"));
+        logger->Err("ChangeServiceConfig2 failed");
         return FALSE;
     }
 
-    CloseServiceHandle(schService); 
+    CloseServiceHandle(schService);
     return TRUE;
 
 }
@@ -102,123 +102,123 @@ BOOL installservice(int serviceNo)
 BOOL uninstallservice(int serviceNo)
 {
 	SC_HANDLE schSCManager, schService;
-	TCHAR serviceName[64];
+	char serviceName[64];
 
-	_stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
-	wxLogMessage(wxT("* Uninstalling NWNX Service %d..."), serviceNo);
+    snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+	logger->Info("* Uninstalling NWNX Service %d...", serviceNo);
 
 	schSCManager = getSCManager();
-	if (NULL == schSCManager) 
+	if (NULL == schSCManager)
 		return FALSE;
 
-    schService = OpenService( 
-        schSCManager,       // SCManager database 
-        serviceName,        // name of service 
-        DELETE);            // only need DELETE access 
- 
+    schService = OpenService(
+        schSCManager,       // SCManager database
+        serviceName,        // name of service
+        DELETE);            // only need DELETE access
+
     if (schService == NULL)
-    { 
-        wxLogError(wxT("* OpenService failed (%d)"), GetLastError()); 
-        return FALSE;
-    }
- 
-    if (!DeleteService(schService)) 
     {
-		wxLogError(wxT("* DeleteService failed (%d)"), GetLastError()); 
+        logger->Err("* OpenService failed (%d)", GetLastError());
         return FALSE;
     }
-    else 
-		wxLogMessage(wxT("* DeleteService succeeded")); 
- 
-    CloseServiceHandle(schService); 
+
+    if (!DeleteService(schService))
+    {
+		logger->Err("* DeleteService failed (%d)", GetLastError());
+        return FALSE;
+    }
+    else
+		logger->Info("* DeleteService succeeded");
+
+    CloseServiceHandle(schService);
     return TRUE;
 }
 
-void WINAPI NWNXServiceStart(DWORD argc, LPTSTR *argv) 
-{ 
-    DWORD status; 
-    DWORD specificError; 
-	TCHAR serviceName[64];
- 
-    NWNXServiceStatus.dwServiceType = SERVICE_WIN32; 
-    NWNXServiceStatus.dwCurrentState = SERVICE_START_PENDING; 
-    NWNXServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP; 
-    NWNXServiceStatus.dwWin32ExitCode = 0; 
-    NWNXServiceStatus.dwServiceSpecificExitCode = 0; 
-    NWNXServiceStatus.dwCheckPoint = 0; 
-    NWNXServiceStatus.dwWaitHint = 0; 
- 
-	_stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
-    NWNXServiceStatusHandle = RegisterServiceCtrlHandler(serviceName, NWNXServiceCtrlHandler); 
- 
-    if (NWNXServiceStatusHandle == (SERVICE_STATUS_HANDLE)0) 
-    { 
-		wxLogError(wxT("* RegisterServiceCtrlHandler failed %d"), GetLastError()); 
-        return; 
-    } 
- 
-    // Initialization code goes here. 
-    status = NWNXServiceInitialization(argc,argv, &specificError); 
- 
-    // Handle error condition 
-    if (status != NO_ERROR) 
-    { 
-        NWNXServiceStatus.dwCurrentState = SERVICE_STOPPED; 
-        NWNXServiceStatus.dwCheckPoint = 0; 
-        NWNXServiceStatus.dwWaitHint = 0; 
-        NWNXServiceStatus.dwWin32ExitCode = status; 
-        NWNXServiceStatus.dwServiceSpecificExitCode = specificError; 
- 
-        SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus); 
-        return; 
-    } 
- 
-    // Initialization complete - report running status. 
-    NWNXServiceStatus.dwCurrentState = SERVICE_RUNNING; 
-    NWNXServiceStatus.dwCheckPoint = 0; 
-    NWNXServiceStatus.dwWaitHint = 0; 
- 
-    if (!SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus)) 
-    { 
-        status = GetLastError(); 
-		wxLogError(wxT("* SetServiceStatus error %ld"), status); 
-    } 
+void WINAPI NWNXServiceStart(DWORD argc, LPTSTR *argv)
+{
+    DWORD status;
+    DWORD specificError;
+	char serviceName[64];
 
-    // This is where the service does its work. 
+    NWNXServiceStatus.dwServiceType = SERVICE_WIN32;
+    NWNXServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+    NWNXServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
+    NWNXServiceStatus.dwWin32ExitCode = 0;
+    NWNXServiceStatus.dwServiceSpecificExitCode = 0;
+    NWNXServiceStatus.dwCheckPoint = 0;
+    NWNXServiceStatus.dwWaitHint = 0;
+
+    snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+    NWNXServiceStatusHandle = RegisterServiceCtrlHandler(serviceName, NWNXServiceCtrlHandler);
+
+    if (NWNXServiceStatusHandle == (SERVICE_STATUS_HANDLE)0)
+    {
+		logger->Err("* RegisterServiceCtrlHandler failed %d", GetLastError());
+        return;
+    }
+
+    // Initialization code goes here.
+    status = NWNXServiceInitialization(argc,argv, &specificError);
+
+    // Handle error condition
+    if (status != NO_ERROR)
+    {
+        NWNXServiceStatus.dwCurrentState = SERVICE_STOPPED;
+        NWNXServiceStatus.dwCheckPoint = 0;
+        NWNXServiceStatus.dwWaitHint = 0;
+        NWNXServiceStatus.dwWin32ExitCode = status;
+        NWNXServiceStatus.dwServiceSpecificExitCode = specificError;
+
+        SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus);
+        return;
+    }
+
+    // Initialization complete - report running status.
+    NWNXServiceStatus.dwCurrentState = SERVICE_RUNNING;
+    NWNXServiceStatus.dwCheckPoint = 0;
+    NWNXServiceStatus.dwWaitHint = 0;
+
+    if (!SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus))
+    {
+        status = GetLastError();
+		logger->Err("* SetServiceStatus error %ld", status);
+    }
+
+    // This is where the service does its work.
 	start_worker();
- 
-    return; 
-} 
- 
-// Stub initialization function. 
-DWORD NWNXServiceInitialization(DWORD argc, LPTSTR *argv, DWORD *specificError) 
-{ 
-    argv; 
-    argc; 
-    specificError; 
-    return(0); 
+
+    return;
 }
 
-VOID WINAPI NWNXServiceCtrlHandler(DWORD Opcode) 
-{ 
-	DWORD status; 
+// Stub initialization function.
+DWORD NWNXServiceInitialization(DWORD argc, LPTSTR *argv, DWORD *specificError)
+{
+    argv;
+    argc;
+    specificError;
+    return(0);
+}
 
-	switch(Opcode) 
-	{ 
-		case SERVICE_CONTROL_STOP: 
+VOID WINAPI NWNXServiceCtrlHandler(DWORD Opcode)
+{
+	DWORD status;
+
+	switch(Opcode)
+	{
+		case SERVICE_CONTROL_STOP:
 
 			// Notify the SCM immediately that we received the request and are
 			// working on stopping.
 
-			NWNXServiceStatus.dwWin32ExitCode = 0; 
-			NWNXServiceStatus.dwCurrentState  = SERVICE_STOP_PENDING; 
-			NWNXServiceStatus.dwCheckPoint    = 0; 
+			NWNXServiceStatus.dwWin32ExitCode = 0;
+			NWNXServiceStatus.dwCurrentState  = SERVICE_STOP_PENDING;
+			NWNXServiceStatus.dwCheckPoint    = 0;
 			NWNXServiceStatus.dwWaitHint      = (DWORD)(controller->getGracefulShutdownTimeout() + 6) * 1000;
 
 			if (!SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus))
-			{ 
-				status = GetLastError(); 
-				wxLogError(wxT("* SetServiceStatus error %ld"), status); 
+			{
+				status = GetLastError();
+				logger->Err("* SetServiceStatus error %ld", status);
 			}
 
 			// Cleanly shutdown the server process.
@@ -226,99 +226,99 @@ VOID WINAPI NWNXServiceCtrlHandler(DWORD Opcode)
 			controller->notifyServiceShutdown();
 			controller->killServerProcess();
 
-			NWNXServiceStatus.dwWin32ExitCode = 0; 
-			NWNXServiceStatus.dwCurrentState  = SERVICE_STOPPED; 
-			NWNXServiceStatus.dwCheckPoint    = 0; 
-			NWNXServiceStatus.dwWaitHint      = 0; 
+			NWNXServiceStatus.dwWin32ExitCode = 0;
+			NWNXServiceStatus.dwCurrentState  = SERVICE_STOPPED;
+			NWNXServiceStatus.dwCheckPoint    = 0;
+			NWNXServiceStatus.dwWaitHint      = 0;
 
 			if (!SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus))
-			{ 
-				status = GetLastError(); 
-				wxLogError(wxT("* SetServiceStatus error %ld"), status); 
+			{
+				status = GetLastError();
+				logger->Err("* SetServiceStatus error %ld", status);
 			}
 
-			wxLogMessage(wxT("* Service successfully stopped.")); 
-			return; 
- 
-			case SERVICE_CONTROL_INTERROGATE: 
-				// Fall through to send current status. 
-				break; 
- 
-			default: ;
-			wxLogError(wxT("* Unrecognized opcode %ld"), Opcode); 
-	} 
+			logger->Info("* Service successfully stopped.");
+			return;
 
-	// Send current status. 
-	if (!SetServiceStatus (NWNXServiceStatusHandle,  &NWNXServiceStatus)) 
-	{ 
-		status = GetLastError(); 
-		wxLogError(wxT("* SetServiceStatus error %ld"), status); 
-	} 
-	return; 
+			case SERVICE_CONTROL_INTERROGATE:
+				// Fall through to send current status.
+				break;
+
+			default: ;
+			logger->Err("* Unrecognized opcode %ld", Opcode);
+	}
+
+	// Send current status.
+	if (!SetServiceStatus (NWNXServiceStatusHandle,  &NWNXServiceStatus))
+	{
+		status = GetLastError();
+		logger->Err("* SetServiceStatus error %ld", status);
+	}
+	return;
 }
 
-BOOL StartNWNXService(int serviceNo) 
-{ 
+BOOL StartNWNXService(int serviceNo)
+{
     SC_HANDLE schService;
 	SC_HANDLE schSCManager;
-    SERVICE_STATUS_PROCESS ssStatus; 
-    DWORD dwOldCheckPoint; 
+    SERVICE_STATUS_PROCESS ssStatus;
+    DWORD dwOldCheckPoint;
     DWORD dwStartTickCount;
     DWORD dwWaitTime;
     DWORD dwBytesNeeded;
-	TCHAR serviceName[64];
- 
+	char serviceName[64];
+
 	schSCManager = getSCManager();
-	if (NULL == schSCManager) 
+	if (NULL == schSCManager)
 		return FALSE;
 
-	_stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
-    schService = OpenService( 
-        schSCManager,           // SCManager database 
-        serviceName,            // name of service 
-        SERVICE_ALL_ACCESS);    
+	snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+    schService = OpenService(
+        schSCManager,           // SCManager database
+        serviceName,            // name of service
+        SERVICE_ALL_ACCESS);
 
     if (schService == NULL)
-    { 
-		wxLogError(wxT("* OpenService failed (%d)"), GetLastError()); 
+    {
+		logger->Err("* OpenService failed (%d)", GetLastError());
         return FALSE;
     }
- 
+
     if (!StartService(
-            schService,  // handle to service 
-            0,           // number of arguments 
-            NULL) )      // no arguments 
+            schService,  // handle to service
+            0,           // number of arguments
+            NULL) )      // no arguments
     {
-        return 0; 
+        return 0;
     }
-    else 
+    else
     {
-        wxLogMessage(wxT("* Starting NWNX service %d..."), serviceNo);
+        logger->Info("* Starting NWNX service %d...", serviceNo);
     }
 
-    // Check the status until the service is no longer start pending. 
- 
-    if (!QueryServiceStatusEx( 
-            schService,             // handle to service 
+    // Check the status until the service is no longer start pending.
+
+    if (!QueryServiceStatusEx(
+            schService,             // handle to service
             SC_STATUS_PROCESS_INFO, // info level
             (LPBYTE)&ssStatus,              // address of structure
             sizeof(SERVICE_STATUS_PROCESS), // size of structure
             &dwBytesNeeded ) )              // if buffer too small
     {
-        return 0; 
+        return 0;
     }
- 
+
     // Save the tick count and initial checkpoint.
 
     dwStartTickCount = GetTickCount();
     dwOldCheckPoint = ssStatus.dwCheckPoint;
 
-    while (ssStatus.dwCurrentState == SERVICE_START_PENDING) 
-    { 
-        // Do not wait longer than the wait hint. A good interval is 
-        // one tenth the wait hint, but no less than 1 second and no 
-        // more than 10 seconds. 
- 
+    while (ssStatus.dwCurrentState == SERVICE_START_PENDING)
+    {
+        // Do not wait longer than the wait hint. A good interval is
+        // one tenth the wait hint, but no less than 1 second and no
+        // more than 10 seconds.
+
         dwWaitTime = ssStatus.dwWaitHint / 10;
 
         if( dwWaitTime < 1000 )
@@ -328,16 +328,16 @@ BOOL StartNWNXService(int serviceNo)
 
         Sleep( dwWaitTime );
 
-        // Check the status again. 
- 
-        if (!QueryServiceStatusEx( 
-            schService,			            // handle to service 
+        // Check the status again.
+
+        if (!QueryServiceStatusEx(
+            schService,			            // handle to service
             SC_STATUS_PROCESS_INFO,         // info level
             (LPBYTE)&ssStatus,              // address of structure
             sizeof(SERVICE_STATUS_PROCESS), // size of structure
             &dwBytesNeeded ) )              // if buffer too small
-            break; 
- 
+            break;
+
         if (ssStatus.dwCheckPoint > dwOldCheckPoint)
         {
             // The service is making progress.
@@ -352,36 +352,36 @@ BOOL StartNWNXService(int serviceNo)
                 break;
             }
         }
-    } 
+    }
 
-    CloseServiceHandle(schService); 
+    CloseServiceHandle(schService);
 
-    if (ssStatus.dwCurrentState == SERVICE_RUNNING) 
+    if (ssStatus.dwCurrentState == SERVICE_RUNNING)
     {
-		wxLogMessage(wxT("* Service successfully started.")); 
+		logger->Info("* Service successfully started.");
         return 1;
     }
-    else 
-    { 
-        wxLogError(wxT("! Service not started."));
-		wxLogError(wxT("! Current State: %d"), ssStatus.dwCurrentState); 
-		wxLogError(wxT("! Exit Code: %d"), ssStatus.dwWin32ExitCode); 
-		wxLogError(wxT("! Service Specific Exit Code: %d"), ssStatus.dwServiceSpecificExitCode); 
-		wxLogError(wxT("! Check Point: %d"), ssStatus.dwCheckPoint); 
-		wxLogError(wxT("! Wait Hint: %d"), ssStatus.dwWaitHint); 
+    else
+    {
+        logger->Err("! Service not started.");
+		logger->Err("! Current State: %d", ssStatus.dwCurrentState);
+		logger->Err("! Exit Code: %d", ssStatus.dwWin32ExitCode);
+		logger->Err("! Service Specific Exit Code: %d", ssStatus.dwServiceSpecificExitCode);
+		logger->Err("! Check Point: %d", ssStatus.dwCheckPoint);
+		logger->Err("! Wait Hint: %d", ssStatus.dwWaitHint);
         return 0;
-    } 
+    }
 }
 
-// This function attempts to stop a service. It allows the caller to 
-// specify whether dependent services should also be stopped. It also 
-// accepts a timeout value, to prevent a scenario in which a service 
+// This function attempts to stop a service. It allows the caller to
+// specify whether dependent services should also be stopped. It also
+// accepts a timeout value, to prevent a scenario in which a service
 // shutdown hangs, then the application stopping the service hangs.
-// 
-// If the operation is successful, returns ERROR_SUCCESS. Otherwise, 
+//
+// If the operation is successful, returns ERROR_SUCCESS. Otherwise,
 // returns a system error code.
 
-DWORD StopNWNXService(int serviceNo) 
+DWORD StopNWNXService(int serviceNo)
 {
     SC_HANDLE schService;
 	SC_HANDLE schSCManager;
@@ -389,47 +389,47 @@ DWORD StopNWNXService(int serviceNo)
     DWORD dwStartTime = GetTickCount();
     DWORD dwBytesNeeded;
 	DWORD dwTimeout = 10000; //msec
-	TCHAR serviceName[64];
+	char serviceName[64];
 
-	_stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
+    snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
 
 	schSCManager = getSCManager();
-	if (NULL == schSCManager) 
+	if (NULL == schSCManager)
 		return FALSE;
 
-    schService = OpenService( 
-        schSCManager,       // SCManager database 
+    schService = OpenService(
+        schSCManager,       // SCManager database
         serviceName,
         SERVICE_ALL_ACCESS);
 
     if (schService == NULL)
-    { 
-		wxLogError(wxT("* OpenService failed (%d)"), GetLastError()); 
+    {
+		logger->Err("* OpenService failed (%d)", GetLastError());
         return FALSE;
     }
 
-	wxLogMessage(wxT("* Stopping NWNX service %d..."), serviceNo); 
+	logger->Info("* Stopping NWNX service %d...", serviceNo);
 
     // Make sure the service is not already stopped
-    if (!QueryServiceStatusEx( 
-            schService, 
+    if (!QueryServiceStatusEx(
+            schService,
             SC_STATUS_PROCESS_INFO,
-            (LPBYTE)&ssStatus, 
+            (LPBYTE)&ssStatus,
             sizeof(SERVICE_STATUS_PROCESS),
             &dwBytesNeeded))
         return GetLastError();
 
-    if (ssStatus.dwCurrentState == SERVICE_STOPPED) 
+    if (ssStatus.dwCurrentState == SERVICE_STOPPED)
        return ERROR_SUCCESS;
 
     // If a stop is pending, just wait for it
-    while (ssStatus.dwCurrentState == SERVICE_STOP_PENDING) 
+    while (ssStatus.dwCurrentState == SERVICE_STOP_PENDING)
     {
         Sleep(ssStatus.dwWaitHint);
-        if (!QueryServiceStatusEx( 
-                schService, 
+        if (!QueryServiceStatusEx(
+                schService,
                 SC_STATUS_PROCESS_INFO,
-                (LPBYTE)&ssStatus, 
+                (LPBYTE)&ssStatus,
                 sizeof(SERVICE_STATUS_PROCESS),
                 &dwBytesNeeded ) )
             return GetLastError();
@@ -447,13 +447,13 @@ DWORD StopNWNXService(int serviceNo)
         return GetLastError();
 
    // Wait for the service to stop
-   while (ss.dwCurrentState != SERVICE_STOPPED) 
+   while (ss.dwCurrentState != SERVICE_STOPPED)
    {
        Sleep(ss.dwWaitHint);
-       if (!QueryServiceStatusEx( 
-               schService, 
+       if (!QueryServiceStatusEx(
+               schService,
                SC_STATUS_PROCESS_INFO,
-               (LPBYTE)&ss, 
+               (LPBYTE)&ss,
                sizeof(SERVICE_STATUS),
                &dwBytesNeeded))
            return GetLastError();

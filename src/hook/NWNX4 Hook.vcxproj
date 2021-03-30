@@ -69,7 +69,7 @@
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
     <Link>
-      <AdditionalDependencies>wsock32.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;detours.lib;detoured.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)NWNX4_Hookd.dll</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)..\lib\detours\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>

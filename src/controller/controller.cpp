@@ -19,10 +19,10 @@
 
 ***************************************************************************/
 
-#include "stdwx.h"
 #include "controller.h"
+extern LogNWNX* logger;
 
-NWNXController::NWNXController(wxFileConfig *config)
+NWNXController::NWNXController(INI::Level *config)
 {
 	this->config = config;
 
@@ -42,25 +42,25 @@ NWNXController::NWNXController(wxFileConfig *config)
 	ZeroMemory(&si, sizeof(si));
 	ZeroMemory(&pi, sizeof(pi));
 
-	config->Read(wxT("restartDelay"), &restartDelay);
-	config->Read(wxT("processWatchdog"), &processWatchdog);
-	config->Read(wxT("gamespyWatchdog"), &gamespyWatchdog);
-	config->Read(wxT("gamespyInterval"), &gamespyInterval);
-	config->Read(wxT("gamespyTolerance"), &gamespyTolerance);
-	config->Read(wxT("gamespyDelay"), &gamespyDelay);
-	config->Read(wxT("gracefulShutdownTimeout"), &gracefulShutdownTimeout);
-	config->Read(wxT("gracefulShutdownMessage"), &gracefulShutdownMessage);
-	config->Read(wxT("gracefulShutdownMessageWait"), &gracefulShutdownMessageWait);
+	config->get("restartDelay", &restartDelay);
+	config->get("processWatchdog", &processWatchdog);
+	config->get("gamespyWatchdog", &gamespyWatchdog);
+	config->get("gamespyInterval", &gamespyInterval);
+	config->get("gamespyTolerance", &gamespyTolerance);
+	config->get("gamespyDelay", &gamespyDelay);
+	config->get("gracefulShutdownTimeout", &gracefulShutdownTimeout);
+	config->get("gracefulShutdownMessage", &gracefulShutdownMessage);
+	config->get("gracefulShutdownMessageWait", &gracefulShutdownMessageWait);
 
-	if (!config->Read(wxT("parameters"), &parameters) )
+	if (!config->get("parameters", &parameters) )
 	{
-		wxLogMessage(wxT("Parameter setting not found in nwnx.ini. Starting server with empty commandline."));
+		logger->Info("Parameter setting not found in nwnx.ini. Starting server with empty commandline.");
 	}
-	parameters.Prepend(wxT(" "));
+	parameters += " ";
 
 	if (gamespyWatchdog)
 	{
-		config->Read(wxT("gamespyPort"), &gamespyPort);
+		config->get("gamespyPort", &gamespyPort);
 		try
 		{
 			udp = new CUDP("localhost", gamespyPort);
@@ -71,9 +71,9 @@ NWNXController::NWNXController(wxFileConfig *config)
 		}
 	}
 
-	if (!config->Read(wxT("nwn2"), &nwnhome))
+	if (!config->get("nwn2", &nwnhome))
 	{
-		wxLogMessage(wxT("* NWN2 home directory not found. Check your nwnx.ini file."));
+		logger->Info("* NWN2 home directory not found. Check your nwnx.ini file.");
 		return;
 	}
 }
@@ -98,7 +98,7 @@ void NWNXController::startServerProcess()
 	while (!shuttingDown && !startServerProcessInternal())
 	{
 		killServerProcess(false);
-		wxLogMessage(wxT( "! Error: Failed to start server process, retrying in 5000ms..." ));
+		logger->Info( "! Error: Failed to start server process, retrying in 5000ms..." );
 		Sleep(5000);
 	}
 }
@@ -111,26 +111,26 @@ void NWNXController::notifyServiceShutdown()
 bool NWNXController::startServerProcessInternal()
 {
     SHARED_MEMORY shmem;
-	wxString nwnexe(wxT("\\nwn2server.exe"));
+	std::string nwnexe("\\nwn2server.exe");
 
 #ifdef DEBUG
-	PCHAR pszHookDLLPath = "NWNX4_Hookd.dll";			// Debug DLL
+	char* pszHookDLLPath = "NWNX4_Hookd.dll";			// Debug DLL
 #else
-	PCHAR pszHookDLLPath = "NWNX4_Hook.dll";			// Release DLL
+	char* pszHookDLLPath = "NWNX4_Hook.dll";			// Release DLL
 #endif
 
 	ZeroMemory(&si, sizeof(si));
 	ZeroMemory(&pi, sizeof(pi));
 	si.cb = sizeof(si);
 
-	wxLogTrace(TRACE_VERBOSE, wxT("Starting server executable %s in %s"), nwnhome + nwnexe, nwnhome);
+	logger->Trace("Starting server executable %s in %s", nwnhome + nwnexe, nwnhome);
 
 	CHAR szDllPath[MAX_PATH];
-	PCHAR pszFilePart = NULL;
+	char* pszFilePart = NULL;
 
-	if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart)) 
+	if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart))
 	{
-		wxLogMessage(wxT("Error: %s could not be found."), pszHookDLLPath);
+		logger->Info("Error: %s could not be found.", pszHookDLLPath);
 		return false;
 	}
 
@@ -141,22 +141,22 @@ bool NWNXController::startServerProcessInternal()
 
 	shmem.ready_event = CreateEvent(&SecurityAttributes, TRUE, FALSE, 0);
 	if(!shmem.ready_event)
-	{ 
-		wxLogMessage(wxT("CreateEvent failed (%d)"), GetLastError());
+	{
+		logger->Info("CreateEvent failed (%d)", GetLastError());
 		return false;
 	}
 
-	wxLogTrace(TRACE_VERBOSE, wxT("Starting: %s"), nwnhome + nwnexe);
-	wxLogTrace(TRACE_VERBOSE, wxT("with %s"), szDllPath);
+	logger->Trace("Starting: %s", nwnhome + nwnexe);
+	logger->Trace("with %s", szDllPath);
 
 	DWORD dwFlags = CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED;
 	SetLastError(0);
 
-	if (!DetourCreateProcessWithDll(nwnhome + nwnexe, (LPTSTR)parameters.c_str(),
-                                    NULL, NULL, TRUE, dwFlags, NULL, nwnhome,
-                                    &si, &pi, szDllPath, NULL))   
+	if (!DetourCreateProcessWithDll((nwnhome + nwnexe).c_str(), (LPTSTR)parameters.c_str(),
+                                    NULL, NULL, TRUE, dwFlags, NULL, nwnhome.c_str(),
+                                    &si, &pi, szDllPath, NULL))
 	{
-		wxLogMessage(wxT("DetourCreateProcessWithDll failed: %d"), GetLastError());
+		logger->Info("DetourCreateProcessWithDll failed: %d", GetLastError());
 		CloseHandle( shmem.ready_event );
 		ZeroMemory( &pi, sizeof( PROCESS_INFORMATION ) );
 		return false;
@@ -171,7 +171,7 @@ bool NWNXController::startServerProcessInternal()
 	};
 
 	GetCurrentDirectory(MAX_PATH, shmem.nwnx_home);
-	wxLogTrace(TRACE_VERBOSE, wxT("NWNX home directory set to %s"), shmem.nwnx_home);
+	logger->Trace("NWNX home directory set to %s", shmem.nwnx_home);
 
 	DetourCopyPayloadToProcess(pi.hProcess, my_guid, &shmem, sizeof(SHARED_MEMORY));
 
@@ -183,7 +183,7 @@ bool NWNXController::startServerProcessInternal()
 	switch(WaitForSingleObject(shmem.ready_event, 60000))
 	{
 		case WAIT_TIMEOUT:
-			wxLogMessage(wxT("! Error: Server did not initialize properly (timeout)."));
+			logger->Info("! Error: Server did not initialize properly (timeout).");
 			CloseHandle( shmem.ready_event );
 			CloseHandle( pi.hProcess );
 			CloseHandle( pi.hThread );
@@ -191,7 +191,7 @@ bool NWNXController::startServerProcessInternal()
 			return false;
 			break;
 		case WAIT_FAILED:
-			wxLogMessage(wxT("! Error: Server did not initialize properly (wait failed)."));
+			logger->Info("! Error: Server did not initialize properly (wait failed).");
 			CloseHandle( shmem.ready_event );
 			CloseHandle( pi.hProcess );
 			CloseHandle( pi.hThread );
@@ -200,17 +200,17 @@ bool NWNXController::startServerProcessInternal()
 			break;
 		case WAIT_OBJECT_0:
 			CloseHandle(shmem.ready_event);
-			wxLogMessage(wxT("* Success: Server initialized properly."));
+			logger->Info("* Success: Server initialized properly.");
 			break;
 	}
 
     DWORD dwResult = 0;
-    if (!GetExitCodeProcess(pi.hProcess, &dwResult)) 
+    if (!GetExitCodeProcess(pi.hProcess, &dwResult))
 	{
-		wxLogMessage(wxT("GetExitCodeProcess failed: %d\n"), GetLastError());
+		logger->Info("GetExitCodeProcess failed: %d\n", GetLastError());
 		return false;
     }
-	
+
 	// Reset the count of ping probes to zero for purposes of initial load time
 	// GameSpy ping allowances.
 	tick = 0;
@@ -218,7 +218,7 @@ bool NWNXController::startServerProcessInternal()
 	// Reset GameSpy failed response count.
 	gamespyRetries = 0;
 
-	wxLogMessage(wxT("* Hook installed and initialized successfully"));
+	logger->Info("* Hook installed and initialized successfully");
 	initialized = true;
 
 	return true;
@@ -229,19 +229,19 @@ void NWNXController::restartServerProcess()
 	// Kill any leftovers
 	if (checkProcessActive())
 		killServerProcess(true);
-	
+
 	// Run maintenance command
-	wxString restartCmd;
-	config->Read(wxT("restartCmd"), &restartCmd);
-	if (restartCmd != wxT(""))
+	std::string restartCmd;
+	config->get("restartCmd", &restartCmd);
+	if (restartCmd != "")
 	{
 		PROCESS_INFORMATION pi;
 		STARTUPINFO si;
 
 		ZeroMemory(&si,sizeof(si));
 		si.cb = sizeof(si);
-		wxLogMessage(wxT("* Starting maintenance file %s"), restartCmd);
-		restartCmd.Prepend(wxT("cmd.exe /c "));
+		logger->Info("* Starting maintenance file %s", restartCmd);
+		restartCmd = std::string("cmd.exe /c ") + restartCmd;
 		if (CreateProcess(NULL, (LPTSTR)restartCmd.c_str(), NULL, NULL,FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi))
 		{
 			WaitForSingleObject( pi.hProcess, INFINITE );
@@ -251,9 +251,9 @@ void NWNXController::restartServerProcess()
 	}
 
 	// Finally restart the server
-	wxLogMessage(wxT("* Waiting %d seconds before restarting the server."), restartDelay);
+	logger->Info("* Waiting %d seconds before restarting the server.", restartDelay);
 	Sleep(restartDelay * 1000);
-	wxLogMessage(wxT("* Restarting server."));
+	logger->Info("* Restarting server.");
 	startServerProcess();
 }
 
@@ -268,9 +268,9 @@ void NWNXController::killServerProcess(bool graceful)
 
 	if (graceful)
 	{
-		wxLogMessage(wxT( "* Telling server to stop itself..." ));
+		logger->Info( "* Telling server to stop itself..." );
 		if (!performGracefulShutdown())
-			wxLogMessage(wxT( "* WARNING: Failed to gracefully shutdown the server process." ));
+			logger->Info( "* WARNING: Failed to gracefully shutdown the server process." );
 	}
 
 	// Mark us as not initialized.
@@ -342,9 +342,9 @@ bool NWNXController::performGracefulShutdown()
 
 	// If we have a graceful shutdown message then transmit it before we
 	// initiate shutdown.
-	if (gracefulShutdownMessage != wxT( "" )) 
+	if (gracefulShutdownMessage != "")
 	{
-		wxLogMessage(wxT( "* Sending shutdown server message and waiting %d seconds."), gracefulShutdownMessageWait);
+		logger->Info( "* Sending shutdown server message and waiting %d seconds.", gracefulShutdownMessageWait);
 		broadcastServerMessage(gracefulShutdownMessage.c_str());
 		Sleep(gracefulShutdownMessageWait * 1000);
 	}
@@ -442,13 +442,13 @@ void NWNXController::runProcessWatchdog()
 {
 	if (checkProcessActive() == false)
 	{
-		wxLogMessage(wxT("* Server process has gone away."));
+		logger->Info("* Server process has gone away.");
 		restartServerProcess();
 	}
 }
 
 void NWNXController::runGamespyWatchdog()
-{	
+{
 	int ret;
 	char buffer[2048];
 
@@ -459,7 +459,7 @@ void NWNXController::runGamespyWatchdog()
 	if (ret == 0)
 	{
 		// No reply from server
-		wxLogMessage(wxT("* Warning: Server did not answer gamespy query. %d retries left."),
+		logger->Info("* Warning: Server did not answer gamespy query. %d retries left.",
 			gamespyTolerance - gamespyRetries);
 		gamespyRetries++;
 	}
@@ -472,7 +472,7 @@ void NWNXController::runGamespyWatchdog()
 	if (gamespyRetries > gamespyTolerance)
 	{
 		// Restart server
-		wxLogMessage(wxT("* Server did not answer the last %d gamespy queries."), gamespyTolerance);
+		logger->Info("* Server did not answer the last %d gamespy queries.", gamespyTolerance);
 		gamespyRetries = 0;
 		restartServerProcess();
 	}

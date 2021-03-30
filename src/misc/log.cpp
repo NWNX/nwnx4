@@ -22,18 +22,25 @@
 #include <fstream>
 #include <cstdarg>
 
-LogNWNX::LogNWNX(std::string fName)
+LogNWNX::LogNWNX()
 {
-	this->fName = fName;
-	this->header = "NWNX4 default header\n\n";
-	CreateLogFile();
+    m_outStream = new std::ostream(std::cout.rdbuf());
 }
-
-LogNWNX::LogNWNX(std::string fName, std::string header)
+LogNWNX::LogNWNX(std::string filePath)
 {
-	this->fName = fName;
-	this->header = header;
-	CreateLogFile();
+    this->filePath = filePath;
+
+    std::streambuf* buf;
+    auto ofStream = std::ofstream(filePath);
+    if (ofStream){
+        buf = ofStream.rdbuf();
+    }
+    else{
+        std::cerr << "Canot open log file: " << filePath << std::endl;
+        buf = std::cout.rdbuf();
+    }
+
+    m_outStream = new std::ostream(buf);
 }
 
 void LogNWNX::Trace(const std::string format...){
@@ -74,19 +81,6 @@ void LogNWNX::Log(const std::string format...){
     LogStr(std::string( buf.get(), buf.get() + size - 1 ));
 }
 void LogNWNX::LogStr(const std::string message){
-    m_fileStream << message << std::endl;
-    m_fileStream.flush();
-}
-
-
-void LogNWNX::CreateLogFile()
-{
-    m_fileStream = std::ofstream(fName);
-
-    if (!m_fileStream){
-        std::cerr << "Canot open log file: " << fName << std::endl;
-    }
-    else{
-        Log(this->header);
-    }
+    *m_outStream << message << std::endl;
+    m_outStream->flush();
 }
