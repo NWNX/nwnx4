@@ -32,8 +32,7 @@ LegacyPluginHashMap legacyplugins;
 
 LogNWNX* logger;
 std::string* nwnxhome;
-INI::Parser* configParser;
-INI::Level* config;
+SimpleIniConfig* config;
 
 char returnBuffer[MAX_BUFFER];
 
@@ -421,7 +420,9 @@ void init()
 
 	std::string logfile = std::string(*nwnxhome) + "\\nwnx.txt";
 	logger = new LogNWNX(logfile);
-	logger->Info(header);
+	logger->Info("NWN Extender 4 V.1.1.0");
+	logger->Info("(c) 2008 by Ingmar Stieger (Papillon)");
+	logger->Info("visit us at http://www.nwnx.org");
 
 	// signal controller that we are ready
 	if (!SetEvent(shmem->ready_event))
@@ -434,9 +435,7 @@ void init()
 	// open ini file
 	std::string inifile = *nwnxhome + "\\nwnx.ini";
 	logger->Trace("Reading inifile %s", inifile);
-	auto iniFStream = std::ifstream(inifile);
-	configParser = new INI::Parser(iniFStream);
-	config = &configParser->top();
+	config = new SimpleIniConfig(inifile);
 
 	bool missingFunction = false;
 	hookAt = FindPattern(SET_NWNX_GETINT);

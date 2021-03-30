@@ -38,7 +38,7 @@
 class NWNXController
 {
 public:
-    NWNXController(INI::Level *config);
+    NWNXController(SimpleIniConfig* config);
     ~NWNXController();
 
 	void startServerProcess();
@@ -65,7 +65,7 @@ public:
 	long gamespyDelay;
 
 private:
-	INI::Level *config;
+	SimpleIniConfig* config;
 
 	CUDP *udp;
 	STARTUPINFO si;
@@ -90,7 +90,7 @@ private:
 	static BOOL CALLBACK findServerGuiWindowEnumProc(HWND hwnd, LPARAM lParam);
 	static HWND findServerGuiWindow(ULONG processId);
 	bool performGracefulShutdown();
-	bool broadcastServerMessage(const TCHAR *message);
+	bool broadcastServerMessage(const char *message);
 };
 
 #endif

@@ -22,7 +22,7 @@
 #include "controller.h"
 extern LogNWNX* logger;
 
-NWNXController::NWNXController(INI::Level *config)
+NWNXController::NWNXController(SimpleIniConfig* config)
 {
 	this->config = config;
 
@@ -76,6 +76,8 @@ NWNXController::NWNXController(INI::Level *config)
 		logger->Info("* NWN2 home directory not found. Check your nwnx.ini file.");
 		return;
 	}
+	logger->Trace("NWN2 home: %s", nwnhome.c_str());
+	logger->Trace("NWN2 parameters: %s", parameters.c_str());
 }
 
 NWNXController::~NWNXController()
@@ -123,7 +125,7 @@ bool NWNXController::startServerProcessInternal()
 	ZeroMemory(&pi, sizeof(pi));
 	si.cb = sizeof(si);
 
-	logger->Trace("Starting server executable %s in %s", nwnhome + nwnexe, nwnhome);
+	logger->Trace("Starting server executable %s in %s", (nwnhome + nwnexe).c_str(), nwnhome.c_str());
 
 	CHAR szDllPath[MAX_PATH];
 	char* pszFilePart = NULL;
@@ -359,7 +361,7 @@ bool NWNXController::performGracefulShutdown()
 	return (WaitForSingleObject(pi.hProcess, gracefulShutdownTimeout * 1000) == WAIT_OBJECT_0);
 }
 
-bool NWNXController::broadcastServerMessage(const TCHAR *message)
+bool NWNXController::broadcastServerMessage(const char *message)
 {
 	HWND srvWnd;
 	HWND sendMsgEdit;

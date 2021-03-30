@@ -87,15 +87,15 @@ void process_command_line(int argc,char *argv[])
 	if (!logger)
 		logger = new LogNWNX(logfile);
 
-	logger->Info(
-		"\nNWN Extender 4 Server Controller V.0.0.9\n"
-		"(c) 2008 by Ingmar Stieger (Papillon)\n"
-		"visit us at http://www.nwnx.org\n"
-	);
+	logger->Info("");
+	logger->Info("NWN Extender 4 Server Controller V.0.0.9");
+	logger->Info("(c) 2008 by Ingmar Stieger (Papillon)");
+	logger->Info("visit us at http://www.nwnx.org");
 
 	if (argc == 1)
 	{
-		logger->Err("No command line parameters specified.\nUse -help for a list of valid parameters.");
+		logger->Err("No command line parameters specified.");
+		logger->Err("Use -help for a list of valid parameters.");
 		return;
 	}
 
@@ -122,7 +122,7 @@ void process_command_line(int argc,char *argv[])
 	{
 		if (_stricmp(argv[i], "-help") == 0)
 		{
-			logger->Info("Valid parameters are:\n");
+			logger->Info("Valid parameters are:");
 			logger->Info("   -serviceno          Specify service instance number");
 			logger->Info("   -startservice       Start the NWNX service");
 			logger->Info("   -stopservice        Stop the NWNX service");
@@ -165,6 +165,8 @@ void process_command_line(int argc,char *argv[])
 	}
 }
 
+
+
 int main(int argc,char *argv[])
 {
 	// init
@@ -185,9 +187,8 @@ int main(int argc,char *argv[])
 
 	// open ini file
 	std::string inifile("nwnx.ini");
-	logger->Trace("Reading inifile %s", inifile);
-	auto iniParser = INI::Parser(inifile.c_str());
-	INI::Level* config = &iniParser.top();
+	logger->Trace("Reading ini file '%s'", inifile.c_str());
+	auto config = new SimpleIniConfig(inifile);
 
 	// Setup temporary directories
 	std::string tempPath;
@@ -212,7 +213,7 @@ int main(int argc,char *argv[])
 	else if (STARTUP_ACTION == run_service)
 	{
 		// start as service
-		TCHAR serviceName[64];
+		char serviceName[64];
 		snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
 
 		SERVICE_TABLE_ENTRY DispatchTable[] = {{ serviceName, NWNXServiceStart}, { NULL, NULL }};
@@ -221,6 +222,9 @@ int main(int argc,char *argv[])
 			logger->Err("* StartServiceCtrlDispatcher (%d)", GetLastError());
 		}
 
+	}
+	else {
+		logger->Err("No action specified. Use -interactive or -runservice to start the server.");
 	}
 	return 0;
 }

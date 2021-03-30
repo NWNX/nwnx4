@@ -35,11 +35,6 @@
 
 #define MAX_BUFFER 64*1024
 
-const string header =
-	"NWN Extender 4 V.1.1.0\n"
-	"(c) 2008 by Ingmar Stieger (Papillon)\n"
-	"visit us at http://www.nwnx.org\n";
-
 const unsigned char SET_NWNX_GETINT[] = {0xB4, 0x4E, 0xB4, 0x57, 0xB4, 0x4E, 0xB4, 0x58,
                             0xB4, 0x2D, 0xB4, 0x47, 0xB4, 0x45, 0xB4, 0x54,
                             0xB4, 0x49, 0xB4, 0x4E, 0xB4, 0x54, 0x00};
@@ -78,7 +73,7 @@ extern LegacyPluginHashMap legacyplugins;
 
 extern LogNWNX* logger;
 extern std::string* nwnxhome;
-extern INI::Level* config;
+extern SimpleIniConfig* config;
 
 extern char returnBuffer[MAX_BUFFER];
 

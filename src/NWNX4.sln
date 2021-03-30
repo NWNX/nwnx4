@@ -3,13 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30128.74
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4 Controller", "controller\controller.vcxproj", "{4187545D-C3EE-4B22-A6FD-47B8057200D1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4_Controller", "controller\controller.vcxproj", "{4187545D-C3EE-4B22-A6FD-47B8057200D1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DDE52DBA-3A6E-4038-A8AA-E150577D9E8D} = {DDE52DBA-3A6E-4038-A8AA-E150577D9E8D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4 GUI", "gui\gui.vcxproj", "{C0FE3308-455C-45D6-A508-BCA664CF046A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4 Hook", "hook\NWNX4 Hook.vcxproj", "{DDE52DBA-3A6E-4038-A8AA-E150577D9E8D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4_Hook", "hook\NWNX4 Hook.vcxproj", "{DDE52DBA-3A6E-4038-A8AA-E150577D9E8D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Time", "plugins\time\time.vcxproj", "{C31F5D33-4229-44F9-B6AD-F3A70E67AC4A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_time", "plugins\time\time.vcxproj", "{C31F5D33-4229-44F9-B6AD-F3A70E67AC4A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP SQLite", "plugins\sqlite\sqlite.vcxproj", "{05827073-4340-40AD-892A-227C761F5622}"
 EndProject
