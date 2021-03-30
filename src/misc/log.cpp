@@ -17,88 +17,76 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ***************************************************************************/
-#include "stdwx.h"
 #include "log.h"
+#include <iostream>
+#include <fstream>
+#include <cstdarg>
 
-wxLogNWNX::wxLogNWNX(FILE *fp)
-{
-    if (fp == NULL)
-        fFile = stderr;
-    else
-        fFile = fp;
-
-	wxLog::SetActiveTarget(this);
-	set_trace_mask();
-	wxLogMessage(wxT("%s"), header);
-}
-
-wxLogNWNX::wxLogNWNX(FILE *fp, wxString header)
-{
-    if (fp == NULL)
-        fFile = stderr;
-    else
-        fFile = fp;
-	this->header = wxT("NWNX4 default header\n\n");
-
-	wxLog::SetActiveTarget(this);
-	set_trace_mask();
-	wxLogMessage(wxT("%s"), header);
-}
-
-wxLogNWNX::wxLogNWNX(wxString fName)
+LogNWNX::LogNWNX(std::string fName)
 {
 	this->fName = fName;
-	this->maxSizeBytes = 1024 * 1024;
-	this->header = wxT("NWNX4 default header\n\n");
-	create_log_file();
+	this->header = "NWNX4 default header\n\n";
+	CreateLogFile();
 }
 
-wxLogNWNX::wxLogNWNX(wxString fName, wxString header)
+LogNWNX::LogNWNX(std::string fName, std::string header)
 {
 	this->fName = fName;
-	this->maxSizeBytes = 1024 * 1024;
 	this->header = header;
-	create_log_file();
+	CreateLogFile();
 }
 
-wxLogNWNX::wxLogNWNX(wxString fName, wxString header, long maxSizeKB)
-{
-	this->fName = fName;
-	this->maxSizeBytes = maxSizeKB * 1024;
-	this->header = header;
-	create_log_file();
+void LogNWNX::Trace(const std::string format...){
+    va_list args;
+    va_start(args, format);
+    Log(std::string("Trace:") + format, args);
+}
+void LogNWNX::Debug(const std::string format...){
+    va_list args;
+    va_start(args, format);
+    Log(std::string("Dbg:  ") + format, args);
+}
+void LogNWNX::Info(const std::string format...){
+    va_list args;
+    va_start(args, format);
+    Log(std::string("Info: ") + format, args);
+}
+void LogNWNX::Warn(const std::string format...){
+    va_list args;
+    va_start(args, format);
+    Log(std::string("Warn: ") + format, args);
+}
+void LogNWNX::Err(const std::string format...){
+    va_list args;
+    va_start(args, format);
+    Log(std::string("Err:  ") + format, args);
+}
+
+void LogNWNX::Log(const std::string format...){
+    va_list args;
+    va_start(args, format);
+    int size_s = snprintf( nullptr, 0, format.c_str(), args) + 1; // Extra space for '\0'
+    if( size_s <= 0 )
+        throw std::runtime_error( "Error during formatting." );
+    size_t size = size_s;
+    auto buf = std::make_unique<char[]>(size);
+    snprintf( buf.get(), size, format.c_str(), args);
+    LogStr(std::string( buf.get(), buf.get() + size - 1 ));
+}
+void LogNWNX::LogStr(const std::string message){
+    m_fileStream << message << std::endl;
+    m_fileStream.flush();
 }
 
 
-void wxLogNWNX::DoLogString(const wxChar *szString, time_t WXUNUSED(t))
+void LogNWNX::CreateLogFile()
 {
-/*
-    wxString str;
-    TimeStamp(&str);
-    str << szString;
+    m_fileStream = std::ofstream(fName);
 
-    fputs(str.mb_str(), fFile);
-    fputc(_T('\n'), fFile);
-    fflush(fFile);
-*/
-    wxString str;
-    str << szString;
-
-    fputs(str.mb_str(), fFile);
-    fputc(_T('\n'), fFile);
-    fflush(fFile);
-}
-
-void wxLogNWNX::create_log_file()
-{
-	fFile = _tfopen(fName, wxT("w"));
-	wxLog::SetActiveTarget(this);
-	set_trace_mask();
-	wxLogMessage(wxT("%s"), header);
-}
-
-void wxLogNWNX::set_trace_mask()
-{
-	wxLog::AddTraceMask(TRACE_NORMAL);
-	wxLog::AddTraceMask(TRACE_VERBOSE);
+    if (!m_fileStream){
+        std::cerr << "Canot open log file: " << fName << std::endl;
+    }
+    else{
+        Log(this->header);
+    }
 }

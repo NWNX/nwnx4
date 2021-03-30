@@ -1,6 +1,6 @@
 /***************************************************************************
     NWNX Plugin - Plugins are derived from this class
-    Copyright (C) 2007 Ingmar Stieger (Papillon, papillon@blackdagger.com) 
+    Copyright (C) 2007 Ingmar Stieger (Papillon, papillon@blackdagger.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 
  ***************************************************************************/
 
-#include "stdwx.h"
 #include "../plugins/plugin.h"
 
 Plugin::Plugin()
@@ -31,7 +30,7 @@ Plugin::~Plugin()
 {
 }
 
-bool Plugin::Init(TCHAR* parameter)
+bool Plugin::Init(char* parameter)
 {
 	return true;
 }
@@ -39,37 +38,37 @@ bool Plugin::Init(TCHAR* parameter)
 string Plugin::ProcessQueryFunction(string function)
 {
 	if (function == "GET SUBCLASS")
-		return subClass; 
+		return subClass;
 	else if (function == "GET VERSION")
-		return version; 
+		return version;
 	else if (function == "GET DESCRIPTION")
 		return description;
 	else
 		return "";
 }
 
-void Plugin::GetFunctionClass(TCHAR* fClass)
+void Plugin::GetFunctionClass(char* fClass)
 {
 	fClass = NULL;
 }
 
-TCHAR* Plugin::GetPluginFileName()
+char* Plugin::GetPluginFileName()
 {
 	return pluginFileName;
 }
 
-TCHAR* Plugin::GetPluginFullPath()
+char* Plugin::GetPluginFullPath()
 {
 	return pluginFullPath;
 }
 
-void Plugin::SetPluginFullPath(TCHAR* fileName)
+void Plugin::SetPluginFullPath(char* fileName)
 {
 	// TODO: replace with _splitpath
-	pluginFullPath = _tcsdup(fileName);
+	pluginFullPath = strdup(fileName);
 
 	// extract filename from full path
-	int len = (int)_tcslen(fileName) - 1;
+	int len = (int)strlen(fileName) - 1;
 	if (len > 0)
 	{
 		int begin = -1, end = -1;
@@ -83,8 +82,8 @@ void Plugin::SetPluginFullPath(TCHAR* fileName)
 
 		if (end > begin)
 		{
-			pluginFileName = new TCHAR[MAX_PATH];
-			_tcsncpy_s(pluginFileName, MAX_PATH, fileName + begin, end - begin);
+			pluginFileName = new char[MAX_PATH];
+			strncpy(pluginFileName, fileName + begin, min(MAX_PATH, end - begin));
 		}
 	}
 }

@@ -30,9 +30,6 @@
     <ClCompile Include="..\plugins\plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdwx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="hook.map">
@@ -40,9 +37,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\misc\cmdlineargs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="crashdump.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -61,7 +55,7 @@
     <ClInclude Include="..\misc\shmem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdwx.h">
+    <ClInclude Include="ini.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

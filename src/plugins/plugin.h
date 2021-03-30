@@ -1,6 +1,6 @@
 /***************************************************************************
     NWNX Plugin - Plugins are derived from this class
-    Copyright (C) 2007 Ingmar Stieger (Papillon, papillon@blackdagger.com) 
+    Copyright (C) 2007 Ingmar Stieger (Papillon, papillon@blackdagger.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +21,8 @@
 #if !defined(PLUGIN_H_INCLUDED)
 #define PLUGIN_H_INCLUDED
 
-#include "windows.h"
-#include "tchar.h"
-#include "string"
+#include <windows.h>
+#include <string>
 
 #define MAX_BUFFER 64*1024
 
@@ -36,7 +35,7 @@ public:
 	virtual ~Plugin();
 
 	// Called when a plugin DLL gets loaded.
-	virtual bool Init(TCHAR*);  
+	virtual bool Init(char*);
 
 	// Functions for getting data in and out of the plugin
 	virtual int GetInt(char* sFunction, char* sParam1, int nParam2) { return 0; }
@@ -50,12 +49,12 @@ public:
 	string ProcessQueryFunction(string function);
 
 	// Return the function class of the plugin in fClass
-	virtual void GetFunctionClass(TCHAR* fClass);
+	virtual void GetFunctionClass(char* fClass);
 
 	// Plugin file name functions
-	TCHAR* GetPluginFileName();
-	TCHAR* GetPluginFullPath();
-	void SetPluginFullPath(TCHAR* fileName);
+	char* GetPluginFileName();
+	char* GetPluginFullPath();
+	void SetPluginFullPath(char* fileName);
 
 	// Copy a plugin response into the buffer provided by NWN
 	void nwnxcpy(char* buffer, const char* response);
@@ -69,8 +68,8 @@ protected:
 	char returnBuffer[MAX_BUFFER];
 
 private:
-	TCHAR *pluginFileName;
-	TCHAR *pluginFullPath;
+	char *pluginFileName;
+	char *pluginFullPath;
 };
 
 #endif

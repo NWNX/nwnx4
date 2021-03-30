@@ -1,6 +1,6 @@
 /***************************************************************************
     NWNX Plugin - Plugins are derived from this class
-    Copyright (C) 2007 Ingmar Stieger (Papillon, papillon@blackdagger.com) 
+    Copyright (C) 2007 Ingmar Stieger (Papillon, papillon@blackdagger.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 
  ***************************************************************************/
 
-#include "stdwx.h"
 #include "../plugins/legacy_plugin.h"
 
 LegacyPlugin::LegacyPlugin()
@@ -31,43 +30,43 @@ LegacyPlugin::~LegacyPlugin()
 {
 }
 
-bool LegacyPlugin::Init(TCHAR* parameter)
+bool LegacyPlugin::Init(char* parameter)
 {
 	return true;
 }
 
 void LegacyPlugin::ProcessQueryFunction(string function, char* buffer)
 {
-	if (function == _T("GET_SUBCLASS"))
-		nwnxcpy(buffer, subClass.c_str()); 
-	else if (function == _T("GET_VERSION"))
-		nwnxcpy(buffer, version.c_str()); 
-	else if (function == _T("GET_DESCRIPTION"))
-		nwnxcpy(buffer, description.c_str()); 
+	if (function == "GET_SUBCLASS")
+		nwnxcpy(buffer, subClass.c_str());
+	else if (function == "GET_VERSION")
+		nwnxcpy(buffer, version.c_str());
+	else if (function == "GET_DESCRIPTION")
+		nwnxcpy(buffer, description.c_str());
 }
 
-void LegacyPlugin::GetFunctionClass(TCHAR* fClass)
+void LegacyPlugin::GetFunctionClass(char* fClass)
 {
 	fClass = NULL;
 }
 
-TCHAR* LegacyPlugin::GetPluginFileName()
+char* LegacyPlugin::GetPluginFileName()
 {
 	return pluginFileName;
 }
 
-TCHAR* LegacyPlugin::GetPluginFullPath()
+char* LegacyPlugin::GetPluginFullPath()
 {
 	return pluginFullPath;
 }
 
-void LegacyPlugin::SetPluginFullPath(TCHAR* fileName)
+void LegacyPlugin::SetPluginFullPath(char* fileName)
 {
 	// TODO: replace with _splitpath
-	pluginFullPath = _tcsdup(fileName);
+	pluginFullPath = strdup(fileName);
 
 	// extract filename from full path
-	int len = (int)_tcslen(fileName) - 1;
+	int len = (int)strlen(fileName) - 1;
 	if (len > 0)
 	{
 		int begin = -1, end = -1;
@@ -81,8 +80,8 @@ void LegacyPlugin::SetPluginFullPath(TCHAR* fileName)
 
 		if (end > begin)
 		{
-			pluginFileName = new TCHAR[MAX_PATH];
-			_tcsncpy_s(pluginFileName, MAX_PATH, fileName + begin, end - begin);
+			pluginFileName = new char[MAX_PATH];
+			strncpy(pluginFileName, fileName + begin, min(MAX_PATH,  end - begin));
 		}
 	}
 }

@@ -21,46 +21,33 @@
 #if !defined(LOG_H_INCLUDED)
 #define LOG_H_INCLUDED
 
-#include "wx/log.h"
+#include <string>
+#include <fstream>
 
-const wxString TRACE_NORMAL = wxT("TRACE_NORMAL");
-const wxString TRACE_VERBOSE = wxT("TRACE_VERBOSE");
-
-class wxLogNWNX : public wxLog
+class LogNWNX
 {
 public:
-    // redirect log output to a FILE
-	wxLogNWNX(FILE *fp = (FILE *) NULL);
-	wxLogNWNX(FILE *fp, wxString);
-	wxLogNWNX(wxString);
-	wxLogNWNX(wxString, wxString);
-	wxLogNWNX(wxString, wxString, long);
+    LogNWNX(std::string);
+    LogNWNX(std::string, std::string);
+    LogNWNX(std::string, std::string, long);
+
+
+    void Trace(const std::string format...);
+    void Debug(const std::string format...);
+    void Info(const std::string format...);
+    void Warn(const std::string format...);
+    void Err(const std::string format...);
 
 protected:
-    // implement sink function
-    virtual void DoLogString(const wxChar *szString, time_t t);
+    std::ofstream m_fileStream;
 
-	FILE* fFile;
-	wxString fName;
-	long maxSizeBytes;
-	wxString header;
+    std::string fName;
+    std::string header;
 
-	void create_log_file();
-	void set_trace_mask();
-
-    DECLARE_NO_COPY_CLASS(wxLogNWNX)
+    void LogNWNX::Log(const std::string format...);
+    void LogNWNX::LogStr(const std::string message);
+	void CreateLogFile();
 };
 
-/*
-// debug examples :
-wxLogError(wxT("wxLogError"));
-wxLogWarning(wxT("wxLogWarning"));
-wxLogMessage(wxT("wxLogMessage"));
-wxLogVerbose(wxT("wxLogVerbose"));
-wxLogStatus(wxT("wxLogStatus"));
-wxLogSysError(wxT("wxLogSysError"));
-wxLogDebug(wxT("wxLogDebug"));
-wxLogFatalError(wxT("wxLogFatalError")); 
-*/
 
 #endif

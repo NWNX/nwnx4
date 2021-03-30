@@ -41,7 +41,7 @@
     <IntDir>$(Configuration)\</IntDir>
     <NMakeBuildCommandLine>nmake</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake clean</NMakeCleanCommandLine>
-    <NMakeOutput>Detours.lib</NMakeOutput>
+    <NMakeOutput>detoured.lib</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -49,7 +49,7 @@
     <IntDir>$(Configuration)\</IntDir>
     <NMakeBuildCommandLine>nmake</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake clean</NMakeCleanCommandLine>
-    <NMakeOutput>Detours.lib</NMakeOutput>
+    <NMakeOutput>detours.lib</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <ItemDefinitionGroup>
