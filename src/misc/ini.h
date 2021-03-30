@@ -55,6 +55,20 @@ namespace INI {
 
         const std::string& operator[](const std::string& name) { return values[name]; }
         Level& operator()(const std::string& name) { return sections[name]; }
+
+
+        template<typename T>
+        bool get(const std::string key, T* dest){
+            T value;
+            std::stringstream ss(values[key]);
+            ss >> value;
+            if (ss.fail()) {
+                return false;
+            }
+            *dest = value;
+            return true;
+        }
+
     };
 
     class Parser

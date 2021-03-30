@@ -121,7 +121,7 @@
     <ClInclude Include="..\plugins\legacy_plugin.h" />
     <ClInclude Include="..\plugins\plugin.h" />
     <ClInclude Include="crashdump.h" />
-    <ClInclude Include="ini.h" />
+    <ClInclude Include="..\misc\ini.h" />
     <ClInclude Include="hook.h" />
   </ItemGroup>
   <ItemGroup>

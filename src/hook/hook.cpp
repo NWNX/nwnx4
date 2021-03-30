@@ -543,7 +543,7 @@ void init()
 
 	// Suppress general protection fault error box
 	bool noGPFaultErrorBox = true;
-	noGPFaultErrorBox = std::stoi(config->values["noGPFaultErrorBox"]);
+	config->get("noGPFaultErrorBox", &noGPFaultErrorBox);
 	if (noGPFaultErrorBox)
 	{
 		DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);

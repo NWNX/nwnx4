@@ -55,7 +55,7 @@
     <ClInclude Include="..\misc\shmem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ini.h">
+    <ClInclude Include="..\misc\ini.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
