@@ -41,7 +41,6 @@ protected:
 
     void LogNWNX::Log(const char* format, va_list args);
     void LogNWNX::LogStr(const char* message);
-	void CreateLogFile();
 };
 
 

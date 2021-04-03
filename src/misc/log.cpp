@@ -27,8 +27,6 @@
 
 LogNWNX::LogNWNX()
 {
-    LogNWNX::LogNWNX("test.txt");
-    //m_outStream = new std::ostream(std::cout.rdbuf());
 }
 LogNWNX::LogNWNX(std::string filePath)
 {
@@ -83,6 +81,7 @@ void LogNWNX::Log(const char* format, va_list a){
      va_end(args);
      LogStr(&vec[0]);
 }
+
 void LogNWNX::LogStr(const char* message){
     if (m_ofStream) {
         m_ofStream << message << std::endl;
