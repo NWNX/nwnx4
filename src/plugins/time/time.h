@@ -25,8 +25,7 @@
 #include "windows.h"
 #include "../plugin.h"
 #include "../../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/hashset.h"
+#include <unordered_map>
 
 class Timer : public Plugin
 {
@@ -34,7 +33,7 @@ public:
 	Timer();
 	~Timer();
 
-	bool Init(TCHAR* nwnxhome);  
+	bool Init(char* nwnxhome);
 
 	int GetInt(char* sFunction, char* sParam1, int nParam2) { return 0; }
 	void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue) {};
@@ -42,18 +41,18 @@ public:
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue) {};
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue);
 	char* GetString(char* sFunction, char* sParam1, int nParam2);
-	void GetFunctionClass(TCHAR* fClass);
+	void GetFunctionClass(char* fClass);
 
 private:
-	wxLogNWNX* logger;
+	LogNWNX* logger;
 	LARGE_INTEGER liFrequency;
 
-	WX_DECLARE_STRING_HASH_MAP(LARGE_INTEGER, TimerHashMap);
+	typedef std::unordered_map<std::string,  LARGE_INTEGER> TimerHashMap;
 	TimerHashMap timers;
 
-	void StartTimer(wxString name);
-	LONGLONG StopTimer(wxString name);
-	LONGLONG PeekTimer(wxString name);
+	void StartTimer(std::string name);
+	LONGLONG StopTimer(std::string name);
+	LONGLONG PeekTimer(std::string name);
 };
 
 #endif

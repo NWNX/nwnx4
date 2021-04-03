@@ -97,7 +97,7 @@ int NWNXGetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2)
 				return (int)plugins.size();
 		}
 		else
-			logger->Info("* NWNXGetInt: Function class '%s' not provided by any plugin. Check your installation.", plugin);
+			logger->Info("* NWNXGetInt: Function class '%s' not provided by any plugin. Check your installation.", plugin.c_str());
 	}
 	return 0;
 }
@@ -120,7 +120,7 @@ void NWNXSetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2, int 
 	{
 		std::string plugin(sPlugin);
 		std::string function(sFunction);
-		logger->Info("* NWNXSetInt: Function class '%s' not provided by any plugin. Check your installation.", plugin);
+		logger->Info("* NWNXSetInt: Function class '%s' not provided by any plugin. Check your installation.", plugin.c_str());
 	}
 }
 
@@ -141,7 +141,7 @@ float NWNXGetFloat(char* sPlugin, char* sFunction, char* sParam1, int nParam2)
 	{
 		std::string plugin(sPlugin);
 		std::string function(sFunction);
-		logger->Info("* NWNXGetFloat: Function class '%s' not provided by any plugin. Check your installation.", plugin);
+		logger->Info("* NWNXGetFloat: Function class '%s' not provided by any plugin. Check your installation.", plugin.c_str());
 	}
 
 	return 0.0;
@@ -164,7 +164,7 @@ void NWNXSetFloat(char* sPlugin, char* sFunction, char* sParam1, int nParam2, fl
 	{
 		std::string plugin(sPlugin);
 		std::string function(sFunction);
-		logger->Info("* NWNXSetFloat: Function class '%s' not provided by any plugin. Check your installation.", plugin);
+		logger->Info("* NWNXSetFloat: Function class '%s' not provided by any plugin. Check your installation.", plugin.c_str());
 	}
 }
 
@@ -204,7 +204,7 @@ char* NWNXGetString(char* sPlugin, char* sFunction, char* sParam1, int nParam2)
 			}
 		}
 		else
-			logger->Info("* NWNXGetString: Function class '%s' not provided by any plugin. Check your installation.", plugin);
+			logger->Info("* NWNXGetString: Function class '%s' not provided by any plugin. Check your installation.", plugin.c_str());
 	}
 	return NULL;
 }
@@ -250,7 +250,7 @@ void PayLoad(char *gameObject, char* nwnName, char* nwnValue)
 	if(sep != std::string::npos)
 	{
 		fClass = name.substr(5, sep - 5);
-		logger->Trace("* fClass=%s", fClass);
+		logger->Trace("* fClass=%s", fClass.c_str());
 	}
 	else
 	{
@@ -260,13 +260,13 @@ void PayLoad(char *gameObject, char* nwnName, char* nwnValue)
 
 	if(sep + 1 < name.size()){
 		function = name.substr(sep + 1);
-		logger->Trace("* function=%s", function);
+		logger->Trace("* function=%s", function.c_str());
 	}
 	else
 		logger->Info("* Function not specified.");
 
 
-	logger->Trace("* Function class '%s', function '%s'.", fClass, function);
+	logger->Trace("* Function class '%s', function '%s'.", fClass.c_str(), function.c_str());
 
 
 
@@ -330,7 +330,7 @@ void PayLoad(char *gameObject, char* nwnName, char* nwnValue)
 		//if (queryFunctions(fClass, function, nwnValue) == false)
 		//{
 			logger->Info("* Function class '%s' not provided by any plugin. Check your installation.",
-				fClass);
+				fClass.c_str());
 			*nwnValue = 0x0; //??
 		//}
 	}
@@ -577,7 +577,7 @@ void loadPlugins()
     	auto filename = file.path().filename().string();
     	// TODO: handle case sensitivity
     	if(filename.substr(0, 3) == "xp_" && filename.substr(filename.size() - 4) == ".dll"){
-        	logger->Debug("Trying to load plugin %s", filename);
+        	logger->Debug("Trying to load plugin %s", filename.c_str());
 
 			HINSTANCE hDLL = LoadLibrary(file.path().string().c_str());
 			if (hDLL == NULL)
@@ -588,7 +588,7 @@ void loadPlugins()
 					NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 					(LPTSTR) &lpMsgBuf,	0, NULL);
 
-				logger->Info("* Loading plugin %s: Error %d. %s", filename, dw, lpMsgBuf);
+				logger->Info("* Loading plugin %s: Error %d. %s", filename.c_str(), dw, lpMsgBuf);
 			}
 			else
 			{
@@ -600,26 +600,26 @@ void loadPlugins()
 					if (pPlugin)
 					{
 						if (!pPlugin->Init((char*)nwnxhome->c_str()))
-							logger->Info("* Loading plugin %s: Error during plugin initialization.", filename);
+							logger->Info("* Loading plugin %s: Error during plugin initialization.", filename.c_str());
 						else
 						{
 							pPlugin->GetFunctionClass(fClass);
 							if (plugins.find(fClass) == plugins.end())
 							{
 								logger->Info("* Loading plugin %s: Successfully registered as class: %s",
-									filename, fClass);
+									filename.c_str(), fClass);
 								plugins[fClass] = pPlugin;
 							}
 							else
 							{
 								logger->Info("* Skipping plugin %s: Class %s already registered by another plugin.",
-									filename, fClass);
+									filename.c_str(), fClass);
 								FreeLibrary(hDLL);
 							}
 						}
 					}
 					else
-						logger->Info("* Loading plugin %s: Error while instancing plugin.", filename);
+						logger->Info("* Loading plugin %s: Error while instancing plugin.", filename.c_str());
 				}
 				else
 					{
@@ -630,29 +630,29 @@ void loadPlugins()
 						if (pPlugin)
 						{
 							if (!pPlugin->Init((char*)nwnxhome->c_str()))
-								logger->Info("* Loading plugin %s: Error during plugin initialization.", filename);
+								logger->Info("* Loading plugin %s: Error during plugin initialization.", filename.c_str());
 							else
 							{
 								pPlugin->GetFunctionClass(fClass);
 								if (plugins.find(fClass) == plugins.end())
 								{
 									logger->Info("* Loading plugin %s: Successfully registered as class: %s",
-										filename, fClass);
+										filename.c_str(), fClass);
 									legacyplugins[fClass] = pPlugin;
 								}
 								else
 								{
 									logger->Info("* Skipping plugin %s: Class %s already registered by another plugin.",
-										filename, fClass);
+										filename.c_str(), fClass);
 									FreeLibrary(hDLL);
 								}
 							}
 						}
 						else
-							logger->Info("* Loading plugin %s: Error while instancing plugin.", filename);
+							logger->Info("* Loading plugin %s: Error while instancing plugin.", filename.c_str());
 					}
 					else
-						logger->Info("* Loading plugin %s: Error. Could not retrieve class object pointer.", filename);
+						logger->Info("* Loading plugin %s: Error. Could not retrieve class object pointer.", filename.c_str());
 				}
 				//	logger->Info("* Loading plugin %s: Error. The plugin is not " 					"compatible with this version of NWNX."), filename);
 			}
