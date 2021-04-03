@@ -434,7 +434,7 @@ void init()
 
 	// open ini file
 	std::string inifile = *nwnxhome + "\\nwnx.ini";
-	logger->Trace("Reading inifile %s", inifile);
+	logger->Trace("Reading inifile %s", inifile.c_str());
 	config = new SimpleIniConfig(inifile);
 
 	bool missingFunction = false;
@@ -799,11 +799,11 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	 * If we didn't connect to the controller then bail out here.
 	 */
 
-	if (!shmem)
-	{
-		//DebugPrint( "NWNXWinMain(): Failed to connect to controller!\n" );
-		ExitProcess( ERROR_DEVICE_NOT_CONNECTED );
-	}
+	//if (!shmem)
+	//{
+	//	//DebugPrint( "NWNXWinMain(): Failed to connect to controller!\n" );
+	//	ExitProcess( ERROR_DEVICE_NOT_CONNECTED );
+	//}
 
 	/*
 	 * Call the original entrypoint of the process now that we have done our

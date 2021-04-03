@@ -24,63 +24,24 @@
 #include <fstream>
 #include <cstdarg>
 
-std::string fmt(const std::string format, ...)
-{
-    char* f = (char*)format.c_str();
-
-    va_list args;
-    va_start(args, format);
-    vprintf(f, args);
-    va_end(args);
-    return "";
-
-    //va_list args;
-    //va_start(args, format);
-    //size_t len = std::vsnprintf(NULL, 0, format.c_str(), args);
-    //va_end(args);
-    //std::vector<char> vec(len + 1);
-    //va_start(args, format);
-    //std::vsnprintf(&vec[0], len + 1, format.c_str(), args);
-    //va_end(args);
-    //return &vec[0];
-}
-
-//void p(const char* format, ...) {
-//    va_list args;
-//    va_start(args, format);
-//    vprintf(format, args);
-//    va_end(args);
-//}
 
 LogNWNX::LogNWNX()
 {
-    m_outStream = new std::ostream(std::cout.rdbuf());
+    LogNWNX::LogNWNX("test.txt");
+    //m_outStream = new std::ostream(std::cout.rdbuf());
 }
 LogNWNX::LogNWNX(std::string filePath)
 {
     this->filePath = filePath;
 
-    std::streambuf* buf;
-    auto ofStream = std::ofstream(filePath);
-    if (ofStream){
-        buf = ofStream.rdbuf();
-    }
-    else{
+    m_ofStream.open(filePath, std::ofstream::out | std::ofstream::app);
+    if (!m_ofStream) {
         std::cerr << "Canot open log file: " << filePath << std::endl;
-        buf = std::cout.rdbuf();
     }
-
-    m_outStream = new std::ostream(buf);
 }
 
-void LogNWNX::Trace(const char* format, ...){
-    //puts("Trace:");
-    //va_list args;
-    //va_start(args, format);
-    //vprintf(format, args);
-    //va_end(args);
-    //puts("\n");
 
+void LogNWNX::Trace(const char* format, ...){
     va_list args;
     va_start(args, format);
     Log((std::string("Trace:") + format).c_str(), args);
@@ -123,6 +84,12 @@ void LogNWNX::Log(const char* format, va_list a){
      LogStr(&vec[0]);
 }
 void LogNWNX::LogStr(const char* message){
-    *m_outStream << message << std::endl;
-    m_outStream->flush();
+    if (m_ofStream) {
+        m_ofStream << message << std::endl;
+        m_ofStream.flush();
+    }
+    else {
+        std::cout << message << std::endl;
+        std::cout.flush();
+    }
 }

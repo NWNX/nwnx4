@@ -64,18 +64,19 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wsock32.lib;detours.lib;detoured.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)NWNX4_Controllerd.exe</OutputFile>
+      <OutputFile>$(OutDir)NWNX4_Controller.exe</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)..\lib\detours\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent />
+    <Manifest />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)..\lib\wxwidgets\include;$(SolutionDir)..\lib\wxwidgets\lib\vc142_dll\mswu;$(SolutionDir)..\lib\detours\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_WINDOWS;WINVER=0x0400;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_WINDOWS;WINVER=0x0400;del_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>

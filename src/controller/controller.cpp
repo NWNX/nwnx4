@@ -114,20 +114,16 @@ bool NWNXController::startServerProcessInternal()
 {
     SHARED_MEMORY shmem;
 	std::string nwnexe("\\nwn2server.exe");
-
-#ifdef DEBUG
-	char* pszHookDLLPath = "NWNX4_Hookd.dll";			// Debug DLL
-#else
-	char* pszHookDLLPath = "NWNX4_Hook.dll";			// Release DLL
-#endif
+	char* pszHookDLLPath = "NWNX4_Hook.dll";
 
 	ZeroMemory(&si, sizeof(si));
 	ZeroMemory(&pi, sizeof(pi));
 	si.cb = sizeof(si);
 
-	logger->Trace("Starting server executable %s in %s", (nwnhome + nwnexe).c_str(), nwnhome.c_str());
+	auto exePath = nwnhome + nwnexe;
+	logger->Trace("Starting server executable %s in %s", exePath.c_str(), nwnhome.c_str());
 
-	CHAR szDllPath[MAX_PATH];
+	char szDllPath[MAX_PATH];
 	char* pszFilePart = NULL;
 
 	if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart))
@@ -148,17 +144,21 @@ bool NWNXController::startServerProcessInternal()
 		return false;
 	}
 
-	logger->Trace("Starting: %s", nwnhome + nwnexe);
+	logger->Trace("Starting: %s", exePath.c_str());
 	logger->Trace("with %s", szDllPath);
 
 	DWORD dwFlags = CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED;
 	SetLastError(0);
 
-	if (!DetourCreateProcessWithDll((nwnhome + nwnexe).c_str(), (LPTSTR)parameters.c_str(),
+	if (!DetourCreateProcessWithDll(exePath.c_str(), (char*)parameters.c_str(),
                                     NULL, NULL, TRUE, dwFlags, NULL, nwnhome.c_str(),
                                     &si, &pi, szDllPath, NULL))
 	{
-		logger->Info("DetourCreateProcessWithDll failed: %d", GetLastError());
+		auto err = GetLastError();
+		logger->Info("DetourCreateProcessWithDll failed: %d", err);
+		if (err == 740) {
+			logger->Info("You probably need to run the command as administrator.");
+		}
 		CloseHandle( shmem.ready_event );
 		ZeroMemory( &pi, sizeof( PROCESS_INFORMATION ) );
 		return false;

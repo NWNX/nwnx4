@@ -24,8 +24,6 @@
 #include <string>
 #include <fstream>
 
-std::string fmt(const std::string format, ...);
-
 class LogNWNX
 {
 public:
@@ -38,9 +36,8 @@ public:
     void Warn(const char* format, ...);
     void Err(const char* format, ...);
 protected:
-    std::ostream* m_outStream;
-
     std::string filePath;
+    std::ofstream m_ofStream;
 
     void LogNWNX::Log(const char* format, va_list args);
     void LogNWNX::LogStr(const char* message);
