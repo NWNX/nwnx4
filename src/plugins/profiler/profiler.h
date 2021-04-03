@@ -26,9 +26,7 @@
 #include "windows.h"
 #include "../plugin.h"
 #include "../../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/hashset.h"
-#include "wx/fileconf.h"
+#include "../../misc/ini.h"
 
 class Profiler : public Plugin
 {
@@ -49,9 +47,9 @@ public:
 	int	m_LogLevel;
 	int log_scriptparts;
 
+	LogNWNX* logger;
 private:
-	wxLogNWNX* logger;
-	wxFileConfig *config;
+	SimpleIniConfig* config;
 };
 
 #endif

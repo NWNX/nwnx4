@@ -20,6 +20,7 @@
 
 #include "profiler.h"
 #include "hook.h"
+#include <cassert>
 
 /***************************************************************************
     NWNX and DLL specific functions
@@ -38,7 +39,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 		plugin = new Profiler();
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -56,71 +57,70 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 Profiler::Profiler()
 {
-	header = _T(
-		"NWNX Profiler Plugin V.1.0.0\n" \
-		"(c) 2003 Ingmar Stieger (papillon@blackdagger.com)\n" \
-		"(c) 2007 virusman (virusman@virusman.ru)\n" \
-		"visit us at http://www.nwnx.org\n");
+	description =
+		"This plugin provides script profiling functionality.";
 
-	description = _T(
-		"This plugin provides script profiling functionality.");
-
-	subClass = _T("PROFILER");
-	version = _T("1.0.0");
+	subClass = "PROFILER";
+	version = "1.0.0";
 }
 
 Profiler::~Profiler()
 {
-	wxLogMessage(wxT("* Plugin unloaded."));
+	logger->Info("* Plugin unloaded.");
 }
 
-bool Profiler::Init(TCHAR* nwnxhome)
+bool Profiler::Init(char* nwnxhome)
 {
 	assert(GetPluginFileName());
 
 	/* Log file */
-	wxString logfile(nwnxhome); 
-	logfile.append(wxT("\\"));
+	std::string logfile(nwnxhome);
+	logfile.append("\\");
 	logfile.append(GetPluginFileName());
-	logfile.append(wxT(".txt"));
-	logger = new wxLogNWNX(logfile, wxString(header.c_str()));
+	logfile.append(".txt");
+	logger = new LogNWNX(logfile);
+
+
+	logger->Info("NWNX Profiler Plugin V.1.0.0");
+	logger->Info("(c) 2003 Ingmar Stieger (papillon@blackdagger.com)");
+	logger->Info("(c) 2007 virusman (virusman@virusman.ru)");
+	logger->Info("visit us at http://www.nwnx.org");
 
 	LoadConfiguration(nwnxhome);
 	HookRunScript();
 
-	wxLogMessage(wxT("* Plugin initialized."));
+	logger->Info("* Plugin initialized.");
 	return true;
 }
 
-void Profiler::GetFunctionClass(TCHAR* fClass)
+void Profiler::GetFunctionClass(char* fClass)
 {
-	_tcsncpy_s(fClass, 128, wxT("PROFILER"), 9); 
+	strcpy(fClass, "PROFILER");
 }
 
-void Profiler::LoadConfiguration(TCHAR* nwnxhome)
+void Profiler::LoadConfiguration(char* nwnxhome)
 {
-	wxString inifile(nwnxhome); 
-	inifile.append(wxT("\\"));
+	std::string inifile(nwnxhome);
+	inifile.append("\\");
 	inifile.append(GetPluginFileName());
-	inifile.append(wxT(".ini"));
-	wxLogTrace(TRACE_VERBOSE, wxT("* reading inifile %s"), inifile);
+	inifile.append(".ini");
+	logger->Trace("* reading inifile %s", inifile.c_str());
 
-	config = new wxFileConfig(wxEmptyString, wxEmptyString, 
-		inifile, wxEmptyString, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_NO_ESCAPE_CHARACTERS);
+	config = new SimpleIniConfig(inifile);
 
-	config->Read(wxT("LogLevel"), &m_LogLevel, 1);
-	config->Read(wxT("scriptparts"), &log_scriptparts, 1);
+	config->get("LogLevel", &m_LogLevel);
+	config->get("scriptparts", &log_scriptparts);
 
-	wxLogMessage(wxT("* Log level: "));
+	logger->Info("* Log level: ");
 	switch (m_LogLevel)
 	{
 	case logStats:
-		wxLogMessage(wxT("Only overall statistics will be logged."));
+		logger->Info("Only overall statistics will be logged.");
 		break;
 	case logCallstack:
-		wxLogMessage(wxT("Script callstack will be logged."));
+		logger->Info("Script callstack will be logged.");
 		break;
 	}
-	wxLogMessage(wxT("* scriptparts = %d"), log_scriptparts);
+	logger->Info("* scriptparts = %d", log_scriptparts);
 
 }

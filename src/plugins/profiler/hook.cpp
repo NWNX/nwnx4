@@ -72,7 +72,7 @@ void printer(char *string, void *data)
 		sprintf_s(sFormatString, "%%-%ds  %%10d msec %%6d calls  | ", iLongestScriptName);
 	sFormatString[39] = 0;
 
-	wxLogMessage(wxT(sFormatString), string, iMsec, scriptData->ulCalls);
+	plugin->logger->Info(sFormatString, string, iMsec, scriptData->ulCalls);
 
 	iTotalRuntime += iMsec;
 	scriptData->updated = FALSE;
@@ -80,14 +80,14 @@ void printer(char *string, void *data)
 
 void FlushStatistics(DWORD dwStatisticMsec)
 {
-	wxLogMessage(wxT("\nCurrent statistics"));
-	wxLogMessage(wxT("---------------------------------------------------------------------------"));
+	plugin->logger->Info("\nCurrent statistics");
+	plugin->logger->Info("---------------------------------------------------------------------------");
 	enumerate(&scriptHash, printer);
-	wxLogMessage(wxT("---------------------------------------------------------------------------"));
-	wxLogMessage(wxT("Elapsed time                : %d msec"), dwStatisticMsec);
-	wxLogMessage(wxT("Runtime delta               : %d msec"), iTotalRuntime - iTotalLast);
-	wxLogMessage(wxT("Total cumulative runtime    : %d msec"), iTotalRuntime);
-	wxLogMessage(wxT("Total number of scriptcalls : %d\n"), iScriptCounter);
+	plugin->logger->Info("---------------------------------------------------------------------------");
+	plugin->logger->Info("Elapsed time                : %d msec", dwStatisticMsec);
+	plugin->logger->Info("Runtime delta               : %d msec", iTotalRuntime - iTotalLast);
+	plugin->logger->Info("Total cumulative runtime    : %d msec", iTotalRuntime);
+	plugin->logger->Info("Total number of scriptcalls : %d\n", iScriptCounter);
 	iTotalLast = iTotalRuntime;
 	iTotalRuntime = 0;
 	//fflush(profiler.m_fFile);
@@ -142,7 +142,7 @@ void myRunScript(char *str)
 		if (iCallDepth < MAX_CALLDEPTH - 1)
 			iCallDepth++;
 		else
-			wxLogMessage(wxT("Maximum call depth reached!\n"));
+			plugin->logger->Info("Maximum call depth reached!");
 
 		emptyScript = false;
 		strncpy(scriptName[iCallDepth], str, MAX_SCRIPTNAME_LENGTH);
@@ -153,7 +153,7 @@ void myRunScript(char *str)
 
 		if (plugin->m_LogLevel == plugin->logCallstack)
 		{
-			wxLogMessage(wxT("%s (calldepth %d)\n"), str, iCallDepth);
+			plugin->logger->Info("%s (calldepth %d)", str, iCallDepth);
 			//fflush(profiler.m_fFile);
 		}
 		QueryPerformanceCounter(&liLast[iCallDepth]);
@@ -169,7 +169,7 @@ void myRunScriptPart(char *str)
 		if (iCallDepth < MAX_CALLDEPTH - 1)
 			iCallDepth++;
 		else
-			wxLogMessage(wxT("Maximum call depth reached!\n"));
+			plugin->logger->Info("Maximum call depth reached!");
 
 		emptyScript = false;
 		
@@ -193,7 +193,7 @@ void myRunScriptPart(char *str)
 
 		if (plugin->m_LogLevel == plugin->logCallstack)
 		{
-			wxLogMessage(wxT("%s (calldepth %d, scriptpart)\n"), str, iCallDepth);
+			plugin->logger->Info("%s (calldepth %d, scriptpart)", str, iCallDepth);
 			//fflush(profiler.m_fFile);
 		}
 		QueryPerformanceCounter(&liLast[iCallDepth]);
@@ -348,9 +348,9 @@ void HookRunScript()
 	QueryPerformanceCounter(&liLastStatistic);
 
 	if (success)
-		wxLogMessage(wxT("* RunScript hooked (symbol: >).\n"));
+		plugin->logger->Info("* RunScript hooked (symbol: >).");
 	else
-		wxLogMessage(wxT("* Could not find RunScript function or hook failed: %x\n"), old_RunScript);
+		plugin->logger->Info("* Could not find RunScript function or hook failed: %x", old_RunScript);
 
 	return;
 }
@@ -365,14 +365,14 @@ int HookFunctions()
 	DWORD org_GetPlayerObj = FindGetPlayerObj();
 	
 	if (org_Get)
-		wxLogMessage(wxT("GetPCobjByOID found at 0x%x"), org_Get);
+		logger->Info(wxT("GetPCobjByOID found at 0x%x"), org_Get);
 	else
-		wxLogMessage(wxT("GetPCobjByOID NOT FOUND!"));
+		logger->Info(wxT("GetPCobjByOID NOT FOUND!"));
 
 	if (org_Get)
-		wxLogMessage(wxT("GetPlayerObj found at 0x%x"), org_GetPlayerObj);
+		logger->Info(wxT("GetPlayerObj found at 0x%x"), org_GetPlayerObj);
 	else
-		wxLogMessage(wxT("GetPlayerObj NOT FOUND!"));
+		logger->Info(wxT("GetPlayerObj NOT FOUND!"));
 
 	if(!org_Get || !org_GetPlayerObj)
 		return NULL;
@@ -381,7 +381,7 @@ int HookFunctions()
 
 	if (!(pServThis))
 	{
-		wxLogMessage(wxT("Error initializing variables"));
+		logger->Info(wxT("Error initializing variables"));
 		return NULL;
 	}
 	return true;
