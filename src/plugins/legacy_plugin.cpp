@@ -81,7 +81,7 @@ void LegacyPlugin::SetPluginFullPath(char* fileName)
 		if (end > begin)
 		{
 			pluginFileName = new char[MAX_PATH];
-			strncpy(pluginFileName, fileName + begin, min(MAX_PATH,  end - begin));
+			strncpy(pluginFileName, fileName + begin, min(MAX_PATH,  end - begin + 1));
 		}
 	}
 }

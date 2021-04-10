@@ -36,7 +36,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 		plugin = new SQLite();
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -54,19 +54,19 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 SQLite::SQLite()
 {
-	header = _T(
+	header =
 		"NWNX SQLite Plugin V.1.1.0\n" \
 		"(c) 2007 by Ingmar Stieger (Papillon)\n" \
 		"visit us at http://www.nwnx.org\n" \
-		"(built using SQLite 3.3.17)\n");
+		"(built using SQLite 3.3.17)\n";
 
-	description = _T(
+	description =
 		"This plugin provides database storage. It uses " \
 	    "SQLite 3.3.17 as databaserver server and therefore is " \
-		"very ease to configure and maintain.");
+		"very ease to configure and maintain.";
 
-	subClass = _T("SQLite");
-	version = _T("1.1.0");
+	subClass = "SQLite";
+	version = "1.1.0";
 
 	firstfetch = false;
 	pStmt = NULL;
@@ -77,28 +77,28 @@ SQLite::~SQLite()
 	Disconnect();
 }
 
-bool SQLite::Init(TCHAR* nwnxhome)
+bool SQLite::Init(char* nwnxhome)
 {
 	SetupLogAndIniFile(nwnxhome);
-	if (config->Read(wxT("file"), &dbfile) )
+	if (config->get("file", &dbfile) )
 	{
-		wxLogMessage(wxT("* SQLite database file is %s"), dbfile);
+		logger->Info("* SQLite database file is %s", dbfile.c_str());
 	}
 	else
 	{
-		wxLogMessage(wxT("* SQLite database 'file=' setting not found in ini file"));
+		logger->Info("* SQLite database 'file=' setting not found in ini file");
 		dbfile = nwnxhome;
-		dbfile.append(wxT("\\sqlite.db"));
-		wxLogMessage(wxT("* Using default file %s"), dbfile);
+		dbfile.append("\\sqlite.db");
+		logger->Info("* Using default file %s", dbfile.c_str());
 	}
 
-	wxLogTrace(TRACE_VERBOSE, wxT("* Opening database file %s"), dbfile);
+	logger->Trace("* Opening database file %s", dbfile.c_str());
 	if (!Connect())
 	{
 		return false;
 	}
 
-	wxLogMessage(wxT("* Plugin initialized."));
+	logger->Info("* Plugin initialized.");
 	return true;
 }
 
@@ -110,7 +110,7 @@ bool SQLite::Connect()
 	rc = sqlite3_open((const char*)dbfile.c_str(), &sdb);
 	if (rc)
 	{
-		wxLogMessage(wxT("* Could not open database: %s"), sqlite3_errmsg(sdb));
+		logger->Info("* Could not open database: %s", sqlite3_errmsg(sdb));
 	    sqlite3_close(sdb);
 		sdb = NULL;
 		return FALSE;
@@ -121,12 +121,12 @@ bool SQLite::Connect()
 	// begin implicit transaction
 	rc = sqlite3_prepare(sdb, "BEGIN", -1, &pStmt, NULL);
 	if (rc != SQLITE_OK)
-		wxLogMessage(wxT("* %s"), sqlite3_errmsg(sdb));
+		logger->Info("* %s", sqlite3_errmsg(sdb));
 	else
 	{
 		rc = sqlite3_step(pStmt);
 		if ((rc & 0xff) != SQLITE_DONE)
-			wxLogMessage(wxT("* %s"), sqlite3_errmsg(sdb));
+			logger->Info("* %s", sqlite3_errmsg(sdb));
 	}
 	SafeFinalize(&pStmt);
 	return TRUE;
@@ -143,12 +143,12 @@ void SQLite::Disconnect()
 	SafeFinalize(&pStmt);
 	rc = sqlite3_prepare(sdb, "COMMIT", -1, &pStmt, NULL);
 	if (rc != SQLITE_OK)
-		wxLogMessage(wxT("* %s"), sqlite3_errmsg(sdb));
+		logger->Info("* %s", sqlite3_errmsg(sdb));
 	else
 	{
 		rc = sqlite3_step(pStmt);
 		if ((rc & 0xff) != SQLITE_DONE)
-			wxLogMessage(wxT("* %s"), sqlite3_errmsg(sdb));
+			logger->Info("* %s", sqlite3_errmsg(sdb));
 	}
 	SafeFinalize(&pStmt);
 	sqlite3_close(sdb);
@@ -161,16 +161,16 @@ bool SQLite::Execute(char* query)
 
 	// prepare query
 	if (logLevel == 2)
-		wxLogMessage(wxT("* Executing: %s"), query);
+		logger->Info("* Executing: %s", query);
 	rc = sqlite3_prepare(sdb, (const char*) query, -1, &pNewStmt, NULL);
 	if (rc != SQLITE_OK)
 	{
 		if (logLevel > 0)
-			wxLogMessage(wxT("! SQL Error: %s"), sqlite3_errmsg(sdb));
+			logger->Info("! SQL Error: %s", sqlite3_errmsg(sdb));
 		SafeFinalize(&pNewStmt);
 
 		// throw away last resultset if a SELECT statement failed
-		if (_strnicmp(query, wxT("SELECT"), 6) == 0)
+		if (_strnicmp(query, "SELECT", 6) == 0)
 			SafeFinalize(&pStmt);
 
 		return FALSE;
@@ -180,7 +180,7 @@ bool SQLite::Execute(char* query)
 	switch(rc & 0xff)
 	{
 		case SQLITE_DONE:
-			wxLogTrace(TRACE_VERBOSE, wxT("* Step: SQLITE_DONE"));
+			logger->Trace("* Step: SQLITE_DONE");
 			if (sqlite3_column_name(pNewStmt,0) != NULL)
 			{
 				// pNewStmt returned an empty resultset (as opposed
@@ -191,7 +191,7 @@ bool SQLite::Execute(char* query)
 			SafeFinalize(&pNewStmt);
 		break;
 		case SQLITE_ROW:
-			wxLogTrace(TRACE_VERBOSE, wxT("* Step: SQLITE_ROW"));
+			logger->Trace("* Step: SQLITE_ROW");
 			SafeFinalize(&pStmt);
 			pStmt = pNewStmt;
 			firstfetch = true;
@@ -203,7 +203,7 @@ bool SQLite::Execute(char* query)
 			int errorno = sqlite3_errcode(sdb);
 			if (errorno == SQLITE_ERROR_OPENSTMT)
 			{
-				wxLogTrace(TRACE_VERBOSE, wxT("* Closing open resultset."));
+				logger->Trace("* Closing open resultset.");
 				SafeFinalize(&pStmt);
 				rc = sqlite3_prepare(sdb, (const char*) query, -1, &pNewStmt, NULL);
 				rc = sqlite3_step(pNewStmt) & 0xff;
@@ -213,7 +213,7 @@ bool SQLite::Execute(char* query)
 			if (rc == SQLITE_ERROR)
 			{
 				if (logLevel > 0)
-					wxLogMessage(wxT("! SQL Error: %s (%d)"), sqlite3_errmsg(sdb), errorno);
+					logger->Info("! SQL Error: %s (%d)", sqlite3_errmsg(sdb), errorno);
 			}
 			return FALSE;
 		break;
@@ -237,12 +237,12 @@ int SQLite::Fetch(char* buffer)
 	}
 	else
 	{
-		wxLogTrace(TRACE_VERBOSE, wxT("* Fetch: fetching next result row"));
+		logger->Trace("* Fetch: fetching next result row");
 		rc = sqlite3_step(pStmt);
 		if ((rc & 0xff) == SQLITE_ERROR)
 		{
 			if (logLevel > 0)
-				wxLogMessage(wxT("! SQL Error (fetch): %s"), sqlite3_errmsg(sdb));
+				logger->Info("! SQL Error (fetch): %s", sqlite3_errmsg(sdb));
 		}
 	}
 
@@ -263,26 +263,26 @@ int SQLite::GetData(int iCol, char* buffer)
 
 	if (!pStmt)
 	{
-		wxLogTrace(TRACE_VERBOSE, wxT("* GetData: No valid statement prepared."));
-		nwnxcpy(buffer, wxT(""));
+		logger->Trace("* GetData: No valid statement prepared.");
+		nwnxcpy(buffer, "");
 		return -1;
 	}
 
-	wxLogTrace(TRACE_VERBOSE, wxT("* GetData: Get column %d, buffer size %d bytes"), iCol, MAX_BUFFER);
+	logger->Trace("* GetData: Get column %d, buffer size %d bytes", iCol, MAX_BUFFER);
 
 	pCol = (const char*) sqlite3_column_text(pStmt, iCol);
 	if (pCol)
 	{
 		nwnxcpy(buffer, pCol);
 		if (logLevel == 2)
-			wxLogMessage(wxT("* Returning: %s"), buffer);
+			logger->Info("* Returning: %s", buffer);
 		return 0;
 	}
 	else
 	{
-		nwnxcpy(buffer, wxT(""));
+		nwnxcpy(buffer, "");
 		if (logLevel == 2)
-			wxLogMessage(wxT("* Returning: (empty)"));
+			logger->Info("* Returning: (empty)");
 		return -1;
 	}
 }
@@ -300,7 +300,7 @@ void SQLite::GetEscapeString(char* str, char* buffer)
 {
 	if (*str == NULL)
 	{
-		nwnxcpy(buffer, wxT(""));
+		nwnxcpy(buffer, "");
 		return;
 	}
 

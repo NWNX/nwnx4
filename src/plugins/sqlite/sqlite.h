@@ -29,12 +29,12 @@ class SQLite : public DBPlugin
 {
 public:
 	SQLite();
-	~SQLite();
+	~SQLite() override;
 
-	bool Init(TCHAR* nwnxhome);  
+	bool Init(char* nwnxhome);  
 
 private:
-	wxString dbfile;
+	std::string dbfile;
 	bool firstfetch;
 
 	sqlite3 *sdb;

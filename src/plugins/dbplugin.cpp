@@ -18,6 +18,7 @@
  ***************************************************************************/
 
 #include "dbplugin.h"
+#include <cassert>
 
 /***************************************************************************
     Implementation of DBPlugin
@@ -25,88 +26,83 @@
 
 DBPlugin::DBPlugin()
 {
-	header = _T("NWNX Base DB Plugin V.1.1");
-	subClass = _T("DBPlugin");
-	version = _T("1.1");
-	description = _T("Overwrite this constructor in your derived plugin class.");
+	header = "NWNX Base DB Plugin V.1.1";
+	subClass = "DBPlugin";
+	version = "1.1";
+	description = "Overwrite this constructor in your derived plugin class.";
 	logLevel = 0;
 }
 
 DBPlugin::~DBPlugin()
 {
 	delete config;
-	wxLogMessage(wxT("* Plugin unloaded."));
+	logger->Info("* Plugin unloaded.");
 }
 
-bool DBPlugin::SetupLogAndIniFile(TCHAR* nwnxhome)
+bool DBPlugin::SetupLogAndIniFile(char* nwnxhome)
 {
 	assert(GetPluginFileName());
 
 	/* Log file */
-	wxString logfile(nwnxhome); 
-	logfile.append(wxT("\\"));
-	logfile.append(GetPluginFileName());
-	logfile.append(wxT(".txt"));
-	logger = new wxLogNWNX(logfile, wxString(header.c_str()));
+	std::string logfile(nwnxhome);
+	logfile += "\\";
+	logfile += GetPluginFileName();
+	logfile += ".txt";
+	logger = new LogNWNX(logfile);
+	logger->Info(header.c_str());
 
 	/* Ini file */
-	wxString inifile(nwnxhome); 
-	inifile.append(wxT("\\"));
-	inifile.append(GetPluginFileName());
-	inifile.append(wxT(".ini"));
-	wxLogTrace(TRACE_VERBOSE, wxT("* reading inifile %s"), inifile);
+	std::string inifile(nwnxhome);
+	inifile += "\\";
+	inifile += GetPluginFileName();
+	inifile += ".ini";
+	logger->Trace("* reading inifile %s", inifile.c_str());
 
-	config = new wxFileConfig(wxEmptyString, wxEmptyString, 
-		inifile, wxEmptyString, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_NO_ESCAPE_CHARACTERS);
+	config = new SimpleIniConfig(inifile);
 	
-	config->Read(wxT("loglevel"), &logLevel);
+	config->get("loglevel", &logLevel);
 	switch(logLevel)
 	{
-		case 0: wxLogMessage(wxT("* Log level set to 0 (nothing)")); break;
-		case 1: wxLogMessage(wxT("* Log level set to 1 (only errors)")); break;
-		case 2: wxLogMessage(wxT("* Log level set to 2 (everything)")); break;
+		case 0: logger->Info("* Log level set to 0 (nothing)"); break;
+		case 1: logger->Info("* Log level set to 1 (only errors)"); break;
+		case 2: logger->Info("* Log level set to 2 (everything)"); break;
 	}
 	return true;
 }
 
-void DBPlugin::GetFunctionClass(TCHAR* fClass)
+void DBPlugin::GetFunctionClass(char* fClass)
 {
-	wxString myClass;
-	if (config->Read(wxT("class"), &myClass) )
+	std::string myClass;
+	if (config->get("class", &myClass) )
 	{
-		wxLogMessage(wxT("* Registering under function class %s"), myClass);
-		_tcsncpy_s(fClass, 128, myClass, myClass.length());
+		logger->Info("* Registering under function class %s", myClass.c_str());
+		strncpy_s(fClass, 128, myClass.c_str(), myClass.length());
 	}
 	else
 	{
-		wxString default(wxT("SQL"));
-		_tcsncpy_s(fClass, 128, default, default.length()); 
+		strncpy(fClass, "SQL", 4);
 	}
 }
 
 int DBPlugin::GetInt(char* sFunction, char* sParam1, int nParam2)
 {
-	wxLogTrace(TRACE_VERBOSE, wxT("* Plugin GetInt(0x%x, %s, %d)"), 0x0, sParam1, nParam2);
+	logger->Trace("* Plugin GetInt(0x%x, %s, %d)", 0x0, sParam1, nParam2);
 
-#ifdef UNICODE
-	wxString function(sFunction, wxConvUTF8);
-#else
-	wxString function(sFunction);
-#endif
+	std::string function(sFunction);
 
-	if (function == wxT(""))
+	if (function == "")
 	{
-		wxLogMessage(wxT("* Function not specified."));
+		logger->Info("* Function not specified.");
 		return -1;
 	}
 
-	if (function == wxT("EXEC"))
+	if (function == "EXEC")
 		return Execute(sParam1);
-	else if (function == wxT("FETCH"))
+	else if (function == "FETCH")
 		return Fetch(sParam1);
-	else if (function == wxT("GET AFFECTED ROWS"))
+	else if (function == "GET AFFECTED ROWS")
 		return GetAffectedRows();
-	else if (function == wxT("GET ERRNO"))
+	else if (function == "GET ERRNO")
 		return GetErrno();
 
 	return 0;
@@ -115,63 +111,54 @@ int DBPlugin::GetInt(char* sFunction, char* sParam1, int nParam2)
 
 void DBPlugin::SetString(char* sFunction, char* sParam1, int nParam2, char* sValue)
 {
-	wxLogTrace(TRACE_VERBOSE, wxT("* Plugin SetString(0x%x, %s, %d, %s)"), 0x0, sParam1, nParam2, sValue);
+	logger->Trace("* Plugin SetString(0x%x, %s, %d, %s)", 0x0, sParam1, nParam2, sValue);
 
-#ifdef UNICODE
-	wxString function(sFunction, wxConvUTF8);
-#else
-	wxString function(sFunction);
-#endif
+	std::string function(sFunction);
 
-	if (function == wxT(""))
+	if (function == "")
 	{
-		wxLogMessage(wxT("* Function not specified."));
+		logger->Info("* Function not specified.");
 		return;
 	}
 
-	if (function == wxT("EXEC"))
+	if (function == "EXEC")
 		Execute(sParam1);
-	else if (function == wxT("SETSCORCOSQL"))
+	else if (function == "SETSCORCOSQL")
 		SetScorcoSQL(sParam1);
 }
 
 char* DBPlugin::GetString(char* sFunction, char* sParam1, int nParam2)
 {
-	wxLogTrace(TRACE_VERBOSE, wxT("* Plugin GetString(0x%x, %s, %d)"), 0x0, sParam1, nParam2);
+	logger->Trace("* Plugin GetString(0x%x, %s, %d)", 0x0, sParam1, nParam2);
 
-#ifdef UNICODE
-	wxString function(sFunction, wxConvUTF8);
-	wxString param1(sParam1, wxConvUTF8);
-#else
-	wxString function(sFunction);
-	wxString param1(sParam1);
-#endif
+	std::string function(sFunction);
+	// std::string param1(sParam1);
 
-	if (function == wxT(""))
+	if (function == "")
 	{
-		wxLogMessage(wxT("* Function not specified."));
+		logger->Info("* Function not specified.");
 		return NULL;
 	}
 
-	if (function == wxT("GETDATA"))
+	if (function == "GETDATA")
 	{
 		GetData(nParam2, returnBuffer);
 	}
-	else if (function == wxT("GET ESCAPE STRING"))
+	else if (function == "GET ESCAPE STRING")
 		GetEscapeString(sParam1, returnBuffer);
-	else if (function == wxT("GET ERROR MESSAGE"))
+	else if (function == "GET ERROR MESSAGE")
 		return (char *) GetErrorMessage();
 	else
 	{
 		// Process generic functions
-		wxString query = ProcessQueryFunction(function.c_str());
-		if (query != wxT(""))
+		std::string query = ProcessQueryFunction(function.c_str());
+		if (query != "")
 		{
-			sprintf_s(returnBuffer, MAX_BUFFER, "%s", query);
+			sprintf_s(returnBuffer, MAX_BUFFER, "%s", query.c_str());
 		}
 		else
 		{
-			wxLogMessage(wxT("* Unknown function '%s' called."), function);
+			logger->Info("* Unknown function '%s' called.", function.c_str());
 			return NULL;
 		}
 	}

@@ -83,7 +83,7 @@ void Plugin::SetPluginFullPath(char* fileName)
 		if (end > begin)
 		{
 			pluginFileName = new char[MAX_PATH];
-			strncpy(pluginFileName, fileName + begin, min(MAX_PATH, end - begin));
+			strncpy_s(pluginFileName, MAX_PATH, fileName + begin, end - begin);
 		}
 	}
 }

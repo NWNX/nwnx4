@@ -34,14 +34,14 @@ public:
 	Profiler();
 	~Profiler();
 
-	bool Init(TCHAR* nwnxhome);  
+	bool Init(char* nwnxhome);
 	const char* DoRequest(char *gameObject, char* request, char* parameters);
-	void GetFunctionClass(TCHAR* fClass);
+	void GetFunctionClass(char* fClass);
 	void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue){}
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue){}
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue){}
 
-	void LoadConfiguration(TCHAR* nwnxhome);
+	void LoadConfiguration(char* nwnxhome);
 
 	enum ELogLevel {logNothing, logStats, logCallstack};
 	int	m_LogLevel;

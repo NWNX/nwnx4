@@ -25,8 +25,7 @@
 #include "windows.h"
 #include "plugin.h"
 #include "../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/fileconf.h"
+#include "../misc/ini.h"
 #include "scorcohook.h"
 
 #define BUFFER_SIZE 1024*64
@@ -36,9 +35,9 @@ class DBPlugin : public Plugin
 {
 public:
 	DBPlugin();
-	~DBPlugin();
+	virtual ~DBPlugin();
 
-	bool SetupLogAndIniFile(TCHAR* nwnxhome);  
+	bool SetupLogAndIniFile(char* nwnxhome);
 
 	int GetInt(char* sFunction, char* sParam1, int nParam2);
 	void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue) {};
@@ -49,11 +48,11 @@ public:
 	virtual BOOL WriteScorcoData(BYTE* pData, int Length);
 	virtual BYTE* ReadScorcoData(char *param, int *size);
 
-	void GetFunctionClass(TCHAR* fClass);
+	void GetFunctionClass(char* fClass);
 
 protected:
-	wxLogNWNX* logger;
-	wxFileConfig *config;
+	LogNWNX* logger;
+	SimpleIniConfig *config;
 	int logLevel;
 	char scorcoSQL[MAXSQL];
 
