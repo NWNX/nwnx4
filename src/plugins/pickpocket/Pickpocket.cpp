@@ -142,7 +142,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 		plugin = new CPickpocket;
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -156,58 +156,58 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 CPickpocket::CPickpocket(void)
 {
-	header = _T(
+	header =
 		"NWNX OnPickpocket Plugin V.0.0.2\n" \
 		"by Merlin Avery (GodBeastX)\n" \
 		"big help from Skywing\n\n" \
-		"FOR USE WITH 1.23 NWN2SERVER ONLY!\n");
+		"FOR USE WITH 1.23 NWN2SERVER ONLY!\n";
 
-	description = _T("This plugin provides script access onpickpocketting.");
+	description = "This plugin provides script access onpickpocketting.";
 
-	subClass = _T("PICK");
-	version = _T("0.0.1");
+	subClass = "PICK";
+	version = "0.0.1";
 }
 
 CPickpocket::~CPickpocket(void)
 {
 }
 
-bool CPickpocket::Init(TCHAR* nwnxhome)
+bool CPickpocket::Init(char* nwnxhome)
 {
 	/* Log file */
-	wxString logfile(nwnxhome); 
-	logfile.append(wxT("\\"));
+	std::string logfile(nwnxhome);
+	logfile.append("\\");
 	logfile.append(GetPluginFileName());
-	logfile.append(wxT(".txt"));
-	logger = new wxLogNWNX(logfile, wxString(header.c_str()));
+	logfile.append(".txt");
+	logger = new LogNWNX(logfile);
+	logger->Info(header.c_str());
 
 	/* Ini file */
-	wxString inifile(nwnxhome); 
-	inifile.append(wxT("\\"));
+	std::string inifile(nwnxhome);
+	inifile.append("\\");
 	inifile.append(GetPluginFileName());
-	inifile.append(wxT(".ini"));
-	wxLogTrace(TRACE_VERBOSE, wxT("* reading inifile %s"), inifile);
+	inifile.append(".ini");
+	logger->Trace("* reading inifile %s", inifile);
 
-	config = new wxFileConfig(wxEmptyString, wxEmptyString, 
-		inifile, wxEmptyString, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_NO_ESCAPE_CHARACTERS);
+	config = new SimpleIniConfig(inifile);
 
-	if (!config->Read(wxT("script"), &execScript) )
+	if (!config->get("script", &execScript) )
 	{
-		wxLogMessage(wxT("* 'script' not found in ini"));
+		logger->Info("* 'script' not found in ini");
 		return false;
 	}
 
-	strncpy(pszScript, execScript, 127);
+	strncpy(pszScript, execScript.c_str(), 127);
 	g_scriptVar.len = (int)strlen(pszScript);
 	g_scriptVar.buf = pszScript;
 
 	if(!HookFunctions())
 	{
-		wxLogMessage(wxT("* Hooking error."));
+		logger->Info("* Hooking error.");
 		return false;
 	}
 
-	wxLogMessage(wxT("* Plugin initialized."));
+	logger->Info("* Plugin initialized.");
 
 	return true;
 }
@@ -244,7 +244,7 @@ void CPickpocket::SetString(char* sFunction, char* sParam1, int nParam2, char* s
 {
 	int iFuncID = atoi(sFunction);
 }
-void CPickpocket::GetFunctionClass(TCHAR* fClass)
+void CPickpocket::GetFunctionClass(char* fClass)
 {
-	_tcsncpy_s(fClass, 128, wxT("PICK"), 4); 
+	strncpy_s(fClass, 128, "PICK", 4);
 }

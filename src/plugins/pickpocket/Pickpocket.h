@@ -13,11 +13,9 @@
 #include <windows.h>
 #endif
 
-#include "..\plugin.h"
+#include "../plugin.h"
 #include "../../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/hashset.h"
-#include "wx/fileconf.h"
+#include "../../misc/ini.h"
 
 
 class CPickpocket : public Plugin
@@ -27,18 +25,18 @@ public:
 	virtual ~CPickpocket(void);
 	
 public:
-	bool Init(TCHAR* nwnxhome);  
+	bool Init(char* nwnxhome);
 	int GetInt(char* sFunction, char* sParam1, int nParam2);
 	void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue);
 	float GetFloat(char* sFunction, char* sParam1, int nParam2);
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue);
 	char* GetString(char* sFunction, char* sParam1, int nParam2);
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue);
-	void GetFunctionClass(TCHAR* fClass);
+	void GetFunctionClass(char* fClass);
 
 public:
-	wxLogNWNX* logger;
-	wxFileConfig *config;
+	LogNWNX* logger;
+	SimpleIniConfig* config;
 
-	wxString execScript;
+	std::string execScript;
 };
