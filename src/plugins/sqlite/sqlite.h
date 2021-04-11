@@ -43,14 +43,14 @@ private:
 
 	bool Connect();
 	void Disconnect();
-	bool Execute(char* query);
-	int Fetch(char* buffer);
-	int GetData(int iCol, char* buffer);
-	int GetAffectedRows();
-	void GetEscapeString(char* str, char* buffer);
+	bool Execute(char* query) override;
+	int Fetch(char* buffer) override;
+	int GetData(int iCol, char* buffer) override;
+	int GetAffectedRows() override;
+	void GetEscapeString(char* str, char* buffer) override;
 	void SafeFinalize(sqlite3_stmt** pStmt);
-	int GetErrno();
-	const char *GetErrorMessage();
+	int GetErrno() override;
+	const char *GetErrorMessage() override;
 };
 
 #endif

@@ -45,7 +45,7 @@ public:
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue) {};
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue);
 	char* GetString(char* sFunction, char* sParam1, int nParam2);
-	virtual BOOL WriteScorcoData(BYTE* pData, int Length);
+	virtual bool WriteScorcoData(BYTE* pData, int Length);
 	virtual BYTE* ReadScorcoData(char *param, int *size);
 
 	void GetFunctionClass(char* fClass);

@@ -200,7 +200,7 @@ void DBPlugin::GetEscapeString(char* str, char* buffer)
 {
 }
 
-BOOL DBPlugin::WriteScorcoData(BYTE* pData, int Length)
+bool DBPlugin::WriteScorcoData(BYTE* pData, int Length)
 {
 	return 0;
 }

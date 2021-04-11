@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>XP MySQL</ProjectName>
+    <ProjectName>xp_mysql</ProjectName>
     <ProjectGuid>{7468B0D2-5865-4416-8AFB-E688008DE091}</ProjectGuid>
     <RootNamespace>mysql</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -54,8 +54,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\wxwidgets\include;$(SolutionDir)..\lib\wxwidgets\lib\vc142_dll\mswud;$(SolutionDir)..\lib\mysql\include;$(SolutionDir)..\lib\detours\include;$(SolutionDir)..\lib\NWN2\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;__WXMSW__;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\mariadb\include;$(SolutionDir)..\lib\detours\include;$(SolutionDir)..\lib\NWN2\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -64,32 +64,30 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>detours.lib;wsock32.lib;wxmsw31ud_core.lib;wxbase31ud_net.lib;wxbase31ud.lib;mysqlclient.lib;zlib.lib;yassl.lib;taocrypt.lib;NWN2_MemoryMgr_amdxp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)xp_mysqld.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\wxwidgets\lib\vc142_dll;$(SolutionDir)..\lib\mysql;$(SolutionDir)..\lib\detours\lib;$(SolutionDir)..\lib\NWN2;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>detours.lib;wsock32.lib;libmariadb.lib;mariadbclient.lib;NWN2_MemoryMgr_amdxp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)xp_mysql.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\mariadb\lib;$(SolutionDir)..\lib\detours\lib;$(SolutionDir)..\lib\NWN2;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
-    <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(SolutionDir)..\bin\dist"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\wxwidgets\include;$(SolutionDir)..\lib\wxwidgets\lib\vc142_dll\mswu;$(SolutionDir)..\lib\mysql\include;$(SolutionDir)..\lib\detours\include;$(SolutionDir)..\lib\NWN2\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;NDEBUG;__WXMSW__;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\mariadb\include;$(SolutionDir)..\lib\detours\include;$(SolutionDir)..\lib\NWN2\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;NDEBUG;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>detours.lib;wsock32.lib;wxmsw31u_core.lib;wxbase31u_net.lib;wxbase31u.lib;mysqlclient.lib;zlib.lib;yassl.lib;taocrypt.lib;NWN2_MemoryMgr_amdxp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>detours.lib;wsock32.lib;libmariadb.lib;mariadbclient.lib;NWN2_MemoryMgr_amdxp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)xp_mysql.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\wxwidgets\lib\vc142_dll;$(SolutionDir)..\lib\mysql;$(SolutionDir)..\lib\detours\lib;$(SolutionDir)..\lib\NWN2;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\mariadb\lib;$(SolutionDir)..\lib\detours\lib;$(SolutionDir)..\lib\NWN2;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>

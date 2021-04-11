@@ -31,13 +31,13 @@ DLLEXPORT Plugin* GetPluginPointerV2()
 	return plugin;
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
+bool APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
 	{
 		plugin = new MySQL();
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -55,19 +55,19 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 MySQL::MySQL()
 {
-	header = _T(
+	header =
 		"NWNX MySQL Plugin V.1.1.0-dev\n" \
 		"(c) 2007 by Ingmar Stieger (Papillon)\n" \
 		"(c) 2008 by virusman\n" \
 		"visit us at http://www.nwnx.org\n" \
-		"(built using mysql-5.0.27 source)\n");
+		"(built using mysql-5.0.27 source)\n";
 
-	description = _T(
+	description =
 		"This plugin provides database storage. It uses " \
-	    "MySQL 4 or 5 as database server.");
+	    "MySQL 4 or 5 as database server.";
 
-	subClass = _T("MySQL");
-	version = _T("1.1.0-dev");
+	subClass = "MySQL";
+	version = "1.1.0-dev";
 
 	result = NULL;
 	row = NULL;
@@ -78,58 +78,58 @@ MySQL::~MySQL()
 	Disconnect();
 }
 
-bool MySQL::Init(TCHAR* nwnxhome)
+bool MySQL::Init(char* nwnxhome)
 {
 	SetupLogAndIniFile(nwnxhome);
-	if(HookSCORCO())
-		wxLogMessage(wxT("* Hooking successful"));
+	if(HookSCORCO(logger))
+		logger->Info("* Hooking successful");
 	else
-		wxLogMessage(wxT("* Hooking failed"));
+		logger->Info("* Hooking failed");
 
-	if (config->Read(wxT("server"), &server) )
+	if (config->get("server", &server) )
 	{
-		wxLogMessage(wxT("* Connecting to server %s"), server);
+		logger->Info("* Connecting to server %s", server.c_str());
 	}
 	else
 	{
-		wxLogMessage(wxT("* MySQL database server not found in ini file"));
-		server = wxT("localhost");
-		wxLogMessage(wxT("* Using default server %s"), server);
+		logger->Info("* MySQL database server not found in ini file");
+		server = "localhost";
+		logger->Info("* Using default server %s", server.c_str());
 	}
 
-	if (!config->Read(wxT("user"), &user) )
+	if (!config->get("user", &user) )
 	{
-		wxLogMessage(wxT("* MySQL user account not found in ini file"));
-		user = wxT("");
-		wxLogMessage(wxT("* Using default user '%s'"), user);
+		logger->Info("* MySQL user account not found in ini file");
+		user = "";
+		logger->Info("* Using default user '%s'", user.c_str());
 	}
 
-	if (!config->Read(wxT("password"), &password) )
+	if (!config->get("password", &password) )
 	{
-		wxLogMessage(wxT("* MySQL password not found in ini file"));
-		password = wxT("");
-		wxLogMessage(wxT("* Using default password '%s'"), password);
+		logger->Info("* MySQL password not found in ini file");
+		password = "";
+		logger->Info("* Using default password '%s'", password.c_str());
 	}
 
-	if (!config->Read(wxT("schema"), &schema) )
+	if (!config->get("schema", &schema) )
 	{
-		wxLogMessage(wxT("* MySQL schema not found in ini file"));
-		user = wxT("nwn2");
-		wxLogMessage(wxT("* Using default schema '%s'"), schema);
+		logger->Info("* MySQL schema not found in ini file");
+		user = "nwn2";
+		logger->Info("* Using default schema '%s'", schema.c_str());
 	}
-	if (!config->Read(wxT("port"), &port) )
+	if (!config->get("port", &port) )
 	{
-		wxLogMessage(wxT("* MySQL port not found in ini file"));
+		logger->Info("* MySQL port not found in ini file");
 		port = 0;
-		wxLogMessage(wxT("* Using default port '%d'"), port);
+		logger->Info("* Using default port '%d'", port);
 	}
 
 	if (!Connect())
 	{
-		wxLogMessage(wxT("* Connection to MySQL server failed:\n  %s"), mysql_error(&mysql));
+		logger->Info("* Connection to MySQL server failed:\n  %s", mysql_error(&mysql));
 	}
 
-	wxLogMessage(wxT("* Plugin initialized."));
+	logger->Info("* Plugin initialized.");
 
 	return true;
 }
@@ -141,7 +141,7 @@ bool MySQL::Connect()
 		return FALSE;
 
 	// try to connect to the mysql server
-	connection = mysql_real_connect(&mysql, server, user, password, schema, port, NULL, CLIENT_MULTI_STATEMENTS);
+	connection = mysql_real_connect(&mysql, server.c_str(), user.c_str(), password.c_str(), schema.c_str(), port, NULL, CLIENT_MULTI_STATEMENTS);
 	if (connection == NULL)
 	{
 		mysql_close(&mysql);
@@ -159,16 +159,16 @@ void MySQL::Disconnect()
 
 bool MySQL::Reconnect()
 {
-	wxLogMessage(wxT("* Reconnecting to MySQL server..."));
+	logger->Info("* Reconnecting to MySQL server...");
 	Disconnect();
 	if (!Connect())
 	{
-		wxLogMessage(wxT("* Connection to MySQL server failed:\n  %s"), mysql_error(&mysql));
+		logger->Info("* Connection to MySQL server failed:\n  %s", mysql_error(&mysql));
 		return false;
 	}
 	else
 	{
-		wxLogMessage(wxT("* Connection to MySQL server succeeded."));
+		logger->Info("* Connection to MySQL server succeeded.");
 		return true;
 	}
 }
@@ -181,7 +181,7 @@ bool MySQL::Execute(char* query)
 	{
 		if (!Reconnect())
 		{
-			wxLogMessage(wxT("! Error: Not connected."));
+			logger->Info("! Error: Not connected.");
 			return FALSE;
 		}
 	}
@@ -196,21 +196,21 @@ bool MySQL::Execute(char* query)
 
 	// execute the query
 	if (logLevel == 2)
-		wxLogMessage(wxT("* Executing: %s"), query);
+		logger->Info("* Executing: %s", query);
 	if (mysql_query(connection, (const char *)query) != 0)
 	{
 		unsigned int error_no = mysql_errno(&mysql);
 		if (logLevel > 0) { 
-			wxLogMessage(wxT("! SQL Error: %s (%lu)."), mysql_error(&mysql), error_no);
+			logger->Info("! SQL Error: %s (%lu).", mysql_error(&mysql), error_no);
 
 			// log the query that caused the error, too,  if we haven't already. 
 			if (logLevel != 2) { 
-				wxLogMessage(wxT(" -> QUERY: %s."), query);
+				logger->Info(" -> QUERY: %s.", query);
 			}
 		}
 
 		// throw away last resultset if a SELECT statement failed
-		if (_strnicmp(query, wxT("SELECT"), 6) == 0)
+		if (_strnicmp(query, "SELECT", 6) == 0)
 		{
 			mysql_free_result(result);
 			result = NULL;
@@ -237,7 +237,7 @@ bool MySQL::Execute(char* query)
 		if (mysql_field_count(&mysql) != 0)
 		{
 			// SELECT with an empty result set
-			wxLogTrace(TRACE_VERBOSE, wxT("* Retrieved an empty resultset (mysql_query)"));
+			logger->Trace("* Retrieved an empty resultset (mysql_query)");
 			mysql_free_result(result);
 			result = NULL;
 			row = NULL;
@@ -246,7 +246,7 @@ bool MySQL::Execute(char* query)
 		else
 		{
 			// NOT a SELECT like command
-			wxLogTrace(TRACE_VERBOSE, wxT("* Retrieved an invalid resultset (NO SELECT) (mysql_query)"));
+			logger->Trace("* Retrieved an invalid resultset (NO SELECT) (mysql_query)");
 
 			// Try to advance to a non-empty resultset, if there is one.
 			// This allows for calls to SQLFetch() to succeed automatically, 
@@ -264,7 +264,7 @@ bool MySQL::Execute(char* query)
 		if (mysql_errno(&mysql) != 0)
 		{
 			if (logLevel > 0)
-				wxLogMessage(wxT("! Error (mysql_store_result): %s"), mysql_error(&mysql));
+				logger->Info("! Error (mysql_store_result): %s", mysql_error(&mysql));
 			return FALSE;	
 		}
 	}
@@ -284,7 +284,7 @@ int MySQL::Fetch(char* buffer)
 {
 	if (!connection)
 	{
-		wxLogMessage(wxT("! Error (Fetch): Not connected."));
+		logger->Info("! Error (Fetch): Not connected.");
 		return -1;
 	}
 
@@ -292,9 +292,9 @@ int MySQL::Fetch(char* buffer)
 	// resultset from the last multi-statement query. 
 	// If it is	empty, try to fetch the next row
 	// from the current resultset. 
-	if (strcmp(buffer,wxT("NEXT")) == 0)
+	if (strcmp(buffer,"NEXT") == 0)
 	{
-		wxLogTrace(TRACE_VERBOSE, wxT("* Trying to fetch the next resultset"));
+		logger->Trace("* Trying to fetch the next resultset");
 
 		mysql_free_result(result);
 		result = NULL;
@@ -312,14 +312,14 @@ int MySQL::Fetch(char* buffer)
 		row = mysql_fetch_row(result);
 		if (row)
 		{
-			wxLogTrace(TRACE_VERBOSE, wxT("* Fetch returns a row."));
+			logger->Trace("* Fetch returns a row.");
 			return 1;
 		}
 	}
 
 	row = NULL;
-	wxLogTrace(TRACE_VERBOSE, wxT("* Fetch returns no row."));
-	nwnxcpy(buffer, wxT(""));
+	logger->Trace("* Fetch returns no row.");
+	nwnxcpy(buffer, "");
 	return 0;
 }
 
@@ -327,25 +327,25 @@ int MySQL::GetData(int iCol, char* buffer)
 {
 	if (!row)
 	{
-		wxLogTrace(TRACE_VERBOSE, wxT("! GetData: No valid row in resultset."));
-		nwnxcpy(buffer, wxT(""));
+		logger->Trace("! GetData: No valid row in resultset.");
+		nwnxcpy(buffer, "");
 		return -1;
 	}
 
-	wxLogTrace(TRACE_VERBOSE, wxT("* GetData: Get column %d, buffer size %d bytes"), iCol, MAX_BUFFER);
+	logger->Trace("* GetData: Get column %d, buffer size %d bytes", iCol, MAX_BUFFER);
 
 	if ((iCol < (int)num_fields) && row[iCol])
 	{
 		nwnxcpy(buffer, row[iCol]);
 		if (logLevel == 2)
-			wxLogMessage(wxT("* Returning: %s (column %d)"), buffer, iCol);
+			logger->Info("* Returning: %s (column %d)", buffer, iCol);
 		return 0;
 	}
 	else
 	{
-		nwnxcpy(buffer, wxT(""));
+		nwnxcpy(buffer, "");
 		if (logLevel == 2)
-			wxLogMessage(wxT("* Returning: (empty) (column %d)"), iCol);
+			logger->Info("* Returning: (empty) (column %d)", iCol);
 		return -1;
 	}
 }
@@ -356,28 +356,28 @@ MYSQL_RES* MySQL::AdvanceToNextValidResultset()
 
 	while (mysql_more_results(&mysql))
 	{
-		wxLogTrace(TRACE_VERBOSE, wxT("* Got a resultset"));
+		logger->Trace("* Got a resultset");
 		mysql_next_result(&mysql);
 		newResult = mysql_store_result(&mysql);
 		if (newResult == NULL)
 		{
-			wxLogTrace(TRACE_VERBOSE, wxT("* Empty resultset"));
+			logger->Trace("* Empty resultset");
 			if (mysql_field_count(&mysql) != 0)
 			{
 				// SELECT with an empty result set
-				wxLogTrace(TRACE_VERBOSE, wxT("* Retrieved an empty resultset"));
+				logger->Trace("* Retrieved an empty resultset");
 				return NULL;
 			}
 			else
 			{
 				// NOT a SELECT like command, advance to next resultset
-				wxLogTrace(TRACE_VERBOSE, wxT("* Retrieved an invalid resultset (NO SELECT)"));
+				logger->Trace("* Retrieved an invalid resultset (NO SELECT)");
 			}
 		}
 		else
 		{
 			// SELECT with a non-empty resultset
-			wxLogTrace(TRACE_VERBOSE, wxT("* Retrieved a non-empty resultset"));
+			logger->Trace("* Retrieved a non-empty resultset");
 			return newResult;
 		}
 	}
@@ -395,7 +395,7 @@ void MySQL::GetEscapeString(char* str, char* buffer)
 {
 	if (*str == 0x0)
 	{
-		nwnxcpy(buffer, wxT(""));
+		nwnxcpy(buffer, "");
 		return;
 	}
 
@@ -418,11 +418,11 @@ const char *MySQL::GetErrorMessage()
 	return mysql_error(&mysql);
 }
 
-BOOL MySQL::WriteScorcoData(BYTE* pData, int Length)
+bool MySQL::WriteScorcoData(BYTE* pData, int Length)
 {
 	if (logLevel == 2)
-		wxLogMessage(wxT("* SCO query: %s"), scorcoSQL);
-	wxLogTrace(TRACE_VERBOSE, wxT("WriteScorcoData"));
+		logger->Info("* SCO query: %s", scorcoSQL);
+	logger->Trace("WriteScorcoData");
 	int res;
 	unsigned long len;
 	char* Data = new char[Length * 2 + 1 + 2];
@@ -449,9 +449,9 @@ BOOL MySQL::WriteScorcoData(BYTE* pData, int Length)
 BYTE* MySQL::ReadScorcoData(char *param, int *size)
 {
 	if (logLevel == 2)
-		wxLogMessage(wxT("* RCO query: %s"), scorcoSQL);
-	wxLogTrace(TRACE_VERBOSE, wxT("ReadScorcoData"));
-	BOOL pSqlError;
+		logger->Info("* RCO query: %s", scorcoSQL);
+	logger->Trace("ReadScorcoData");
+	bool pSqlError;
 	MYSQL_RES *rcoresult;
 	if (strcmp(param, "FETCHMODE") != 0)
 	{	
@@ -497,7 +497,7 @@ BYTE* MySQL::ReadScorcoData(char *param, int *size)
 	else
 	{
 		if (logLevel == 2)
-			wxLogMessage(wxT("* Empty RCO resultset"));
+			logger->Info("* Empty RCO resultset");
 		mysql_free_result(rcoresult);
 		return NULL;
 	}

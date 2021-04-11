@@ -32,25 +32,25 @@ class MySQL : public DBPlugin
 {
 public:
 	MySQL();
-	~MySQL();
+	~MySQL() override;
 
-	bool Init(TCHAR* nwnxhome);  
+	bool Init(char* nwnxhome);
 
-	BOOL WriteScorcoData(BYTE* pData, int Length);
-	BYTE* ReadScorcoData(char *param, int *size);
+	bool WriteScorcoData(BYTE* pData, int Length) override;
+	BYTE* ReadScorcoData(char *param, int *size) override;
 
 private:
 	bool Connect();
 	void Disconnect();
 	bool Reconnect();
-	bool Execute(char* query);
-	int Fetch(char* buffer);
-	int GetData(int iCol, char* buffer);
-	int GetAffectedRows();
-	void GetEscapeString(char* str, char* buffer);
+	bool Execute(char* query) override;
+	int Fetch(char* buffer) override;
+	int GetData(int iCol, char* buffer) override;
+	int GetAffectedRows() override;
+	void GetEscapeString(char* str, char* buffer) override;
 	MYSQL_RES* AdvanceToNextValidResultset();
-	int GetErrno();
-	const char *GetErrorMessage();
+	int GetErrno() override;
+	const char *GetErrorMessage() override;
 
 	MYSQL mysql;
 	MYSQL* connection;
@@ -59,11 +59,11 @@ private:
 	
 	unsigned int num_fields;
 
-	wxString server;
-	wxString user;
-	wxString password;
-	wxString schema;
-	int port; 
+	std::string server;
+	std::string user;
+	std::string password;
+	std::string schema;
+	int port;
 
 };
 

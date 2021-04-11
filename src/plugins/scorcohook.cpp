@@ -151,7 +151,7 @@ DWORD FindHookRCO()
 	return NULL;
 }
 
-int HookSCORCO()
+int HookSCORCO(LogNWNX* logger)
 {	
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
@@ -159,7 +159,7 @@ int HookSCORCO()
 	DWORD sco = FindHookSCO();
 	if (sco)
 	{
-		wxLogMessage(wxT("o SCO located at %x."), sco);
+		logger->Info("o SCO located at %x.", sco);
 		//odmbc.Log(0, "o SCO located at %x.\n", sco);
 		//sco_success = HookCode((PVOID) sco, SCOHookProc, (PVOID*) &OriginalSCO);
 		*(DWORD*)&OriginalSCO = sco;
@@ -167,21 +167,21 @@ int HookSCORCO()
 	}
 	else
 	{
-		wxLogMessage(wxT("! SCO locate failed."));
+		logger->Info("! SCO locate failed.");
 		return 0;
 	}
 
 	DWORD rco = FindHookRCO();
 	if (rco)
 	{
-		wxLogMessage(wxT("o RCO located at %x."), rco);
+		logger->Info("o RCO located at %x.", rco);
 		//rco_success = HookCode((PVOID) rco, RCOHookProc, (PVOID*) &OriginalRCO);
 		*(DWORD*)&OriginalRCO = rco;
 		rco_success = DetourAttach(&(PVOID&)OriginalRCO, RCOHookProc)==0;
 	}
 	else
 	{
-		wxLogMessage(wxT("! RCO locate failed."));
+		logger->Info("! RCO locate failed.");
 		return 0;
 	}
     detour_success = DetourTransactionCommit()==0;
