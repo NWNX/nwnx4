@@ -26,8 +26,6 @@
 #include "windows.h"
 #include "../legacy_plugin.h"
 #include "../../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/hashset.h"
 
 typedef char* (CALLBACK* LPFNONCREATE)(const char*);
 typedef char* (CALLBACK* LPFNONRELEASE)();
@@ -39,15 +37,15 @@ public:
 	Leto();
 	~Leto();
 
-	bool Init(TCHAR* nwnxhome);  
+	bool Init(char* nwnxhome);  
 	const char* DoRequest(char *gameObject, char* request, char* parameters);
-	void GetFunctionClass(TCHAR* fClass);
+	void GetFunctionClass(char* fClass);
 
 	LPCSTR sTimeReport(LARGE_INTEGER c1, LARGE_INTEGER c2);
 	char sTime[45];
 
 private:
-	wxLogNWNX* logger;
+	LogNWNX* logger;
 	HINSTANCE hDLL;
 
 	LPFNONCREATE lpfnOnCreate;

@@ -19,7 +19,8 @@
  ***************************************************************************/
 
 #include "leto.h"
-
+#include <cassert>
+ 
 /***************************************************************************
     NWNX and DLL specific functions
 ***************************************************************************/
@@ -38,7 +39,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 		plugin = new Leto();
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -56,30 +57,30 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 Leto::Leto()
 {
-	header = _T(
+	header =
 		"NWNX Leto Plugin V.0.0.1\n" \
 		"(c) 2007 by virusman (virusman@virusman.ru)\n" \
 		"(c) 2004 by David Frauzel (dragonsong), dragon@weathersong.net\n" \
-		"visit us at http://www.nwnx.org\n");
+		"visit us at http://www.nwnx.org\n";
 
-	description = _T(
-		"This plugin is a bridge to LetoScript DLL.");
+	description =
+		"This plugin is a bridge to LetoScript DLL.";
 
-	subClass = _T("LETO");
-	version = _T("0.0.1");
+	subClass = "LETO";
+	version = "0.0.1";
 }
 
 Leto::~Leto()
 {
-	wxLogMessage(wxT("* Unloading the plugin."));
-	//wxLogMessage(wxT("* Leto OnRelease..."));
+	logger->Info("* Unloading the plugin.");
+	//logger->Info(wxT("* Leto OnRelease..."));
 	/*if (lpfnOnRelease)
 		lpfnOnRelease();*/
-	wxLogMessage(wxT("* Freeing the library..."));
+	logger->Info("* Freeing the library...");
 	if (hDLL != NULL)
 		FreeLibrary(hDLL);
 
-	wxLogMessage(wxT("* Plugin unloaded."));
+	logger->Info("* Plugin unloaded.");
 }
 
 LPCSTR Leto::sTimeReport(LARGE_INTEGER c1, LARGE_INTEGER c2)
@@ -117,16 +118,17 @@ LPCSTR Leto::sTimeReport(LARGE_INTEGER c1, LARGE_INTEGER c2)
 	return sTime;
 }
 
-bool Leto::Init(TCHAR* nwnxhome)
+bool Leto::Init(char* nwnxhome)
 {
 	assert(GetPluginFileName());
 
 	/* Log file */
-	wxString logfile(nwnxhome); 
-	logfile.append(wxT("\\"));
+	std::string logfile(nwnxhome);
+	logfile.append("\\");
 	logfile.append(GetPluginFileName());
-	logfile.append(wxT(".txt"));
-	logger = new wxLogNWNX(logfile, wxString(header.c_str()));
+	logfile.append(".txt");
+	logger = new LogNWNX(logfile);
+	logger->Info(header.c_str());
 
 	iDebug = GetPrivateProfileInt(	"Leto", "Debug", 2, INI_FILE);
 	if (iDebug==2)
@@ -135,11 +137,11 @@ bool Leto::Init(TCHAR* nwnxhome)
 	QueryPerformanceFrequency(&clkFreq); 
 	QueryPerformanceCounter(&clkStart);
 
-	wxLogMessage(wxT("* Loading LetoScript.dll..."));
+	logger->Info("* Loading LetoScript.dll...");
 	// attempt to load LetoScript.Dll
 	hDLL = LoadLibrary("LetoScript.dll");
 	if (hDLL == NULL) {
-		wxLogMessage(wxT("* Failed loading LetoScript.dll! Our bridges are burned! Run away, run away!\n"));
+		logger->Info("* Failed loading LetoScript.dll! Our bridges are burned! Run away, run away!\n");
 		return FALSE;
 	}
 	// Stop! Who approacheth the Bridge of DLL
@@ -150,7 +152,7 @@ bool Leto::Init(TCHAR* nwnxhome)
 	lpfnOnCreate = (LPFNONCREATE)GetProcAddress(hDLL, "OnCreate");
 	if (!lpfnOnCreate)
 	{
-		wxLogMessage(wxT("* Failed GetProcAddress of OnCreate. You are cast into the Gorge of Eternal Peril!\n"));
+		logger->Info("* Failed GetProcAddress of OnCreate. You are cast into the Gorge of Eternal Peril!\n");
 		return FALSE;
 	}
 
@@ -158,7 +160,7 @@ bool Leto::Init(TCHAR* nwnxhome)
 	lpfnOnRelease = (LPFNONRELEASE)GetProcAddress(hDLL, "OnRelease");
 	if (!lpfnOnRelease)
 	{
-		wxLogMessage(wxT("* Failed GetProcAddress of OnRelease. You are cast into the Gorge of Eternal Peril!\n"));
+		logger->Info("* Failed GetProcAddress of OnRelease. You are cast into the Gorge of Eternal Peril!\n");
 		return FALSE;
 	}
 
@@ -166,75 +168,70 @@ bool Leto::Init(TCHAR* nwnxhome)
 	lpfnOnRequest = (LPFNONREQUEST)GetProcAddress(hDLL, "OnRequest");
 	if (!lpfnOnRequest)
 	{
-		wxLogMessage(wxT("* Failed GetProcAddress of OnRequest. You are cast into the Gorge of Eternal Peril!\n"));
+		logger->Info("* Failed GetProcAddress of OnRequest. You are cast into the Gorge of Eternal Peril!\n");
 		return FALSE;
 	}
 
-	wxLogMessage(wxT("nwnxhome=%s"), nwnxhome);
+	logger->Info("nwnxhome=%s", nwnxhome);
 	// Now call OnCreate (LetoScript.dll initialization)
 	lpfnOnCreate(nwnxhome);
 
 	if (iDebug)
 	{
 		QueryPerformanceCounter(&clkEnd);
-		wxLogMessage(wxT("* LetoScript metamodule activated (%s).\n"),sTimeReport(clkStart,clkEnd));
+		logger->Info("* LetoScript metamodule activated (%s).\n",sTimeReport(clkStart,clkEnd));
 	}
 	else
-		wxLogMessage(wxT("* LetoScript metamodule activated.\n"));
+		logger->Info("* LetoScript metamodule activated.\n");
 
 
-	wxLogMessage(wxT("* Plugin initialized."));
+	logger->Info("* Plugin initialized.");
 	return true;
 }
 
-void Leto::GetFunctionClass(TCHAR* fClass)
+void Leto::GetFunctionClass(char* fClass)
 {
-	_tcsncpy_s(fClass, 128, wxT("LETO"), 9); 
+	strncpy_s(fClass, 128, "LETO", 9);
 }
 
 
 
 const char* Leto::DoRequest(char *gameObject, char* request, char* parameters)
 {
-	wxLogTrace(TRACE_VERBOSE, wxT("* Plugin DoRequest(0x%x, %s, %s)"), gameObject, request, parameters);
+	logger->Trace("* Plugin DoRequest(0x%x, %s, %s)", gameObject, request, parameters);
 
-#ifdef UNICODE
-	wxString wxRequest(request, wxConvUTF8);
-#else
-	wxString wxRequest(request);
-#endif
-	wxString function;
+	std::string req(request);
+	std::string function;
 
-	wxStringTokenizer tkz(wxRequest, wxT("!"));
-	
-	if (tkz.HasMoreTokens())
-	{
-		function = tkz.GetNextToken();
-		wxLogTrace(TRACE_VERBOSE, wxT("* function=%s"), function);
-	}
-	else
-	{
-		wxLogMessage(wxT("* Function not specified."));
-		return NULL;
-	}
+	// auto sep = req.find('!');
+	// if(sep != std::string::npos)
+	// {
+	// 	function = name.substr(sep);
+	// 	logger->Trace("* fClass=%s", fClass.c_str());
+	// }
+	// else
+	// {
+	// 	logger->Info("* Function not specified.");
+	// 	return NULL;
+	// }
 
 	if (!lpfnOnRequest)
 		return NULL;
 	if (iDebug==1)
-		wxLogMessage(wxT("Req:\"%s\", Param:\"%s\""),request, parameters);
+		logger->Info("Req:\"%s\", Param:\"%s\"",request, parameters);
 	if (iDebug<=1) return lpfnOnRequest(gameObject, request, parameters);
 	QueryPerformanceCounter(&clkStart);
 	char *sRes = lpfnOnRequest(gameObject, request, parameters);
 	QueryPerformanceCounter(&clkEnd);
-	wxLogMessage(wxT("<%s> Req:\"%s\", Param:\"%s\""),sTimeReport(clkStart,clkEnd), request, parameters);
-	wxLogMessage(wxT("Returned:\"%s\""), sRes);
+	logger->Info("<%s> Req:\"%s\", Param:\"%s\"",sTimeReport(clkStart,clkEnd), request, parameters);
+	logger->Info("Returned:\"%s\"", sRes);
 
 	return sRes;
 	// Pass the request along to LetoScript.dll
 
 
-	ProcessQueryFunction(function.c_str(), parameters);
+	// ProcessQueryFunction(function.c_str(), parameters);
 
-	return NULL;
+	// return NULL;
 }
 
