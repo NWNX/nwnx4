@@ -18,6 +18,7 @@
  ***************************************************************************/
 
 #include "funcs.h"
+#include <cassert>
 
 /***************************************************************************
     NWNX and DLL specific functions
@@ -42,7 +43,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 		plugin = new Funcs();
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -60,61 +61,57 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 Funcs::Funcs()
 {
-	header = _T(
+	header =
 		"NWNX Funcs Plugin V.0.0.1\n" \
 		"(c) 2010 Andrew Brockert (Zebranky)\n" \
-		"visit us at http://www.nwnx.org\n");
+		"visit us at http://www.nwnx.org\n";
 
-	description = _T(
-		"This plugin provides functions to poke at NWN2 internals.");
+	description =
+		"This plugin provides functions to poke at NWN2 internals.";
 
-	subClass = _T("FUNCS");
-	version = _T("0.0.1");
+	subClass = "FUNCS";
+	version = "0.0.1";
 }
 
 Funcs::~Funcs()
 {
-	wxLogMessage(wxT("* Plugin unloaded."));
+	logger->Info("* Plugin unloaded.");
 }
 
-bool Funcs::Init(TCHAR* nwnxhome)
+bool Funcs::Init(char* nwnxhome)
 {
 	assert(GetPluginFileName());
 
 	/* Log file */
-	wxString logfile(nwnxhome); 
-	logfile.append(wxT("\\"));
+	std::string logfile(nwnxhome);
+	logfile.append("\\");
 	logfile.append(GetPluginFileName());
-	logfile.append(wxT(".txt"));
-	logger = new wxLogNWNX(logfile, wxString(header.c_str()));
+	logfile.append(".txt");
+	logger = new LogNWNX(logfile);
+	logger->Info(header.c_str());
 
-	wxLogMessage(wxT("* Plugin initialized."));
+	logger->Info("* Plugin initialized.");
 	return true;
 }
 
-void Funcs::GetFunctionClass(TCHAR* fClass)
+void Funcs::GetFunctionClass(char* fClass)
 {
-	_tcsncpy_s(fClass, 128, wxT("FUNCS"), 5); 
+	strncpy_s(fClass, 128, "FUNCS", 5);
 }
 
 int Funcs::GetInt(char* sFunction, char* sParam1, int nParam2)
 {
-	wxLogTrace(TRACE_VERBOSE, wxT("* Plugin GetInt(0x%x, %s, %d)"), 0x0, sParam1, nParam2);
+	logger->Trace("* Plugin GetInt(0x%x, %s, %d)", 0x0, sParam1, nParam2);
 
-#ifdef UNICODE
-	wxString wxRequest(sFunction, wxConvUTF8);
-	wxString function(sFunction, wxConvUTF8);
-#else
-	wxString wxRequest(sFunction);
-	wxString function(sFunction);
-#endif
+	std::string wxRequest(sFunction);
+	std::string function(sFunction);
 
-	if (function == wxT(""))
+	if (function == "")
 	{
-		wxLogMessage(wxT("* Function not specified."));
+		logger->Info("* Function not specified.");
 		return NULL;
 	}
-	else if(function == wxT("GETSOUNDSET"))
+	else if(function == "GETSOUNDSET")
 	{
 		objid_t creature_oid = nParam2;
 		void *cre = CServerExoApp__GetCreatureByGameObjectID(*pCAppManager, NULL, creature_oid);

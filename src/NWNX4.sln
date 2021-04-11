@@ -26,6 +26,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_pickpocket", "plugins\pi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_chat", "plugins\chat\chat.vcxproj", "{76973E1B-FCFE-48E9-9893-4D41326167D8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_funcs", "plugins\funcs\funcs.vcxproj", "{D1117291-5C67-4CC8-95A8-00CEA5619956}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -72,6 +74,10 @@ Global
 		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Debug|Win32.Build.0 = Debug|Win32
 		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Release|Win32.ActiveCfg = Release|Win32
 		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Release|Win32.Build.0 = Release|Win32
+		{D1117291-5C67-4CC8-95A8-00CEA5619956}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D1117291-5C67-4CC8-95A8-00CEA5619956}.Debug|Win32.Build.0 = Debug|Win32
+		{D1117291-5C67-4CC8-95A8-00CEA5619956}.Release|Win32.ActiveCfg = Release|Win32
+		{D1117291-5C67-4CC8-95A8-00CEA5619956}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

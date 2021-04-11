@@ -25,8 +25,6 @@
 #include "windows.h"
 #include "../plugin.h"
 #include "../../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/hashset.h"
 
 class Funcs : public Plugin
 {
@@ -34,7 +32,7 @@ public:
 	Funcs();
 	~Funcs();
 
-	bool Init(TCHAR* nwnxhome);  
+	bool Init(char* nwnxhome);
 
 	int GetInt(char* sFunction, char* sParam1, int nParam2);
 	void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue) {};
@@ -42,10 +40,10 @@ public:
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue) {};
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue) { return; }
 	char* GetString(char* sFunction, char* sParam1, int nParam2) { return NULL; }
-	void GetFunctionClass(TCHAR* fClass);
+	void GetFunctionClass(char* fClass);
 
 private:
-	wxLogNWNX* logger;
+	LogNWNX* logger;
 };
 
 #endif
