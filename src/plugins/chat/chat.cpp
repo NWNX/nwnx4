@@ -20,6 +20,7 @@
 
 #include "chat.h"
 #include "hook.h"
+#include <cassert>
 
 /***************************************************************************
     NWNX and DLL specific functions
@@ -38,7 +39,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 		plugin = new Chat();
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -56,108 +57,109 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 Chat::Chat()
 {
-	header = _T(
+	header =
 		"NWNX4 Chat Plugin V.0.3.6\n" \
 		"(c) 2005-2006 by dumbo (dumbo@nm.ru)\n" \
 		"(c) 2006-2007 by virusman (virusman@virusman.ru)\n" \
-		"visit us at http://www.nwnx.org\n");
+		"visit us at http://www.nwnx.org\n";
 
-	description = _T(
-		"This plugin provides chat event hook.");
+	description = "This plugin provides chat event hook.";
 
-	subClass = _T("CHAT");
-	version = _T("0.3.6");
+	subClass = "CHAT";
+	version = "0.3.6";
 }
 
 Chat::~Chat()
 {
-
-	wxLogMessage(wxT("* Plugin unloaded."));
+	logger->Info("* Plugin unloaded.");
 }
 
-bool Chat::Init(TCHAR* nwnxhome)
+bool Chat::Init(char* nwnxhome)
 {
 	assert(GetPluginFileName());
 
 	/* Log file */
-	wxString logfile(nwnxhome); 
-	logfile.append(wxT("\\"));
+	std::string logfile(nwnxhome);
+	logfile.append("\\");
 	logfile.append(GetPluginFileName());
-	logfile.append(wxT(".txt"));
-	logger = new wxLogNWNX(logfile, wxString(header.c_str()));
+	logfile.append(".txt");
+	logger = new LogNWNX(logfile);
+	logger->Info(header.c_str());
 
 	//strcpy(chatScript, "chat_script");
 	//strcpy(servScript, "chat_script");
 	//maxMsgLen = 1024;
 	//processNPC = 1;
 
-	wxString inifile(nwnxhome); 
-	inifile.append(wxT("\\"));
+	std::string inifile(nwnxhome);
+	inifile.append("\\");
 	inifile.append(GetPluginFileName());
-	inifile.append(wxT(".ini"));
-	wxLogTrace(TRACE_VERBOSE, wxT("* reading inifile %s"), inifile);
+	inifile.append(".ini");
+	logger->Trace("* reading inifile %s", inifile.c_str());
 
-	config = new wxFileConfig(wxEmptyString, wxEmptyString, 
-		inifile, wxEmptyString, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_NO_ESCAPE_CHARACTERS);
+	config = new SimpleIniConfig(inifile);
 
-	if (!config->Read(wxT("chat_script"), &chatScript) )
+	if (!config->get("chat_script", &chatScript) )
 	{
-		wxLogMessage(wxT("* Chat script name not found in ini file"));
-		chatScript = wxT("chat_script");
-		wxLogMessage(wxT("* Using default chat script '%s'"), chatScript);
+		logger->Info("* Chat script name not found in ini file");
+		chatScript = "chat_script";
+		logger->Info("* Using default chat script '%s'", chatScript.c_str());
 	}
 
-	if (!config->Read(wxT("server_script"), &servScript) )
+	if (!config->get("server_script", &servScript) )
 	{
-		wxLogMessage(wxT("* Server script name not found in ini file"));
-		servScript = wxT("chat_script");
-		wxLogMessage(wxT("* Using default server script '%s'"), servScript);
+		logger->Info("* Server script name not found in ini file");
+		servScript = "chat_script";
+		logger->Info("* Using default server script '%s'", servScript.c_str());
 	}
-	config->Read(wxT("max_msg_len"), &maxMsgLen, 1024);
-	config->Read(wxT("processnpc"), &processNPC, 0);
-	config->Read(wxT("ignore_silent"), &ignore_silent, 0);
 
-	config->Read(wxT("loglevel"), &logLevel);
+	maxMsgLen = 1024;
+	config->get("max_msg_len", &maxMsgLen);
+	processNPC = 0;
+	config->get("processnpc", &processNPC);
+	ignore_silent = 0;
+	config->get("ignore_silent", &ignore_silent);
+
+	config->get("loglevel", &logLevel);
 	switch(logLevel)
 	{
-	case 0: wxLogMessage(wxT("* Log level set to 0 (nothing)")); break;
-	case 1: wxLogMessage(wxT("* Log level set to 1 (only errors)")); break;
-	case 2: wxLogMessage(wxT("* Log level set to 2 (everything)")); break;
-	case 3: wxLogMessage(wxT("* Log level set to 3 (debug)")); break;
+	case 0: logger->Info("* Log level set to 0 (nothing)"); break;
+	case 1: logger->Info("* Log level set to 1 (only errors)"); break;
+	case 2: logger->Info("* Log level set to 2 (everything)"); break;
+	case 3: logger->Info("* Log level set to 3 (debug)"); break;
 	}
 
 	lastMsg = new char[maxMsgLen+13];
 
-	//wxLogMessage(wxT("* Plugin initialized."));
 	if(!HookFunctions())
 	{
-		wxLogMessage(wxT("* Hooking error."));
+		logger->Info("* Hooking error.");
 		return false;
 	}
 
-	wxLogMessage(wxT("* Plugin initialized."));
+	logger->Info("* Plugin initialized.");
 	return true;
 }
 
-void Chat::GetFunctionClass(TCHAR* fClass)
+void Chat::GetFunctionClass(char* fClass)
 {
-	_tcsncpy_s(fClass, 128, wxT("CHAT"), 4); 
+	strncpy_s(fClass, 128, "CHAT", 4);
 }
 
 
 
 void Chat::SetInt(char * sFunction, char * sParam1, int nParam2, int nValue)
 {
-	wxString function(sFunction); 
-	if (function == wxT("LOGNPC"))
+	std::string function(sFunction);
+	if (function == "LOGNPC")
 	{
 		processNPC = nValue;
 	}
-	else if (function == wxT("IGNORESILENT"))
+	else if (function == "IGNORESILENT")
 	{
 		ignore_silent = nValue; 
 	}
-	else if (function == wxT("SUPRESS"))
+	else if (function == "SUPRESS")
 	{
 		if (!scriptRun) return; // only in chat script
 		if (nValue == 1) 
@@ -168,10 +170,10 @@ void Chat::SetInt(char * sFunction, char * sParam1, int nParam2, int nValue)
 
 void Chat::SetString(char * sFunction, char * sParam1, int nParam2, char * value)
 {
-	wxString function(sFunction);
-	if (function == wxT("LOG")) {
+	std::string function(sFunction);
+	if (function == "LOG") {
 		if (!scriptRun ) return; // only in chat script
-		wxLogMessage(wxT("%s"), sParam1);
+		logger->Info("%s", sParam1);
 	
 	}
 
@@ -179,23 +181,23 @@ void Chat::SetString(char * sFunction, char * sParam1, int nParam2, char * value
 
 int Chat::GetInt(char* sFunction, char* sParam1, int nParam2)
 {
-	wxString function = sFunction;
-	if (function == wxT("GETID")) {
-		wxLogDebug(wxT("%s - getting ID for %d"), nParam2);
+	std::string function = sFunction;
+	if (function == "GETID") {
+		logger->Debug("%s - getting ID for %d", sFunction, nParam2);
 		if (nParam2) {  
 			return GetID(nParam2);
 		}
-		wxLogDebug(wxT("%s - returns -1"));
-	} else  if (function == wxT("SPEAK")) { //makes someone say something
+		logger->Debug("%s - returns -1", sFunction);
+	} else  if (function == "SPEAK") { //makes someone say something
 		if (logLevel >= 2)
-			wxLogMessage(wxT("o SPEAK: %s"), sParam1);
+			logger->Info("o SPEAK: %s", sParam1);
 		int oSender, oRecipient, nChannel;
 		int nParamLen = strlen(sParam1);
-		char *nLastDelimiter = strrchr(sParam1, '�');
+		char *nLastDelimiter = strrchr(sParam1, '?');
 		if (!nLastDelimiter || (nLastDelimiter-sParam1)<0)
 		{
 			if (logLevel >= 1)
-				wxLogError("%s - nLastDelimiter error", sFunction);
+				logger->Err("%s - nLastDelimiter error", sFunction);
 			return FALSE;
 		}
 		int nMessageLen = nParamLen-(nLastDelimiter-sParam1)+1;
@@ -203,7 +205,7 @@ int Chat::GetInt(char* sFunction, char* sParam1, int nParam2)
 		if(sscanf(sParam1, "%x¬%x¬%d¬", &oSender, &oRecipient, &nChannel)<3)
 		{
 			if (logLevel >= 1)
-				wxLogMessage("o sscanf error");
+				logger->Info("o sscanf error");
 			delete[] sMessage;
 			return FALSE;
 		}
@@ -211,16 +213,16 @@ int Chat::GetInt(char* sFunction, char* sParam1, int nParam2)
 		int nRecipientID = GetID(oRecipient);
 		/*if((nChannel==4 || nChannel==20) && oRecipient <= 0x7F000000)
 		{
-			wxLogMessage("o oRecipient is not a PC");
+			logger->Info("o oRecipient is not a PC");
 			delete[] sMessage;
 			return FALSE;
 		}*/
 		if(nChannel!=4 && nChannel!=20) nRecipientID=-1;
 		if (logLevel >= 2)
-			wxLogMessage("o SendMsg(%d, %08lX, '%s', %d)", nChannel, oSender, sMessage, nRecipientID);
+			logger->Info("o SendMsg(%d, %08lX, '%s', %d)", nChannel, oSender, sMessage, nRecipientID);
 		int nResult = SendMsg(nChannel, oSender, sMessage, nRecipientID);
 		if (logLevel >= 3)
-			wxLogMessage("o Return value: %d", nResult); //return value for full message delivery acknowledgement
+			logger->Info("o Return value: %d", nResult); //return value for full message delivery acknowledgement
 		delete[] sMessage;
 		if (nResult) 
 			return TRUE;
@@ -232,12 +234,12 @@ int Chat::GetInt(char* sFunction, char* sParam1, int nParam2)
 }
 char* Chat::GetString(char* sFunction, char* sParam1, int nParam2)
 {
-	wxString function = sFunction;
+	std::string function = sFunction;
 	returnBuffer[0] = 0;
-	if (function == wxT("TEXT") && scriptRun) {
+	if (function == "TEXT" && scriptRun) {
 		strncpy(returnBuffer, lastMsg, MAX_BUFFER);
 		if (logLevel >= 2)
-			wxLogMessage(wxT("TEXT: '%s'"), lastMsg);
+			logger->Info("TEXT: '%s'", lastMsg);
 	}
 	return returnBuffer;
 
@@ -249,12 +251,12 @@ int Chat::ChatProc(const int mode, const int id, const char **msg, const int to)
 	if ( !msg || !*msg ) return 0; // don't process null-string
 	int cmode = mode & 0xFF;
 	if (logLevel >= 2)
-		wxLogMessage(wxT("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX"), cmode, id, *(char **)msg, to);
+		logger->Info("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX", cmode, id, *(char **)msg, to);
 	//Log("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX\n", cmode, id, (char *)msg, to);
 	sprintf(lastMsg, "%02d%10d", cmode, to);
 	strncat(lastMsg, (char*)*msg, maxMsgLen);
 	if (logLevel >= 3)
-		wxLogMessage(wxT("lastMsg: %s"), lastMsg);
+		logger->Info("lastMsg: %s", lastMsg);
 	supressMsg = 0;
 	if(ignore_silent && (cmode==0xD || cmode==0xE)) return 0;
 	if ( (processNPC && id != 0x7F000000) || (!processNPC && (unsigned long)id >> 16 == 0x7FFF) )

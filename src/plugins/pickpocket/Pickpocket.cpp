@@ -187,7 +187,7 @@ bool CPickpocket::Init(char* nwnxhome)
 	inifile.append("\\");
 	inifile.append(GetPluginFileName());
 	inifile.append(".ini");
-	logger->Trace("* reading inifile %s", inifile);
+	logger->Trace("* reading inifile %s", inifile.c_str());
 
 	config = new SimpleIniConfig(inifile);
 

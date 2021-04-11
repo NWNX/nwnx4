@@ -14,15 +14,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWNX4_Hook", "hook\NWNX4 Ho
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_time", "plugins\time\time.vcxproj", "{C31F5D33-4229-44F9-B6AD-F3A70E67AC4A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP SQLite", "plugins\sqlite\sqlite.vcxproj", "{05827073-4340-40AD-892A-227C761F5622}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_sqlite", "plugins\sqlite\sqlite.vcxproj", "{05827073-4340-40AD-892A-227C761F5622}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP MySQL", "plugins\mysql\mysql.vcxproj", "{7468B0D2-5865-4416-8AFB-E688008DE091}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_mysql", "plugins\mysql\mysql.vcxproj", "{7468B0D2-5865-4416-8AFB-E688008DE091}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "..\lib\detours\src\Detours.vcxproj", "{D3A8C510-DFB8-4534-AC84-B1EB4BC2C452}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Profiler", "plugins\profiler\profiler.vcxproj", "{7CA75742-EBBE-46FB-AE83-4EA5C280458B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_profiler", "plugins\profiler\profiler.vcxproj", "{7CA75742-EBBE-46FB-AE83-4EA5C280458B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Pickpocket", "plugins\pickpocket\XP Pickpocket.vcxproj", "{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_pickpocket", "plugins\pickpocket\XP Pickpocket.vcxproj", "{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_chat", "plugins\chat\chat.vcxproj", "{76973E1B-FCFE-48E9-9893-4D41326167D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +68,10 @@ Global
 		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Debug|Win32.Build.0 = Debug|Win32
 		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Release|Win32.ActiveCfg = Release|Win32
 		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Release|Win32.Build.0 = Release|Win32
+		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Debug|Win32.Build.0 = Debug|Win32
+		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Release|Win32.ActiveCfg = Release|Win32
+		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

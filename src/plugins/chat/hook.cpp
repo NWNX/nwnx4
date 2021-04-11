@@ -152,7 +152,7 @@ DWORD FindGetPCobjByOID()
 void ChatHookProc(const int mode, const int id, const char **msg, const int to)
 {
 	_asm { pushad }
-	wxLogDebug(wxT("Wow, cool. The Chat function has been called."));
+	// wxLogDebug("Wow, cool. The Chat function has been called.");
 	if(!pChatThis) 
 		_asm { mov pChatThis, ecx }
 	if (!scriptRun)
@@ -252,20 +252,20 @@ int HookFunctions()
 	
 	//HookCode((PVOID) hookAt, SetLocalStringHookProc, (PVOID*) &SetLocalStringNextHook);
 
-	if (org_Chat)
-		wxLogMessage(wxT("ChatFunc found at 0x%x"), org_Chat);
-	else
-		wxLogMessage(wxT("ChatFunc NOT FOUND!"));
+	// if (org_Chat)
+	// 	wxLogMessage("ChatFunc found at 0x%x", org_Chat);
+	// else
+	// 	wxLogMessage("ChatFunc NOT FOUND!");
 
-	if (org_Run)
-		wxLogMessage(wxT("RunScript found at 0x%x"), org_Run);
-	else
-		wxLogMessage(wxT("RunScript NOT FOUND!"));
+	// if (org_Run)
+	// 	wxLogMessage("RunScript found at 0x%x", org_Run);
+	// else
+	// 	wxLogMessage("RunScript NOT FOUND!");
 
-	if (org_Get)
-		wxLogMessage(wxT("GetPCobjByOID found at 0x%x"), org_Get);
-	else
-		wxLogMessage(wxT("GetPCobjByOID NOT FOUND!"));
+	// if (org_Get)
+	// 	wxLogMessage("GetPCobjByOID found at 0x%x", org_Get);
+	// else
+	// 	wxLogMessage("GetPCobjByOID NOT FOUND!");
 
 	if(!(org_Chat&&org_Run&&org_Get))
 		return NULL;
@@ -280,15 +280,16 @@ int HookFunctions()
 
 	if (!(pServThis&&pScriptThis))
 	{
-		wxLogMessage(wxT("Error initializing variables"));
+		// wxLogMessage("Error initializing variables");
 		return NULL;
 	}
 
-	if (success)
-		wxLogMessage(wxT("Chat function is hooked."));
-	else
+	// if (success)
+	// 	wxLogMessage("Chat function is hooked.");
+	// else
+	if(!success)
 	{
-		wxLogMessage(wxT("Failed to hook Chat function."));
+		// wxLogMessage("Failed to hook Chat function.");
 		return NULL;
 	}
 

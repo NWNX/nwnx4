@@ -27,8 +27,7 @@
 #include "windows.h"
 #include "../plugin.h"
 #include "../../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/fileconf.h"
+#include "../../misc/ini.h"
 
 class Chat : public Plugin
 {
@@ -36,8 +35,8 @@ public:
 	Chat();
 	~Chat();
 
-	bool Init(TCHAR* nwnxhome);  
-	void GetFunctionClass(TCHAR* fClass);
+	bool Init(char* nwnxhome);
+	void GetFunctionClass(char* fClass);
 	int ChatProc(const int mode, const int id, const char **msg, const int to);
 
 	virtual int GetInt(char* sFunction, char* sParam1, int nParam2);
@@ -49,8 +48,8 @@ public:
 
 
 private:
-	wxLogNWNX* logger;
-	wxFileConfig *config;
+	LogNWNX* logger;
+	SimpleIniConfig *config;
 	int logLevel;
 	int supressMsg;
 	int maxMsgLen;
@@ -58,8 +57,8 @@ private:
 	int ignore_silent;
 	//char chatScript[17];
 	//char servScript[17];
-	wxString chatScript;
-	wxString servScript;
+	std::string chatScript;
+	std::string servScript;
 
 };
 
