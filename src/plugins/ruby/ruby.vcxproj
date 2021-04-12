@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>xp_chat</ProjectName>
-    <ProjectGuid>{76973E1B-FCFE-48E9-9893-4D41326167D8}</ProjectGuid>
+    <ProjectName>xp_ruby</ProjectName>
+    <ProjectGuid>{523BD8AF-9F88-4996-8E56-4782C37FC024}</ProjectGuid>
     <RootNamespace>time</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
+    <CLRSupport>false</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -56,8 +57,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\detours\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\ruby\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TIME_EXPORTS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -66,20 +67,23 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(OutDir)xp_chat.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\detours\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)xp_rubyd.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\wxwidgets\lib\vc_lib;$(SolutionDir)..\lib\madcodehook;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalDependencies>msvcr80-ruby18-static.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent />
+    <PostBuildEvent>
+      <Command>copy "$(TargetPath)" "$(SolutionDir)..\bin\dist"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\detours\include</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\ruby\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader />
@@ -87,10 +91,9 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(OutDir)xp_chat.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\detours\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>msvcr80-ruby18-static.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)xp_ruby.dll</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\wxwidgets\lib\vc_lib;$(SolutionDir)..\lib\ruby\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -104,20 +107,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\misc\log.cpp" />
-    <ClCompile Include="..\plugin.cpp" />
-    <ClCompile Include="chat.cpp" />
+    <ClCompile Include="..\legacy_plugin.cpp" />
     <ClCompile Include="hook.cpp" />
+    <ClCompile Include="nwnxruby.cpp" />
+    <ClCompile Include="ruby_int.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\misc\log.h" />
-    <ClInclude Include="..\plugin.h" />
-    <ClInclude Include="..\..\misc\afxres.h" />
-    <ClInclude Include="chat.h" />
+    <ClInclude Include="..\legacy_plugin.h" />
+    <ClInclude Include="CVirtualMachine.h" />
     <ClInclude Include="hook.h" />
+    <ClInclude Include="NWNStructures.h" />
+    <ClInclude Include="nwnxruby.h" />
+    <ClInclude Include="nwscript.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ruby_int.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="NWNXChat.rc" />
+    <ResourceCompile Include="NWNXRuby.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

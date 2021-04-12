@@ -26,8 +26,7 @@
 #include "windows.h"
 #include "../legacy_plugin.h"
 #include "../../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/fileconf.h"
+#include "../../misc/ini.h"
 #include "NWNStructures.h"
 #include "ruby.h"
 
@@ -37,8 +36,8 @@ public:
 	Ruby();
 	~Ruby();
 
-	bool Init(TCHAR* nwnxhome);  
-	void GetFunctionClass(TCHAR* fClass);
+	bool Init(char* nwnxhome);
+	void GetFunctionClass(char* fClass);
 	void Log(int priority, const char *pcMsg, ...);
 	const char* DoRequest(char *gameObject, char* request, char* parameters);
 	char *Eval(char *value);
@@ -50,8 +49,8 @@ public:
 	int nError;
 
 private:
-	wxLogNWNX* logger;
-	wxFileConfig *config;
+	LogNWNX* logger;
+	SimpleIniConfig *config;
 
 };
 

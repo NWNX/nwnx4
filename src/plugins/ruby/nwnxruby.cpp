@@ -20,6 +20,7 @@
 #include "nwnxruby.h"
 #include "hook.h"
 #include "ruby_int.h"
+#include <cassert>
 
 /***************************************************************************
     NWNX and DLL specific functions
@@ -38,7 +39,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 		plugin = new Ruby();
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -56,34 +57,33 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 Ruby::Ruby()
 {
-	header = _T(
-		"NWNX4 Ruby Plugin V.0.1.0\n" \
-		"(c) 2010 by virusman (virusman@virusman.ru)\n" \
-		"visit us at http://www.nwnx.org\n");
+	header =
+		"NWNX4 Ruby Plugin V.0.1.0\n"
+		"(c) 2010 by virusman (virusman@virusman.ru)\n"
+		"visit us at http://www.nwnx.org\n";
 
-	description = _T(
-		"This plugin provides some testing.");
+	description = "This plugin provides some testing.";
 
-	subClass = _T("RUBY");
-	version = _T("0.1.0");
+	subClass = "RUBY";
+	version = "0.1.0";
 }
 
 Ruby::~Ruby()
 {
-
-	wxLogMessage(wxT("* Plugin unloaded."));
+	logger->Info("* Plugin unloaded.");
 }
 
-bool Ruby::Init(TCHAR* nwnxhome)
+bool Ruby::Init(char* nwnxhome)
 {
 	assert(GetPluginFileName());
 
 	/* Log file */
-	wxString logfile(nwnxhome); 
-	logfile.append(wxT("\\"));
+	std::string logfile(nwnxhome);
+	logfile.append("\\");
 	logfile.append(GetPluginFileName());
-	logfile.append(wxT(".txt"));
-	logger = new wxLogNWNX(logfile, wxString(header.c_str()));
+	logfile.append(".txt");
+	logger = new LogNWNX(logfile);
+	logger->Info(header.c_str());
 
 	ruby_init();
 	ruby_script("embedded");
@@ -108,7 +108,7 @@ bool Ruby::Init(TCHAR* nwnxhome)
 		Log(0,"* Module loaded successfully.\n");
 	}
 
-	//wxLogMessage(wxT("* Plugin initialized."));
+	//logger->Info(wxT("* Plugin initialized."));
 	return true;
 }
 
@@ -161,9 +161,9 @@ const char* Ruby::DoRequest(char *gameObject, char* request, char* parameters)
 	return NULL;
 }
 
-void Ruby::GetFunctionClass(TCHAR* fClass)
+void Ruby::GetFunctionClass(char* fClass)
 {
-	_tcsncpy_s(fClass, 128, wxT("RUBY"), 5); 
+	strncpy_s(fClass, 128, "RUBY", 5);
 }
 
 void Ruby::Log(int priority, const char *pcMsg, ...)
@@ -179,6 +179,6 @@ void Ruby::Log(int priority, const char *pcMsg, ...)
 		acBuffer[2047] = 0;
 		va_end(argList);
 
-		wxLogMessage(wxT(acBuffer));
+		logger->Info(acBuffer);
 	}
 }
