@@ -1,3 +1,0 @@
-*.pdb filter=lfs -text
-*.lib filter=lfs -text
-

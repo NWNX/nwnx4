@@ -26,9 +26,7 @@
 #include "windows.h"
 #include "../plugin.h"
 #include "../../misc/log.h"
-#include "wx/tokenzr.h"
-#include "wx/hashset.h"
-#include "wx/fileconf.h"
+#include "../../misc/ini.h"
 
 #include "Client.h"
 #include "Server.h"
@@ -39,9 +37,9 @@ public:
 	NWNX4Vaultster();
 	~NWNX4Vaultster();
 
-	bool Init(TCHAR* nwnxhome);
+	bool Init(char* nwnxhome);
 	
-	bool SetupLogAndIniFile(TCHAR* nwnxhome);
+	bool SetupLogAndIniFile(char* nwnxhome);
 
 	int GetInt(char* sFunction, char* sParam1, int nParam2);
 	void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue) {};
@@ -49,16 +47,16 @@ public:
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue) {};
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue) {};
 	char* GetString(char* sFunction, char* sParam1, int nParam2) { return NULL; }
-	void GetFunctionClass(TCHAR* fClass);
+	void GetFunctionClass(char* fClass);
 
-	void Log (const char* Msg, ...);
+	void Log(const char* Msg, ...);
 
 private:
-	wxLogNWNX *logger;
-	wxFileConfig *config;
+	LogNWNX* logger;
+	SimpleIniConfig* config;
 	int logLevel;
 	int maxClients;
-	CClient *clients;
+	CClient* clients;
 	CServer server;
 	HANDLE hServer;
 };

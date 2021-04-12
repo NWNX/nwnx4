@@ -13,6 +13,7 @@
 *.suo
 *.ncb
 
+/src/packages/
 /src/*/Debug/
 /src/*/Release/
 /lib/detours/*/Debug/

@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "NWNX4vaultster.h"
+#include <cassert>
 
 /***************************************************************************
     NWNX and DLL specific functions
@@ -37,7 +38,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 		plugin = new NWNX4Vaultster();
 
-		TCHAR szPath[MAX_PATH];
+		char szPath[MAX_PATH];
 		GetModuleFileName(hModule, szPath, MAX_PATH);
 		plugin->SetPluginFullPath(szPath);
 	}
@@ -55,61 +56,60 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 NWNX4Vaultster::NWNX4Vaultster()
 {
-	header = _T(
+	header =
 		"NWNX4 Vaultster - Vaultster functions plugin V 0.0.1\n" \
 		"(c) 2004 Jeroen Broekhuizen (nwnx@jengine.nl)\n" \
 		"2008 Modified by Patrice Torguet (torguet@gmail.com) for NWNX4\n" \
-		"visit us at http://www.nwnx.org\n");
+		"visit us at http://www.nwnx.org\n";
 
-	description = _T(
-		"This plugin provides portalling functionnalities.");
+	description = "This plugin provides portalling functionnalities.";
 
-	subClass = _T("VAULTSTER");
-	version = _T("0.0.1");
+	subClass = "VAULTSTER";
+	version = "0.0.1";
 
 	//QueryPerformanceFrequency(&liFrequency);
 }
 
 NWNX4Vaultster::~NWNX4Vaultster()
 {
-	wxLogMessage(wxT("* Plugin unloaded."));
+	logger->Info("* Plugin unloaded.");
 }
 
-bool NWNX4Vaultster::SetupLogAndIniFile(TCHAR* nwnxhome)
+bool NWNX4Vaultster::SetupLogAndIniFile(char* nwnxhome)
 {
 	assert(GetPluginFileName());
 
 	// Log file
-	wxString logfile(nwnxhome); 
-	logfile.append(wxT("\\"));
+	std::string logfile(nwnxhome);
+	logfile.append("\\");
 	logfile.append(GetPluginFileName());
-	logfile.append(wxT(".txt"));
-	logger = new wxLogNWNX(logfile, wxString(header.c_str()));
+	logfile.append(".txt");
+	logger = new LogNWNX(logfile);
+	logger->Info(header.c_str());
 
 	// Ini file
-	wxString inifile(nwnxhome); 
-	inifile.append(wxT("\\"));
+	std::string inifile(nwnxhome);
+	inifile.append("\\");
 	inifile.append(GetPluginFileName());
-	inifile.append(wxT(".ini"));
-	wxLogTrace(TRACE_VERBOSE, wxT("* reading inifile %s"), inifile);
+	inifile.append(".ini");
+	logger->Trace("* reading inifile %s", inifile.c_str());
 
-	config = new wxFileConfig(wxEmptyString, wxEmptyString, 
-		inifile, wxEmptyString, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_NO_ESCAPE_CHARACTERS);
+	config = new SimpleIniConfig(inifile);
 	
-	config->Read(wxT("loglevel"), &logLevel);
+	config->get("loglevel", &logLevel);
 	switch(logLevel)
 	{
-		case 0: wxLogMessage(wxT("* Log level set to 0 (nothing)")); break;
-		case 1: wxLogMessage(wxT("* Log level set to 1 (only errors)")); break;
-		case 2: wxLogMessage(wxT("* Log level set to 2 (everything)")); break;
+		case 0: logger->Info("* Log level set to 0 (nothing)"); break;
+		case 1: logger->Info("* Log level set to 1 (only errors)"); break;
+		case 2: logger->Info("* Log level set to 2 (everything)"); break;
 	}
 	return true;
 }
 
-bool NWNX4Vaultster::Init(TCHAR* nwnxhome)
+bool NWNX4Vaultster::Init(char* nwnxhome)
 {
-	wxString buf;
-	wxString key;
+	std::string buf;
+	std::string key;
 	bool startServer;
 	bool validateclient;
 	int port;
@@ -125,119 +125,119 @@ bool NWNX4Vaultster::Init(TCHAR* nwnxhome)
 	}
 
 	// load in the settings
-	if (config->Read(wxT("startserver"), &startServer) )
+	if (config->get("startserver", &startServer) )
 	{
-		wxLogMessage(wxT("* read startserver: %d"), startServer);
+		logger->Info("* read startserver: %d", startServer);
 	}
 	else
 	{
-		wxLogMessage(wxT("* startserver not found in ini file"));
+		logger->Info("* startserver not found in ini file");
 		startServer = 1;
-		wxLogMessage(wxT("* Defaulting to 1"));
+		logger->Info("* Defaulting to 1");
 	}
-	if (config->Read(wxT("validateclient"), &validateclient) )
+	if (config->get("validateclient", &validateclient) )
 	{
-		wxLogMessage(wxT("* read validateclient: %d"), validateclient);
+		logger->Info("* read validateclient: %d", validateclient);
 	}
 	else
 	{
-		wxLogMessage(wxT("* validateclient not found in ini file"));
+		logger->Info("* validateclient not found in ini file");
 		validateclient = 1;
-		wxLogMessage(wxT("* Defaulting to 1"));
+		logger->Info("* Defaulting to 1");
 	}
 	server.setValidate (validateclient);
-	if (config->Read(wxT("MaxClients"), &maxClients) )
+	if (config->get("MaxClients", &maxClients) )
 	{
-		wxLogMessage(wxT("* read MaxClients: %d"), maxClients);
+		logger->Info("* read MaxClients: %d", maxClients);
 	}
 	else
 	{
-		wxLogMessage(wxT("* MaxClients not found in ini file"));
+		logger->Info("* MaxClients not found in ini file");
 		maxClients = 10;
-		wxLogMessage(wxT("* Defaulting to 10"));
+		logger->Info("* Defaulting to 10");
 	}
 	server.setMaxClients (maxClients);
-	if (config->Read(wxT("Path"), &buf) )
+	if (config->get("Path", &buf) )
 	{
-		wxLogMessage(wxT("* read Path: %s"), buf);
+		logger->Info("* read Path: %s", buf.c_str());
 	}
 	else
 	{
-		wxLogMessage(wxT("* Path not found in ini file"));
-		buf = wxT(".");
-		wxLogMessage(wxT("* Defaulting to ."));
+		logger->Info("* Path not found in ini file");
+		buf = ".";
+		logger->Info("* Defaulting to .");
 	}
 	// remove trailing backspace
-	if (buf.EndsWith(wxT("\\")))
-		buf = buf.RemoveLast(1);
-	wxLogMessage(wxT("* Path is now: %s"), buf);
+	if (buf.size() > 0 && buf[buf.size() - 1] == '\\')
+		buf.resize(buf.size() - 1);
+	logger->Info("* Path is now: %s", buf.c_str());
 
 	CClient::setServervault((char*)buf.c_str());
 	server.setServervault((char*)buf.c_str());
 
-	if (config->Read(wxT("Key"), &key) )
+	if (config->get("Key", &key) )
 	{
-		wxLogMessage(wxT("* read Key: %s"), key);
+		logger->Info("* read Key: %s", key.c_str());
 	}
 	else
 	{
-		wxLogMessage(wxT("* Key not found in ini file"));
-		key = wxT("*invalid");
-		wxLogMessage(wxT("* Defaulting to *invalid"));
+		logger->Info("* Key not found in ini file");
+		key = "*invalid";
+		logger->Info("* Defaulting to *invalid");
 	}
 	CClient::setCryptoKey ((char*)key.c_str());
 	server.setCryptoKey ((char*)key.c_str());
 
-	if (config->Read(wxT("Password"), &buf) )
+	if (config->get("Password", &buf) )
 	{
-		wxLogMessage(wxT("* read Password"));
+		logger->Info("* read Password");
 	}
 	else
 	{
-		wxLogMessage(wxT("* Password not found in ini file"));
-		buf = wxT("PWD!@");
-		wxLogMessage(wxT("* Defaulting to PWD!@"));
+		logger->Info("* Password not found in ini file");
+		buf = "PWD!@";
+		logger->Info("* Defaulting to PWD!@");
 	}
 	CClient::setPassword ((char*)buf.c_str());
 	server.setPassword ((char*)buf.c_str());
 
-	if (config->Read(wxT("Port"), &port) )
+	if (config->get("Port", &port) )
 	{
-		wxLogMessage(wxT("* read Port %d"), port);
+		logger->Info("* read Port %d", port);
 	}
 	else
 	{
-		wxLogMessage(wxT("* Port not found in ini file"));
+		logger->Info("* Port not found in ini file");
 		port = 5100;
-		wxLogMessage(wxT("* Defaulting to 5100"));
+		logger->Info("* Defaulting to 5100");
 	}
 	CClient::setPort (port);
 	server.setPort (port);
 
-	if (config->Read(wxT("Low prior"), &lowprior) )
+	if (config->get("Low prior", &lowprior) )
 	{
-		wxLogMessage(wxT("* read Low prior %d"), lowprior);
+		logger->Info("* read Low prior %d", lowprior);
 	}
 	else
 	{
-		wxLogMessage(wxT("* Low prior not found in ini file"));
+		logger->Info("* Low prior not found in ini file");
 		lowprior = 0;
-		wxLogMessage(wxT("* Defaulting to 0"));
+		logger->Info("* Defaulting to 0");
 	}
 
 	// load in the known servers
 	if (validateclient) {
-		if (!config->Read(wxT("Count"), &serverCount) )
+		if (!config->get("Count", &serverCount) )
 		{
 			serverCount = 0;
 		}
-		wxLogMessage(wxT("o Loading in %d known servers.\n"), serverCount);
+		logger->Info("o Loading in %d known servers.\n", serverCount);
 		for (int i = 0; i < serverCount; i++) {
-			key.Format("Server%d", i+1);
-			if (config->Read(key, &buf) )
+			key = "Server" + std::to_string(i + 1);
+			if (config->get(key, &buf) )
 			{
 				if (!buf.empty()) server.addKnownServer((char*)buf.c_str());
-				wxLogMessage(wxT("o Loaded: %s\n"), buf);
+				logger->Info("o Loaded: %s\n", buf.c_str());
 			}
 		}
 	}
@@ -251,11 +251,11 @@ bool NWNX4Vaultster::Init(TCHAR* nwnxhome)
 		if (hServer == NULL) {
 			// Failing starting up the server should not end
 			// VaultSTER, the client part can still run.
-			wxLogMessage(wxT("o Failed to start up the server.\n"));
+			logger->Info("o Failed to start up the server.\n");
 			return TRUE;
 		}
 		else {
-			wxLogMessage(wxT("o Server started on port %d.\n"), port);
+			logger->Info("o Server started on port %d.\n", port);
 			// set the server thread priority
 			if (lowprior == 1)
 				SetThreadPriority (hServer, THREAD_PRIORITY_BELOW_NORMAL);
@@ -263,38 +263,32 @@ bool NWNX4Vaultster::Init(TCHAR* nwnxhome)
 				SetThreadPriority (hServer, THREAD_PRIORITY_LOWEST);
 		}
 	}
-	wxLogMessage(wxT("* Plugin initialized."));
+	logger->Info("* Plugin initialized.");
 
 	return true;
 }
 
-void NWNX4Vaultster::GetFunctionClass(TCHAR* fClass)
+void NWNX4Vaultster::GetFunctionClass(char* fClass)
 {
-	_tcsncpy_s(fClass, 128, wxT("VAULTSTER"), 9); 
+	strncpy_s(fClass, 128, "VAULTSTER", 9);
 }
 
 
 int NWNX4Vaultster::GetInt(char* sFunction, char* sParam1, int nParam2)
 {
-	wxLogTrace(TRACE_VERBOSE, wxT("* Plugin GetInt(0x%x, %s, %d)"), 0x0, sParam1, nParam2);
+	logger->Trace("* Plugin GetInt(0x%x, %s, %d)", 0x0, sParam1, nParam2);
 	int returnInt = 0;
 
-#ifdef UNICODE
-	wxString wxRequest(sFunction, wxConvUTF8);
-	wxString function(sFunction, wxConvUTF8);
-	wxString parameters(sParam1, wxConvUTF8);
-#else
-	wxString wxRequest(sFunction);
-	wxString function(sFunction);
-	wxString parameters(sParam1);
-#endif
+	// std::string wxRequest(sFunction);
+	std::string function(sFunction);
+	std::string parameters(sParam1);
 
-	if (function == wxT(""))
+	if (function == "")
 	{
-		wxLogMessage(wxT("* Function not specified."));
+		logger->Info("* Function not specified.");
 		return NULL;
 	}
-	else if ((function == wxT("GET")) || (function == wxT("SEND")))
+	else if ((function == "GET") || (function == "SEND"))
 	{
 		char* pos[2];
 		DWORD id;
@@ -307,7 +301,7 @@ int NWNX4Vaultster::GetInt(char* sFunction, char* sParam1, int nParam2)
 		}
 
 		if (i == maxClients) {
-			wxLogMessage(wxT("o Too many clients already.\n"));
+			logger->Info("o Too many clients already.\n");
 			// can not help this client yet
 			return -2;
 		}
@@ -317,7 +311,7 @@ int NWNX4Vaultster::GetInt(char* sFunction, char* sParam1, int nParam2)
 		pos[0] = (char*)strchr (parameters.c_str(), '|');
 		pos[1] = strchr (&pos[0][1], '|');
 		if (!pos[0] || !pos[1]) {
-			wxLogMessage(wxT("o Invalid parameter (%s)!\n"), parameters);
+			logger->Info("o Invalid parameter (%s)!\n", parameters.c_str());
 			return -4;
 		}
 
@@ -325,7 +319,7 @@ int NWNX4Vaultster::GetInt(char* sFunction, char* sParam1, int nParam2)
 		memset (clients[i].server, 0, 128);
 		memset (clients[i].gamespy, 0, 128);
 		memset (clients[i].character, 0, 32);
-		strncpy_s (clients[i].server, 128, parameters, pos[0] - parameters);
+		strncpy_s (clients[i].server, 128, parameters.c_str(), pos[0] - &parameters[0]);
 		strncpy_s (clients[i].gamespy, 128, &pos[0][1], pos[1] - pos[0] - 1);
 		strcpy_s  (clients[i].character, 32, &pos[1][1]);
 
@@ -335,7 +329,7 @@ int NWNX4Vaultster::GetInt(char* sFunction, char* sParam1, int nParam2)
 		// start up the client thread
 		clients[i].hThread = CreateThread (NULL, 0, CClient::thread, &clients[i], 0, &id);
 		if (clients[i].hThread == NULL) {
-			wxLogMessage(wxT("o Failed to start client thread!\n"));
+			logger->Info("o Failed to start client thread!\n");
 			returnInt = -1;
 		}
 		else {
@@ -346,7 +340,7 @@ int NWNX4Vaultster::GetInt(char* sFunction, char* sParam1, int nParam2)
 		// return status about given player
 		int job = nParam2;
 		int status = clients[job].getStatus ();
-		wxLogMessage(wxT("o Retreived status for %s\\%s = %d\n"), clients[job].gamespy, clients[job].character, status);
+		logger->Info("o Retreived status for %s\\%s = %d\n", clients[job].gamespy, clients[job].character, status);
 		if (status == STATUS_ERROR)
 			clients[job].setStatus (STATUS_OK);
 		return status;
@@ -365,5 +359,5 @@ void NWNX4Vaultster::Log(const char *pcMsg, ...)
 	va_end(argList);
 
 	// log string in file
-	wxLogMessage(wxT(acBuffer));
+	logger->Info(acBuffer);
 }

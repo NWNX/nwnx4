@@ -30,6 +30,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_funcs", "plugins\funcs\f
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_leto", "plugins\leto\leto.vcxproj", "{1320C3FE-ACF3-4F58-9C65-C96DFF99A2DB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_ruby", "plugins\ruby\ruby.vcxproj", "{523BD8AF-9F88-4996-8E56-4782C37FC024}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XP Vaulster", "plugins\vaultster\vaultster.vcxproj", "{C537EB77-E2E2-425E-8B3B-2BFAA8634239}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -84,6 +88,14 @@ Global
 		{1320C3FE-ACF3-4F58-9C65-C96DFF99A2DB}.Debug|Win32.Build.0 = Debug|Win32
 		{1320C3FE-ACF3-4F58-9C65-C96DFF99A2DB}.Release|Win32.ActiveCfg = Release|Win32
 		{1320C3FE-ACF3-4F58-9C65-C96DFF99A2DB}.Release|Win32.Build.0 = Release|Win32
+		{523BD8AF-9F88-4996-8E56-4782C37FC024}.Debug|Win32.ActiveCfg = Debug|Win32
+		{523BD8AF-9F88-4996-8E56-4782C37FC024}.Debug|Win32.Build.0 = Debug|Win32
+		{523BD8AF-9F88-4996-8E56-4782C37FC024}.Release|Win32.ActiveCfg = Release|Win32
+		{523BD8AF-9F88-4996-8E56-4782C37FC024}.Release|Win32.Build.0 = Release|Win32
+		{C537EB77-E2E2-425E-8B3B-2BFAA8634239}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C537EB77-E2E2-425E-8B3B-2BFAA8634239}.Debug|Win32.Build.0 = Debug|Win32
+		{C537EB77-E2E2-425E-8B3B-2BFAA8634239}.Release|Win32.ActiveCfg = Release|Win32
+		{C537EB77-E2E2-425E-8B3B-2BFAA8634239}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
