@@ -2,9 +2,8 @@
 
 # Build
 
-## Using a Visual Studio 2005
+## Using a Visual Studio 2019
 
-- Setup yourself a virtual machine with Windows XP (it may work with more recent OSes though)
-- Install Visual Studio 2005 (I couldn't find legit versions on Microsoft websites, I downloaded a torrent)
-- Open src/nwnx4.sln with Visual Studio 2005
-- Press F7 or go to _Build -> Build solution_
+- Install [Microsoft Visual Studio 2019 Community](https://visualstudio.microsoft.com/downloads/#visual-studio-community-2019)
+- Open `src/NWNX4.sln` with Visual Studio
+- Press F6 or go to _Build -> Build solution_
