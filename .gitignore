@@ -12,6 +12,7 @@
 *.user
 *.suo
 *.ncb
+*.filters
 
 /src/packages/
 /src/*/Debug/
