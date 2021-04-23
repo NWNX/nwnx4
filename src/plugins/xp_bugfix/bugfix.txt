@@ -1,0 +1,504 @@
+/* Header except for offsets */
+
+#if NWN2SERVER_VERSION == 0x00121295
+
+/*
+ * 1.0.12.1295
+ */
+
+#define OFFS_ProcessServerMessage      0x004FC320
+#define OFFS_ProcessServerMessageHook  0x0045295F
+#define OFFS_CalcPositionLoop0         0x006FB23D
+#define OFFS_CalcPositionLoop0Ret      0x006FB24E
+#define OFFS_CalcPositionLoop1         0x006FB5EF
+#define OFFS_CalcPositionLoop1Ret      0x006FB600
+#define OFFS_NullDerefCrash0           0x005D1F9A
+#define OFFS_NullDerefCrash0RetNormal  0x005D1FA3
+#define OFFS_NullDerefCrash0RetSkip    0x005D20FB
+#define OFFS_NullDerefCrash1           0x0042EF85
+#define OFFS_NullDerefCrash1RetNormal  0x0042EF8B
+#define OFFS_NullDerefCrash1RetSkip    0x0042EFB1
+#define OFFS_NullDerefCrash2           0x0072331F
+#define OFFS_NullDerefCrash2RetNormal  0x00723325
+#define OFFS_NullDerefCrash2RetSkip    0x00723366
+#define OFFS_NullDerefCrash3           0x004F1127
+#define OFFS_NullDerefCrash3RetNormal  0x004F112D
+#define OFFS_NullDerefCrash3RetSkip    0x004F114B
+#define OFFS_NullDerefCrash4           0x0045A81F
+#define OFFS_NullDerefCrash4RetNormal  0x0045A826
+#define OFFS_NullDerefCrash4RetSkip    0x0045AA72
+//
+// Actual crash occurs at 0x005CD7CC but that is not the right place to hook in
+// to fix it.
+//
+#define OFFS_Crash5                    0x005CD760
+#define OFFS_Crash5RetNormal           0x005CD766
+#define OFFS_Crash5RetSkip             0x005CD766
+
+#define CHECK_ProcessServerMessageHook 0x000A99BD
+
+
+/* Code */
+
+void __stdcall BugFix::SafeInitPositionList(NWN2::somestruc *struc)
+{
+	NWN2::position_list  *prev = struc->tail;
+	NWN2::position_list  *cur  = prev->next;
+	std::set< ULONG_PTR > visited;
+	ULONG_PTR             key;
+//	bool                  first = true;
+//	float                 posY = 0.0f;
+	bool                  loop = false;
+	bool                  in_free_pool = false;
+
+	try
+	{
+		for (;;)
+		{
+			key = reinterpret_cast< ULONG_PTR >( cur );
+
+			//
+			// If we see ``deadbeef'', then we're actually working on free list
+			// nodes (bad).  The deadbeef marker signifies the end of the free
+			// list for the NWN2_MemPool< NWN2_JStar::Node > slab allocator.
+			//
+			// Because the free list looks sufficiently like the
+			// NWN2_JStar::Node::m_pParent linked list, we may traverse into it
+			// if we get a node in the free list handed to us.  In this case we
+			// should break out.  Note that scribbling over [+04h] in the free
+			// list is not typically fatal, as it's 0x24 in size and only the
+			// value at [+00h], which we only read and don't write, matters.
+			//
+			// However, this may interfere with other JStar nodes that have a
+			// pointer to a freed node checked out, so it's not ideal.  We'll
+			// try this though as it's better than crashing entirely.
+			//
+			// Eventually, after I have identified all the inlined calls to
+			// NWN2_MemPool< NWN2_JStar::Node >::Free, I'll scrap this and just
+			// instance the slab allocator per-NWN2_JStar object.
+			//
+
+			if (key == 0xDEADBEEF)
+			{
+				in_free_pool = true;
+				loop         = true;
+				break;
+			}
+
+//			wxLogMessage(wxT("%g %g\n"), cur->pos.y, posY);
+
+			if (!key                                   ||
+			    (visited.find( key ) != visited.end()))
+			{
+//				wxLogMessage( wxT( "* %g < %g, or loop at %p" ), cur->pos.y, posY, cur );
+//				wxLogMessage("%d %d\n", cur->pos.y < posY, cur->pos.y > posY);
+//				prev->next        = struc->head;
+//				struc->head->prev = prev;
+				loop              = true;
+				break;
+			}
+			else
+			{
+				visited.insert( key );
+			}
+
+			cur->prev = prev;
+			prev      = cur;
+//			posY      = cur->pos.y;
+//			first     = false;
+
+			if (prev == struc->head)
+				break;
+
+			cur       = cur->next;
+		}
+	}
+	catch (std::bad_alloc)
+	{
+//		prev->next        = struc->head;
+//		struc->head->prev = prev;
+		loop              = true;
+	}
+
+	if (loop)
+	{
+		ULONG now = GetTickCount();
+
+		if (now - plugin->lastlog > 1000)
+		{
+			plugin->lastlog = now;
+
+			wxLogMessage( wxT(
+				"* SafeInitPositionList: Fixed broken list links (%p, loop detected at @ %p).%s" ),
+				struc,
+				prev,
+				in_free_pool ? " (WARNING: Node list extended into JStar slab allocator free pool!)" : ""
+				);
+		}
+	}
+}
+
+
+
+unsigned long CalcPositionLoop0Ret     = OFFS_CalcPositionLoop0Ret;
+unsigned long CalcPositionLoop1Ret     = OFFS_CalcPositionLoop1Ret;
+unsigned long NullDerefCrash0NormalRet = OFFS_NullDerefCrash0RetNormal;
+unsigned long NullDerefCrash0SkipRet   = OFFS_NullDerefCrash0RetSkip;
+unsigned long NullDerefCrash1NormalRet = OFFS_NullDerefCrash1RetNormal;
+unsigned long NullDerefCrash1SkipRet   = OFFS_NullDerefCrash1RetSkip;
+unsigned long NullDerefCrash2NormalRet = OFFS_NullDerefCrash2RetNormal;
+unsigned long NullDerefCrash2SkipRet   = OFFS_NullDerefCrash2RetSkip;
+unsigned long NullDerefCrash3NormalRet = OFFS_NullDerefCrash3RetNormal;
+unsigned long NullDerefCrash3SkipRet   = OFFS_NullDerefCrash3RetSkip;
+unsigned long NullDerefCrash4NormalRet = OFFS_NullDerefCrash4RetNormal;
+unsigned long NullDerefCrash4SkipRet   = OFFS_NullDerefCrash4RetSkip;
+unsigned long Crash5NormalRet          = OFFS_Crash5RetNormal;
+unsigned long Crash5SkipRet            = OFFS_Crash5RetSkip;
+
+/*
+ * NWN2_JStar::SearchStep
+ *
+ * - There is a bug here somewhere where we return a NWN2_JStar::Node to the
+ *   node allocator pool while it is still in use.  The way this typically
+ *   fails is that we get a loop in the list because a node is inserted into
+ *   the list twice after being freed and then checked out again for the same
+ *   NWN2_JStar instance (failure mode I).  Other failure modes are possible
+ *   (bizzare pathing behavior due to alias a "hot" NWN2_JStar::Node from
+ *   another active NWN2_JStar instance (failure mode II), or taking a node in
+ *   the free list and walking the free list ``Next'' pointers as
+ *   NWN2_JStar::Node::m_pParent pointers until we reach the end of pool marker
+ *   at 0xDEADBEEF (failure mode III).
+ *
+ * - N.B. I am considering instancing the allocator pool on a per-NWN2_JStar
+ *   instance basis, disabling ``free'' calls, and then just throwing away the
+ *   entire list of allocations made by that NWN2_JStar instance in the context
+ *   of NWN2_JStar::~NWN2_JStar.  This should fix the problem for good at the
+ *   cost of some minor additional memory usage while an NWN2_JStar instance is
+ *   performing pathing stepping.  However, given the maximum pathing step
+ *   length (300), this seems like it shouldn't be too much of an issue.
+ *
+ * - To find the actual problem, I recommend replacing the standard
+ *   NWN2_MemPool< NWN2_JStar::Node > with a page heap style allocator that
+ *   places each node on it's own page and reprotects that page to noaccess
+ *   after it is freed to the pool.  This will catch the first use of a freed
+ *   NWN2_JStar::Node object.  It may also be useful to log a stack trace with
+ *   each allocation.  To use the system page heap to accomplish these tasks,
+ *   simply replace NWN2_MemPool< NWN2_JStar::Node >::Free with HeapFree, and
+ *   NWN2_MemPool< NWN2_JStar::Node >::Alloc with HeapAlloc, and enable page
+ *   heap, which will also conveniently log stack traces as well NWN2 is
+ *   rebuilt with /Oy- (so that EBP-based stack traces work).  Note that as
+ *   Microsoft builds Windows with /Oy-, I believe that it would be a
+ *   reasonable change to make for release builds for all modules, as it
+ *   significantly improves debuggability of these issues in conjuction with
+ *   tools such as page heap.
+ */
+__declspec(naked) void BugFix::CalcPositionsLoop0Fix()
+{
+	__asm
+	{
+		push    esi
+		call    SafeInitPositionList
+
+		jmp     dword ptr [CalcPositionLoop0Ret]
+	}
+}
+
+/*
+ * NWN2_JStar::SearchStep
+ *
+ * - There is a bug here somewhere where we return a NWN2_JStar::Node to the
+ *   node allocator pool while it is still in use.  The way this typically
+ *   fails is that we get a loop in the list because a node is inserted into
+ *   the list twice after being freed and then checked out again for the same
+ *   NWN2_JStar instance (failure mode I).  Other failure modes are possible
+ *   (bizzare pathing behavior due to alias a "hot" NWN2_JStar::Node from
+ *   another active NWN2_JStar instance (failure mode II), or taking a node in
+ *   the free list and walking the free list ``Next'' pointers as
+ *   NWN2_JStar::Node::m_pParent pointers until we reach the end of pool marker
+ *   at 0xDEADBEEF (failure mode III).
+ *
+ * - N.B. I am considering instancing the allocator pool on a per-NWN2_JStar
+ *   instance basis, disabling ``free'' calls, and then just throwing away the
+ *   entire list of allocations made by that NWN2_JStar instance in the context
+ *   of NWN2_JStar::~NWN2_JStar.  This should fix the problem for good at the
+ *   cost of some minor additional memory usage while an NWN2_JStar instance is
+ *   performing pathing stepping.  However, given the maximum pathing step
+ *   length (300), this seems like it shouldn't be too much of an issue.
+ *
+ * - To find the actual problem, I recommend replacing the standard
+ *   NWN2_MemPool< NWN2_JStar::Node > with a page heap style allocator that
+ *   places each node on it's own page and reprotects that page to noaccess
+ *   after it is freed to the pool.  This will catch the first use of a freed
+ *   NWN2_JStar::Node object.  It may also be useful to log a stack trace with
+ *   each allocation.  To use the system page heap to accomplish these tasks,
+ *   simply replace NWN2_MemPool< NWN2_JStar::Node >::Free with HeapFree, and
+ *   NWN2_MemPool< NWN2_JStar::Node >::Alloc with HeapAlloc, and enable page
+ *   heap, which will also conveniently log stack traces as well NWN2 is
+ *   rebuilt with /Oy- (so that EBP-based stack traces work).  Note that as
+ *   Microsoft builds Windows with /Oy-, I believe that it would be a
+ *   reasonable change to make for release builds for all modules, as it
+ *   significantly improves debuggability of these issues in conjuction with
+ *   tools such as page heap.
+ */
+__declspec(naked) void BugFix::CalcPositionsLoop1Fix()
+{
+	__asm
+	{
+		push    esi
+		call    SafeInitPositionList
+
+		jmp     dword ptr [CalcPositionLoop1Ret]
+	}
+}
+
+/*
+ * CNetLayerWindow::FrameTimeout
+ *
+ * - We call CExoNetExtendableBuffer::GetFrameData, which fails due to an
+ *   expired frame or some other as of yet undetermined condition.  This
+ *   routine has an [out] pointer to the frame data.  When the routine
+ *   returns false, the [out] pointer is uninitialized, but
+ *   CNetLayerWindow::FrameTimeout does not check the return value and will
+ *   use an uninitialized buffer pointer (stack based) in this case.
+ *
+ * - The actual fix for this problem should be:
+ *
+ *   if (!pBuffer->GetFrameData( ..., &pFrameData, .... ))
+ *     return false; // Or perform other error handling, e.g. drop player
+ */
+__declspec(naked) void BugFix::NullDerefCrash0Fix()
+{
+	__asm
+	{
+		test    al, al
+		jz      Skip
+
+		mov     eax, dword ptr [esp+20h]
+
+;		cmp     eax, 0ffffh
+;		jbe     Skip
+
+		movzx   cx, byte ptr [eax+03h]
+
+		jmp     dword ptr [NullDerefCrash0NormalRet]
+
+Skip:
+		call    LogNullDerefCrash0
+		jmp     dword ptr [NullDerefCrash0SkipRet]
+	}
+}
+
+/*
+ * CNWSMessage::WriteGameObjUpdate_UpdateObject
+ *
+ * - We cast a CGameObject as a CNWSCreature and the creature either has no
+ *   CNWSCreatureStatus (failure mode I), or the object wasn't a CNWSCreature
+ *   and the cast failed (failure mode II).  The object we are referencing is
+ *   the object referenced by a player's CNWSCreature::m_oidInvitedToPartyBy,
+ *   and the failure condition occurs when the inviter has left the server.
+ *
+ * - This typically happens when a player invites another player that is in a
+ *   zone transfer, then the inviting player quits immediately after.
+ *
+ * - The actual fix for this problem should be to iterate through all
+ *   CNWSCreature objects from CExoServerAppInternal::RemovePCFromWorld, and:
+ *
+ *   if (pCreature->GetInvitedToParty() && pCreature->GetInvitedToPartyBy()) ==
+ *     pExitingPlayer->GetId())
+ *   {
+ *      pCreature->SetInvitedToParty( false );
+ *      pCreature->SetInvitedToPartyBy( INVALID_OBJECT_ID );
+ *   }
+ *
+ *   There may need to be a notification sent to the client to tell it that the
+ *   party invitation is expired in a cleaner way as well.
+ */
+__declspec(naked) void BugFix::NullDerefCrash1Fix()
+{
+	__asm
+	{
+		test	ebp, ebp
+		jz      Skip
+
+		mov     ecx, dword ptr [ebp+1each]
+		cmp     ecx, 0ffffh
+		jbe     Skip
+
+		jmp     dword ptr [NullDerefCrash1NormalRet]
+
+Skip:
+		call    LogNullDerefCrash1
+		jmp     dword ptr [NullDerefCrash1SkipRet]
+	}
+}
+
+/*
+ * NWN2_Collider::UpdateCollider
+ *
+ * - We touch NWN2_Collider::m_AABBInfo->m_pAABBMgr->m_pAABBs when in fact the
+ *   NWN2_AABBMgr pointer (m_pAABBMgr) is null.
+ *
+ * - This tends to happen when a creature dies while polymorphed.  I assume
+ *   that it's a race condition where the creature is pathed over before we
+ *   have loaded collision detection data for the new form when unpolymorphing,
+ *   but that isn't proven yet.
+ *
+ * - Haven't converted stack trace from 1.12 to 1.13 beta to determine the
+ *   caller yet.
+ */
+__declspec(naked) void BugFix::NullDerefCrash2Fix()
+{
+	__asm
+	{
+		pop     edi
+		test    ecx, ecx
+		jz      Skip
+
+		add     eax, dword ptr [ecx+0ch]
+		fstp    dword ptr [eax]
+
+		jmp     dword ptr [NullDerefCrash2NormalRet]
+
+Skip:
+		call    LogNullDerefCrash2
+		jmp     dword ptr [NullDerefCrash2SkipRet]
+	}
+}
+
+/*
+ * CNWSMessage::HandlePlayerToServerDungeonMasterMessage
+ *
+ * - In the handler for the toggle plot object DM command, we receive an
+ *   OBJECT_ID from a DM client, which is a valid CGameObject reference, but
+ *   points to an object not derived from CNWSObject (such as a CNWSArea or
+ *   CNWSModule).  The code assumes that if CGameObjectArray::GetGameObject
+ *   returns for an OBJECT_ID, that CGameObject::AsNWSObject() will always
+ *   cast successfully to a CNWSObject.
+ *
+ * - The actual fix for this problem should be along the lines of the
+ *   following:
+ *
+ *   CNWSObject *pServerObject = pObject->AsNWSObject();
+ *
+ *   if (!pServerObject)
+ *     return false; // Or handle the error appropriately.
+ */
+__declspec(naked) void BugFix::NullDerefCrash3Fix()
+{
+	__asm
+	{
+		test    eax, eax
+		jz      Skip
+
+		mov     eax, dword ptr [eax+180h]
+
+		jmp     dword ptr [NullDerefCrash3NormalRet]
+
+Skip:
+		call    LogNullDerefCrash3
+		jmp     dword ptr [NullDerefCrash3SkipRet]
+	}
+}
+
+/*
+ * CServerExoAppInternal::LoadCharacterStart
+ *
+ * - We call CNWSPlayer::GetGameObject() for a newly inserted CNWSPlayer
+ *   object, but the player wasn't actually inserted into the game object array
+ *   and so this the call returns null.  We then go on to reference the
+ *   returned CGameObject pointer for a call to CGameObject::AsNWSCreature, for
+ *   use in CServerExoAppInternal::ProcessBackwardsCompatibility, but as the
+ *   CNWSPlayer had no CGameObject associated with it, we crash.
+ *
+ * - The real solution should be to handle the failure to insert the CNWSPlayer
+ *   into the game object array and if we fail to insert the game object, send
+ *   back a PlayerLogin_Fail message.  e.g.:
+ *
+ *   CGameObject *pGameObject = pPlayerObject->GetGameObject();
+ *
+ *   if (!pGameObject) // Suggested new check
+ *     break; // Fallthrough handles via if (!pPlayerObject->GetGameObject())
+ *
+ *   CNWSCreature *pCreatureObject = pGameObject->AsNWSCreature();
+ *
+ *   if (!pCreatureObject) // Suggested new check
+ *     break; // Fallthrough handles via if (!pPlayerObject->GetGameObject())
+ *
+ *   ProcessBackwardsCompatibility( pCreatureObject );
+ *
+ *   CNWSDungeonMaster *pDMObject = pPlayerObject->AsNWSDungeonMaster();
+ *
+ *   if (pDMObject)
+ *   {
+ *     // ... Additional processing ...
+ *     break; // All done
+ *   }
+ *
+ * - This may happen when we fail to process a .bic file.
+ */
+__declspec(naked) void BugFix::NullDerefCrash4Fix()
+{
+	__asm
+	{
+		test    eax, eax
+		jz      Skip
+
+		mov     edx, dword ptr [eax]
+		mov     ecx, eax
+		mov     eax, dword ptr [edx+68h]
+
+		jmp     dword ptr [NullDerefCrash4NormalRet]
+
+Skip:
+		call    LogNullDerefCrash4
+
+		;
+		; Sends a login failure message and cleans up.
+		;
+
+		jmp     dword ptr [NullDerefCrash4SkipRet]
+	}
+}
+
+/*
+ * CNetLayerWindow::UnpacketizeFullMessages
+ *
+ * - We call CExoNetExtendableBuffer::GetFrameData, which fails due to an
+ *   expired frame or some other as of yet undetermined condition.  This
+ *   routine has an [out] pointer to the frame data.  When the routine
+ *   returns false, the [out] pointer is uninitialized, but
+ *   CNetLayerWindow::UnpacketizeFullMessages (incorrectly) assumes that
+ *   CExoNetExtendableBuffer::GetFrameData signals a failure condition by
+ *   setting the [out] pointer to NULL.  Thus, we use an uninitialized
+ *   buffer pointer (stack based) in this case.
+ *
+ * - The actual fix for this problem should be:
+ *
+ *   if (!pBuffer->GetFrameData( ..., &pFrameData, .... ))
+ *     return false; // Or perform other error handling, e.g. drop player
+ */
+__declspec(naked) void BugFix::Crash5Fix()
+{
+	__asm
+	{
+		test    al, al
+		jz      Skip
+
+		mov     ecx, dword ptr [esp+14h]
+
+		jmp     dword ptr [Crash5NormalRet]
+
+Skip:
+		call    LogNullDerefCrash4
+
+		;
+		; Set the output pointer to null so that the check for failure will
+		; work as it was intended to.
+		;
+
+		xor     ecx, ecx
+		mov     dword ptr [esp+14h], ecx
+
+		jmp     dword ptr [Crash5SkipRet]
+	}
+}

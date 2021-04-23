@@ -1,0 +1,73 @@
+LIBRARY	"xp_bugfix"
+
+EXPORTS
+
+	CalcPositionsLoop0Fix
+	CalcPositionsLoop1Fix
+	NullDerefCrash0Fix
+	NullDerefCrash1Fix
+	NullDerefCrash2Fix
+	NullDerefCrash3Fix
+	NullDerefCrash4Fix
+	Crash5Fix
+	NullDerefCrash6Fix
+	NullDerefCrash7Fix
+	NullDerefCrash8Fix
+	Uncompress0Fix
+	Uncompress1Fix
+	NullDerefCrash9Fix
+	NullDerefCrash10Fix
+	NullDerefCrash11Fix
+	SendCompressionHook
+	NullDerefCrash12Fix
+	GetHighResolutionTimerFix
+	AddInternalObjectHook
+	AddObjectAtPosHook
+	DeleteAllHook
+	GetGameObjectHook
+	DeleteHook
+	AIMasterUpdateState_GetObjectHook
+	AIMasterUpdateState_GetObject2Hook
+	SetAreaTransitionBMPHook
+	sendtoMstHook
+	AddItemToAIMasterHook
+	AddItemToAIMasterHook2
+	ApplyEffectHook
+	SetLastUpdateObjectHook
+	AIMasterUpdateState_PrologueHook
+	AIMasterUpdateState_GetObjectForThrottlingHook
+	AddObjectToAreaHook
+	RemoveObjectFromAreaHook
+	UpdatePositionInObjectsArray_SwapUpHook
+	UpdatePositionInObjectsArray_SwapDownHook
+	SortObjectsForGameObjectUpdate_GetObjectHook
+	GetFirstObjectIndiceByX_GetObjectHook
+	DeleteLastUpdateObjectsInOtherAreas_Hook
+	CLastUpdateObject_DestructorHook
+	CreateNewLastUpdateObjectHook
+	GetLastUpdateObjectHook
+	TestObjectUpdateDifferences_GetLUOHook
+	CallNWN2_SurfaceMesh_FindFace_Hook
+	InitializePlayerInfoForBNCS
+	
+	SetPacketFilterCallouts
+	SendMessageToPlayer
+	GetPlayerAccountName
+	CallHandleMessage
+
+	SetRecvfromCallout
+
+	GetPlayerConnectionInfo
+	GetGatewayByPlayer
+	EnumGateways
+	
+	GetCreatureControllingPlayerId
+	GetPlayerLUOForObject
+	DisconnectPlayer
+	
+	CalcPathFindFaceHook1
+	ResolveSafeProjectileItemPatch
+	
+	BugFix::GetGameObject=GetGameObject
+	BugFix::GetClientObjectByPlayerId=GetClientObjectByPlayerId
+	BugFix::GetLastUpdateObject=GetLastUpdateObject
