@@ -542,8 +542,8 @@ void init()
 	loadPlugins();
 
 	// Suppress general protection fault error box
-	bool noGPFaultErrorBox = true;
-	config->get("noGPFaultErrorBox", &noGPFaultErrorBox);
+	bool noGPFaultErrorBox;
+	config->Read("noGPFaultErrorBox", &noGPFaultErrorBox, true);
 	if (noGPFaultErrorBox)
 	{
 		DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);

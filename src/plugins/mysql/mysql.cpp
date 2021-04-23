@@ -86,7 +86,7 @@ bool MySQL::Init(char* nwnxhome)
 	else
 		logger->Info("* Hooking failed");
 
-	if (config->get("server", &server) )
+	if (config->Read("server", &server) )
 	{
 		logger->Info("* Connecting to server %s", server.c_str());
 	}
@@ -97,27 +97,27 @@ bool MySQL::Init(char* nwnxhome)
 		logger->Info("* Using default server %s", server.c_str());
 	}
 
-	if (!config->get("user", &user) )
+	if (!config->Read("user", &user) )
 	{
 		logger->Info("* MySQL user account not found in ini file");
 		user = "";
 		logger->Info("* Using default user '%s'", user.c_str());
 	}
 
-	if (!config->get("password", &password) )
+	if (!config->Read("password", &password) )
 	{
 		logger->Info("* MySQL password not found in ini file");
 		password = "";
 		logger->Info("* Using default password '%s'", password.c_str());
 	}
 
-	if (!config->get("schema", &schema) )
+	if (!config->Read("schema", &schema) )
 	{
 		logger->Info("* MySQL schema not found in ini file");
 		user = "nwn2";
 		logger->Info("* Using default schema '%s'", schema.c_str());
 	}
-	if (!config->get("port", &port) )
+	if (!config->Read("port", &port) )
 	{
 		logger->Info("* MySQL port not found in ini file");
 		port = 0;

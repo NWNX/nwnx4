@@ -96,7 +96,7 @@ bool NWNX4Vaultster::SetupLogAndIniFile(char* nwnxhome)
 
 	config = new SimpleIniConfig(inifile);
 	
-	config->get("loglevel", &logLevel);
+	config->Read("loglevel", &logLevel);
 	switch(logLevel)
 	{
 		case 0: logger->Info("* Log level set to 0 (nothing)"); break;
@@ -125,7 +125,7 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 	}
 
 	// load in the settings
-	if (config->get("startserver", &startServer) )
+	if (config->Read("startserver", &startServer) )
 	{
 		logger->Info("* read startserver: %d", startServer);
 	}
@@ -135,7 +135,7 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 		startServer = 1;
 		logger->Info("* Defaulting to 1");
 	}
-	if (config->get("validateclient", &validateclient) )
+	if (config->Read("validateclient", &validateclient) )
 	{
 		logger->Info("* read validateclient: %d", validateclient);
 	}
@@ -146,7 +146,7 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 		logger->Info("* Defaulting to 1");
 	}
 	server.setValidate (validateclient);
-	if (config->get("MaxClients", &maxClients) )
+	if (config->Read("MaxClients", &maxClients) )
 	{
 		logger->Info("* read MaxClients: %d", maxClients);
 	}
@@ -157,7 +157,7 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 		logger->Info("* Defaulting to 10");
 	}
 	server.setMaxClients (maxClients);
-	if (config->get("Path", &buf) )
+	if (config->Read("Path", &buf) )
 	{
 		logger->Info("* read Path: %s", buf.c_str());
 	}
@@ -175,7 +175,7 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 	CClient::setServervault((char*)buf.c_str());
 	server.setServervault((char*)buf.c_str());
 
-	if (config->get("Key", &key) )
+	if (config->Read("Key", &key) )
 	{
 		logger->Info("* read Key: %s", key.c_str());
 	}
@@ -188,7 +188,7 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 	CClient::setCryptoKey ((char*)key.c_str());
 	server.setCryptoKey ((char*)key.c_str());
 
-	if (config->get("Password", &buf) )
+	if (config->Read("Password", &buf) )
 	{
 		logger->Info("* read Password");
 	}
@@ -201,7 +201,7 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 	CClient::setPassword ((char*)buf.c_str());
 	server.setPassword ((char*)buf.c_str());
 
-	if (config->get("Port", &port) )
+	if (config->Read("Port", &port) )
 	{
 		logger->Info("* read Port %d", port);
 	}
@@ -214,7 +214,7 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 	CClient::setPort (port);
 	server.setPort (port);
 
-	if (config->get("Low prior", &lowprior) )
+	if (config->Read("Low prior", &lowprior) )
 	{
 		logger->Info("* read Low prior %d", lowprior);
 	}
@@ -227,14 +227,14 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 
 	// load in the known servers
 	if (validateclient) {
-		if (!config->get("Count", &serverCount) )
+		if (!config->Read("Count", &serverCount) )
 		{
 			serverCount = 0;
 		}
 		logger->Info("o Loading in %d known servers.\n", serverCount);
 		for (int i = 0; i < serverCount; i++) {
 			key = "Server" + std::to_string(i + 1);
-			if (config->get(key, &buf) )
+			if (config->Read(key, &buf) )
 			{
 				if (!buf.empty()) server.addKnownServer((char*)buf.c_str());
 				logger->Info("o Loaded: %s\n", buf.c_str());

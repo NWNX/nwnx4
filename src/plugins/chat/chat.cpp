@@ -99,14 +99,14 @@ bool Chat::Init(char* nwnxhome)
 
 	config = new SimpleIniConfig(inifile);
 
-	if (!config->get("chat_script", &chatScript) )
+	if (!config->Read("chat_script", &chatScript) )
 	{
 		logger->Info("* Chat script name not found in ini file");
 		chatScript = "chat_script";
 		logger->Info("* Using default chat script '%s'", chatScript.c_str());
 	}
 
-	if (!config->get("server_script", &servScript) )
+	if (!config->Read("server_script", &servScript) )
 	{
 		logger->Info("* Server script name not found in ini file");
 		servScript = "chat_script";
@@ -114,13 +114,13 @@ bool Chat::Init(char* nwnxhome)
 	}
 
 	maxMsgLen = 1024;
-	config->get("max_msg_len", &maxMsgLen);
+	config->Read("max_msg_len", &maxMsgLen);
 	processNPC = 0;
-	config->get("processnpc", &processNPC);
+	config->Read("processnpc", &processNPC);
 	ignore_silent = 0;
-	config->get("ignore_silent", &ignore_silent);
+	config->Read("ignore_silent", &ignore_silent);
 
-	config->get("loglevel", &logLevel);
+	config->Read("loglevel", &logLevel);
 	switch(logLevel)
 	{
 	case 0: logger->Info("* Log level set to 0 (nothing)"); break;

@@ -56,24 +56,38 @@ struct SimpleIniConfig {
     }
 
     template<typename T>
-    bool get(const std::string key, T* dest) {
-        T value;
-        std::stringstream ss(values[key]);
-        ss >> value;
-        if (ss.fail()) {
-            return false;
-        }
-        *dest = value;
-        return true;
-    }
+    bool Read(const std::string key, T* dest, T defaultValue) {
 
-    bool get(const std::string key, std::string* dest) {
         auto v = values.find(key);
         if (v != values.end()) {
-            *dest = v->second;
+            auto& valueStr = v->second;
+
+            if constexpr (std::is_same_v<T, std::string>) {
+                *dest = valueStr;
+            }
+            else if constexpr (std::is_same_v<T, char*>) {
+                *dest = valueStr;
+            }
+            else {
+                std::stringstream ss(values[key]);
+                T value;
+                ss >> value;
+                if (ss.fail()) {
+                    return false;
+                }
+                *dest = value;
+                return true;
+            }
             return true;
         }
+
+        *dest = defaultValue;
         return false;
+    }
+
+    template<typename T>
+    bool Read(const std::string key, T* dest) {
+        return Read(key, dest, *dest);
     }
 
     std::unordered_map<std::string, std::string> values;

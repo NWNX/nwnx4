@@ -108,8 +108,8 @@ void Profiler::LoadConfiguration(char* nwnxhome)
 
 	config = new SimpleIniConfig(inifile);
 
-	config->get("LogLevel", &m_LogLevel);
-	config->get("scriptparts", &log_scriptparts);
+	config->Read("LogLevel", &m_LogLevel);
+	config->Read("scriptparts", &log_scriptparts);
 
 	logger->Info("* Log level: ");
 	switch (m_LogLevel)

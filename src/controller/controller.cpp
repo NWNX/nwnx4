@@ -29,30 +29,21 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 	tick = 0;
 	initialized = false;
 	shuttingDown = false;
-	processWatchdog = true;
-	gamespyWatchdog = true;
-	gamespyPort = 5121;
-	gamespyInterval = 30;
-	restartDelay = 5;
-	gamespyRetries = 0;
-	gamespyTolerance = 5;
-	gamespyDelay = 30;
-    gracefulShutdownTimeout = 10;
-	gracefulShutdownMessageWait = 5;
 	ZeroMemory(&si, sizeof(si));
 	ZeroMemory(&pi, sizeof(pi));
 
-	config->get("restartDelay", &restartDelay);
-	config->get("processWatchdog", &processWatchdog);
-	config->get("gamespyWatchdog", &gamespyWatchdog);
-	config->get("gamespyInterval", &gamespyInterval);
-	config->get("gamespyTolerance", &gamespyTolerance);
-	config->get("gamespyDelay", &gamespyDelay);
-	config->get("gracefulShutdownTimeout", &gracefulShutdownTimeout);
-	config->get("gracefulShutdownMessage", &gracefulShutdownMessage);
-	config->get("gracefulShutdownMessageWait", &gracefulShutdownMessageWait);
+	config->Read("restartDelay", &restartDelay, 5L);
+	config->Read("processWatchdog", &processWatchdog, true);
+	config->Read("gamespyWatchdog", &gamespyWatchdog, true);
+	config->Read("gamespyInterval", &gamespyInterval, 30);
+	config->Read("gamespyRetries", &gamespyRetries, 0);
+	config->Read("gamespyTolerance", &gamespyTolerance, 5);
+	config->Read("gamespyDelay", &gamespyDelay, 30L);
+	config->Read("gracefulShutdownTimeout", &gracefulShutdownTimeout, 10);
+	config->Read("gracefulShutdownMessage", &gracefulShutdownMessage, std::string(""));
+	config->Read("gracefulShutdownMessageWait", &gracefulShutdownMessageWait, 5);
 
-	if (!config->get("parameters", &parameters) )
+	if (!config->Read("parameters", &parameters) )
 	{
 		logger->Info("Parameter setting not found in nwnx.ini. Starting server with empty commandline.");
 	}
@@ -60,7 +51,7 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 
 	if (gamespyWatchdog)
 	{
-		config->get("gamespyPort", &gamespyPort);
+		config->Read("gamespyPort", &gamespyPort, 5121);
 		try
 		{
 			udp = new CUDP("localhost", gamespyPort);
@@ -71,7 +62,7 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 		}
 	}
 
-	if (!config->get("nwn2", &nwnhome))
+	if (!config->Read("nwn2", &nwnhome))
 	{
 		logger->Info("* NWN2 home directory not found. Check your nwnx.ini file.");
 		return;
@@ -234,7 +225,7 @@ void NWNXController::restartServerProcess()
 
 	// Run maintenance command
 	std::string restartCmd;
-	config->get("restartCmd", &restartCmd);
+	config->Read("restartCmd", &restartCmd);
 	if (restartCmd != "")
 	{
 		PROCESS_INFORMATION pi;

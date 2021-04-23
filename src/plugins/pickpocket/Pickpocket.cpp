@@ -191,7 +191,7 @@ bool CPickpocket::Init(char* nwnxhome)
 
 	config = new SimpleIniConfig(inifile);
 
-	if (!config->get("script", &execScript) )
+	if (!config->Read("script", &execScript) )
 	{
 		logger->Info("* 'script' not found in ini");
 		return false;

@@ -192,8 +192,7 @@ int main(int argc,char *argv[])
 
 	// Setup temporary directories
 	std::string tempPath;
-	config->get("nwn2temp", &tempPath);
-	if (tempPath != "")
+	if (config->Read("nwn2temp", &tempPath))
 	{
 		SetEnvironmentVariable("TEMP", tempPath.c_str());
 		SetEnvironmentVariable("TMP", tempPath.c_str());

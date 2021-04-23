@@ -60,7 +60,7 @@ bool DBPlugin::SetupLogAndIniFile(char* nwnxhome)
 
 	config = new SimpleIniConfig(inifile);
 	
-	config->get("loglevel", &logLevel);
+	config->Read("loglevel", &logLevel);
 	switch(logLevel)
 	{
 		case 0: logger->Info("* Log level set to 0 (nothing)"); break;
@@ -73,7 +73,7 @@ bool DBPlugin::SetupLogAndIniFile(char* nwnxhome)
 void DBPlugin::GetFunctionClass(char* fClass)
 {
 	std::string myClass;
-	if (config->get("class", &myClass) )
+	if (config->Read("class", &myClass) )
 	{
 		logger->Info("* Registering under function class %s", myClass.c_str());
 		strncpy_s(fClass, 128, myClass.c_str(), myClass.length());

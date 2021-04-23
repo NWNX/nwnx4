@@ -80,7 +80,7 @@ SQLite::~SQLite()
 bool SQLite::Init(char* nwnxhome)
 {
 	SetupLogAndIniFile(nwnxhome);
-	if (config->get("file", &dbfile) )
+	if (config->Read("file", &dbfile) )
 	{
 		logger->Info("* SQLite database file is %s", dbfile.c_str());
 	}
