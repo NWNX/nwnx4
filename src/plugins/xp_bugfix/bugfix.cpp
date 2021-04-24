@@ -547,7 +547,7 @@ bool BugFix::Init(char* nwnxhome)
 	inifile.append(GetPluginFileName());
 	inifile.append(".ini");
 
-	logger->Info("* Reading inifile %s", inifile);
+	logger->Info("* Reading inifile %s", inifile.c_str());
 
 	SimpleIniConfig config(inifile);
 
@@ -742,7 +742,7 @@ bool BugFix::Init(char* nwnxhome)
 		int TraceCount = 0;
 
 		logger->Info("* Trace log file: %s",
-			TraceLogFileName);
+			TraceLogFileName.c_str());
 
 		if (!config.Read( "StackTraceCount", &TraceCount ))
 			TraceCount = 1024;
@@ -752,7 +752,7 @@ bool BugFix::Init(char* nwnxhome)
 			TraceLogFileName.wc_str(wxConvLibc).data()))
 		{
 			logger->Info("* Failed to initialize stack tracing for '%s' (%lu traces).",
-				TraceLogFileName, TraceCount);
+				TraceLogFileName.c_str(), TraceCount);
 
 			delete tracer;
 
@@ -761,7 +761,7 @@ bool BugFix::Init(char* nwnxhome)
 		else
 		{
 			logger->Info("* Initialized stack tracing to '%s' for %lu traces.",
-				TraceLogFileName, TraceCount);
+				TraceLogFileName.c_str(), TraceCount);
 		}
 	}
 

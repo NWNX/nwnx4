@@ -254,19 +254,11 @@ FastBoot::ModuleCopyFileA(
 	{
 		plugin->logged = true;
 
-#ifdef UNICODE
-		_logger->Info(
-			 "* Creating link at '%S' to '%S'." ,
-			lpNewFileName,
-			lpExistingFileName
-			);
-#else
 		_logger->Info(
 			"* Creating link at '%s' to '%s'.",
 			lpNewFileName,
 			lpExistingFileName
 			);
-#endif
 	}
 
 	if (!CreateHardLinkA(
