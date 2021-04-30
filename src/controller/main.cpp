@@ -189,6 +189,7 @@ int main(int argc,char *argv[])
 	std::string inifile("nwnx.ini");
 	logger->Trace("Reading ini file '%s'", inifile.c_str());
 	auto config = new SimpleIniConfig(inifile);
+	logger->Configure(config);
 
 	// Setup temporary directories
 	std::string tempPath;

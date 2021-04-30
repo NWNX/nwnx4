@@ -23,23 +23,74 @@
 
 #include <string>
 #include <fstream>
+#include "../misc/ini.h"
+#include <cstdarg>
+
+
+enum class LogLevel {
+    none = 0,
+    error = 1,
+    warning = 2,
+    info = 3,
+    debug = 4,
+    trace = 5,
+};
+LogLevel ParseLogLevel(const std::string& level);
+
 
 class LogNWNX
 {
 public:
-    LogNWNX();
-    LogNWNX(std::string);
+    LogNWNX(LogLevel level = LogLevel::info);
+    LogNWNX(std::string, LogLevel level = LogLevel::info);
 
-    void Trace(const char* format, ...);
-    void Debug(const char* format, ...);
-    void Info(const char* format, ...);
-    void Warn(const char* format, ...);
-    void Err(const char* format, ...);
+    void SetLogLevel(LogLevel level) {
+        m_level = level;
+    }
+    void SetLogLevel(const std::string& level) {
+        m_level = ParseLogLevel(level);
+    }
+    void Configure(const SimpleIniConfig* config) {
+        std::string lvl;
+        if (config->Read("loglevel", &lvl))
+            SetLogLevel(lvl);
+    }
+
+    void Trace(_Printf_format_string_ const char* format, ...){
+        va_list args;
+        va_start(args, format);
+        Log(LogLevel::trace, format, args);
+        va_end(args);
+    }
+    void Debug(_Printf_format_string_ const char* format, ...){
+        va_list args;
+        va_start(args, format);
+        Log(LogLevel::debug, format, args);
+        va_end(args);
+    }
+    void Info(_Printf_format_string_ const char* format, ...){
+        va_list args;
+        va_start(args, format);
+        Log(LogLevel::info, format, args);
+        va_end(args);
+    }
+    void Warn(_Printf_format_string_ const char* format, ...){
+        va_list args;
+        va_start(args, format);
+        Log(LogLevel::warning, format, args);
+        va_end(args);
+    }
+    void Err(_Printf_format_string_ const char* format, ...){
+        va_list args;
+        va_start(args, format);
+        Log(LogLevel::error, format, args);
+        va_end(args);
+    }
 protected:
-    std::string filePath;
     std::ofstream m_ofStream;
+    LogLevel m_level;
 
-    void LogNWNX::Log(const char* format, va_list args);
+    void LogNWNX::Log(LogLevel level, const char* format, va_list args);
     void LogNWNX::LogStr(const char* message);
 };
 

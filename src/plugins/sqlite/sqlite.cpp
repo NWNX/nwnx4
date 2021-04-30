@@ -160,13 +160,11 @@ bool SQLite::Execute(char* query)
 	sqlite3_stmt* pNewStmt;
 
 	// prepare query
-	if (logLevel == 2)
-		logger->Info("* Executing: %s", query);
+	logger->Info("* Executing: %s", query);
 	rc = sqlite3_prepare(sdb, (const char*) query, -1, &pNewStmt, NULL);
 	if (rc != SQLITE_OK)
 	{
-		if (logLevel > 0)
-			logger->Info("! SQL Error: %s", sqlite3_errmsg(sdb));
+		logger->Err("! SQL Error: %s", sqlite3_errmsg(sdb));
 		SafeFinalize(&pNewStmt);
 
 		// throw away last resultset if a SELECT statement failed
@@ -212,8 +210,7 @@ bool SQLite::Execute(char* query)
 
 			if (rc == SQLITE_ERROR)
 			{
-				if (logLevel > 0)
-					logger->Info("! SQL Error: %s (%d)", sqlite3_errmsg(sdb), errorno);
+				logger->Err("! SQL Error: %s (%d)", sqlite3_errmsg(sdb), errorno);
 			}
 			return FALSE;
 		break;
@@ -241,8 +238,7 @@ int SQLite::Fetch(char* buffer)
 		rc = sqlite3_step(pStmt);
 		if ((rc & 0xff) == SQLITE_ERROR)
 		{
-			if (logLevel > 0)
-				logger->Info("! SQL Error (fetch): %s", sqlite3_errmsg(sdb));
+			logger->Err("! SQL Error (fetch): %s", sqlite3_errmsg(sdb));
 		}
 	}
 
@@ -274,15 +270,13 @@ int SQLite::GetData(int iCol, char* buffer)
 	if (pCol)
 	{
 		nwnxcpy(buffer, pCol);
-		if (logLevel == 2)
-			logger->Info("* Returning: %s", buffer);
+		logger->Info("* Returning: %s", buffer);
 		return 0;
 	}
 	else
 	{
 		nwnxcpy(buffer, "");
-		if (logLevel == 2)
-			logger->Info("* Returning: (empty)");
+		logger->Info("* Returning: (empty)");
 		return -1;
 	}
 }

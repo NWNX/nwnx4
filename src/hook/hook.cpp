@@ -436,6 +436,7 @@ void init()
 	std::string inifile = *nwnxhome + "\\nwnx.ini";
 	logger->Trace("Reading inifile %s", inifile.c_str());
 	config = new SimpleIniConfig(inifile);
+	logger->Configure(config);
 
 	bool missingFunction = false;
 	hookAt = FindPattern(SET_NWNX_GETINT);

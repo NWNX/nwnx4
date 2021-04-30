@@ -13,3 +13,4 @@
 
 [ ] nwnx_gui should be ported to use latest Qt version
 [ ] xp_ruby: I could not find any up-to-date prebuilt Ruby C library to link against
+[ ] xp_chat does not work (error triggered when a player enters the server). This plugin is probably useless since you can set a custom OnChat script in the module properties.

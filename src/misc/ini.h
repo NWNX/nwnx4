@@ -56,7 +56,7 @@ struct SimpleIniConfig {
     }
 
     template<typename T>
-    bool Read(const std::string key, T* dest, T defaultValue) {
+    bool Read(const std::string key, T* dest, T defaultValue) const {
 
         auto v = values.find(key);
         if (v != values.end()) {
@@ -69,7 +69,7 @@ struct SimpleIniConfig {
                 *dest = valueStr;
             }
             else {
-                std::stringstream ss(values[key]);
+                std::stringstream ss(valueStr);
                 T value;
                 ss >> value;
                 if (ss.fail()) {
@@ -86,10 +86,11 @@ struct SimpleIniConfig {
     }
 
     template<typename T>
-    bool Read(const std::string key, T* dest) {
+    bool Read(const std::string key, T* dest) const {
         return Read(key, dest, *dest);
     }
 
+private:
     std::unordered_map<std::string, std::string> values;
 };
 

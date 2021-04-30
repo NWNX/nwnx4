@@ -107,6 +107,7 @@ void Profiler::LoadConfiguration(char* nwnxhome)
 	logger->Trace("* reading inifile %s", inifile.c_str());
 
 	config = new SimpleIniConfig(inifile);
+	logger->Configure(config);
 
 	config->Read("LogLevel", &m_LogLevel);
 	config->Read("scriptparts", &log_scriptparts);

@@ -195,19 +195,11 @@ bool MySQL::Execute(char* query)
 	}
 
 	// execute the query
-	if (logLevel == 2)
-		logger->Info("* Executing: %s", query);
+	logger->Info("* Executing: %s", query);
 	if (mysql_query(connection, (const char *)query) != 0)
 	{
 		unsigned int error_no = mysql_errno(&mysql);
-		if (logLevel > 0) { 
-			logger->Info("! SQL Error: %s (%lu).", mysql_error(&mysql), error_no);
-
-			// log the query that caused the error, too,  if we haven't already. 
-			if (logLevel != 2) { 
-				logger->Info(" -> QUERY: %s.", query);
-			}
-		}
+		logger->Err("! SQL Error: %s (%lu).", mysql_error(&mysql), error_no);
 
 		// throw away last resultset if a SELECT statement failed
 		if (_strnicmp(query, "SELECT", 6) == 0)
@@ -263,8 +255,7 @@ bool MySQL::Execute(char* query)
 
 		if (mysql_errno(&mysql) != 0)
 		{
-			if (logLevel > 0)
-				logger->Info("! Error (mysql_store_result): %s", mysql_error(&mysql));
+			logger->Err("! Error (mysql_store_result): %s", mysql_error(&mysql));
 			return FALSE;	
 		}
 	}
@@ -337,15 +328,13 @@ int MySQL::GetData(int iCol, char* buffer)
 	if ((iCol < (int)num_fields) && row[iCol])
 	{
 		nwnxcpy(buffer, row[iCol]);
-		if (logLevel == 2)
-			logger->Info("* Returning: %s (column %d)", buffer, iCol);
+		logger->Info("* Returning: %s (column %d)", buffer, iCol);
 		return 0;
 	}
 	else
 	{
 		nwnxcpy(buffer, "");
-		if (logLevel == 2)
-			logger->Info("* Returning: (empty) (column %d)", iCol);
+		logger->Info("* Returning: (empty) (column %d)", iCol);
 		return -1;
 	}
 }
@@ -420,9 +409,8 @@ const char *MySQL::GetErrorMessage()
 
 bool MySQL::WriteScorcoData(BYTE* pData, int Length)
 {
-	if (logLevel == 2)
-		logger->Info("* SCO query: %s", scorcoSQL);
-	logger->Trace("WriteScorcoData");
+	logger->Info("* SCO query: %s", scorcoSQL);
+
 	int res;
 	unsigned long len;
 	char* Data = new char[Length * 2 + 1 + 2];
@@ -448,9 +436,8 @@ bool MySQL::WriteScorcoData(BYTE* pData, int Length)
 
 BYTE* MySQL::ReadScorcoData(char *param, int *size)
 {
-	if (logLevel == 2)
-		logger->Info("* RCO query: %s", scorcoSQL);
-	logger->Trace("ReadScorcoData");
+	logger->Info("* RCO query: %s", scorcoSQL);
+
 	bool pSqlError;
 	MYSQL_RES *rcoresult;
 	if (strcmp(param, "FETCHMODE") != 0)
@@ -496,8 +483,7 @@ BYTE* MySQL::ReadScorcoData(char *param, int *size)
 	}
 	else
 	{
-		if (logLevel == 2)
-			logger->Info("* Empty RCO resultset");
+		logger->Info("* Empty RCO resultset");
 		mysql_free_result(rcoresult);
 		return NULL;
 	}

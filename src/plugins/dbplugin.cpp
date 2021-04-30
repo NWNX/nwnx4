@@ -30,7 +30,6 @@ DBPlugin::DBPlugin()
 	subClass = "DBPlugin";
 	version = "1.1";
 	description = "Overwrite this constructor in your derived plugin class.";
-	logLevel = 0;
 }
 
 DBPlugin::~DBPlugin()
@@ -59,14 +58,7 @@ bool DBPlugin::SetupLogAndIniFile(char* nwnxhome)
 	logger->Trace("* reading inifile %s", inifile.c_str());
 
 	config = new SimpleIniConfig(inifile);
-	
-	config->Read("loglevel", &logLevel);
-	switch(logLevel)
-	{
-		case 0: logger->Info("* Log level set to 0 (nothing)"); break;
-		case 1: logger->Info("* Log level set to 1 (only errors)"); break;
-		case 2: logger->Info("* Log level set to 2 (everything)"); break;
-	}
+	logger->Configure(config);
 	return true;
 }
 

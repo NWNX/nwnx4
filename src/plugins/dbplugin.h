@@ -53,7 +53,6 @@ public:
 protected:
 	LogNWNX* logger;
 	SimpleIniConfig *config;
-	int logLevel;
 	char scorcoSQL[MAXSQL];
 
 	virtual bool Execute(char* query);

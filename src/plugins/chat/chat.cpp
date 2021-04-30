@@ -98,6 +98,7 @@ bool Chat::Init(char* nwnxhome)
 	logger->Trace("* reading inifile %s", inifile.c_str());
 
 	config = new SimpleIniConfig(inifile);
+	logger->Configure(config);
 
 	if (!config->Read("chat_script", &chatScript) )
 	{
@@ -119,15 +120,6 @@ bool Chat::Init(char* nwnxhome)
 	config->Read("processnpc", &processNPC);
 	ignore_silent = 0;
 	config->Read("ignore_silent", &ignore_silent);
-
-	config->Read("loglevel", &logLevel);
-	switch(logLevel)
-	{
-	case 0: logger->Info("* Log level set to 0 (nothing)"); break;
-	case 1: logger->Info("* Log level set to 1 (only errors)"); break;
-	case 2: logger->Info("* Log level set to 2 (everything)"); break;
-	case 3: logger->Info("* Log level set to 3 (debug)"); break;
-	}
 
 	lastMsg = new char[maxMsgLen+13];
 
@@ -189,23 +181,20 @@ int Chat::GetInt(char* sFunction, char* sParam1, int nParam2)
 		}
 		logger->Debug("%s - returns -1", sFunction);
 	} else  if (function == "SPEAK") { //makes someone say something
-		if (logLevel >= 2)
-			logger->Info("o SPEAK: %s", sParam1);
+		logger->Info("o SPEAK: %s", sParam1);
 		int oSender, oRecipient, nChannel;
 		int nParamLen = strlen(sParam1);
 		char *nLastDelimiter = strrchr(sParam1, '?');
 		if (!nLastDelimiter || (nLastDelimiter-sParam1)<0)
 		{
-			if (logLevel >= 1)
-				logger->Err("%s - nLastDelimiter error", sFunction);
+			logger->Err("%s - nLastDelimiter error", sFunction);
 			return FALSE;
 		}
 		int nMessageLen = nParamLen-(nLastDelimiter-sParam1)+1;
 		char *sMessage = new char[nMessageLen];
 		if(sscanf(sParam1, "%x¬%x¬%d¬", &oSender, &oRecipient, &nChannel)<3)
 		{
-			if (logLevel >= 1)
-				logger->Info("o sscanf error");
+			logger->Err("o sscanf error");
 			delete[] sMessage;
 			return FALSE;
 		}
@@ -218,11 +207,9 @@ int Chat::GetInt(char* sFunction, char* sParam1, int nParam2)
 			return FALSE;
 		}*/
 		if(nChannel!=4 && nChannel!=20) nRecipientID=-1;
-		if (logLevel >= 2)
-			logger->Info("o SendMsg(%d, %08lX, '%s', %d)", nChannel, oSender, sMessage, nRecipientID);
+		logger->Info("o SendMsg(%d, %08lX, '%s', %d)", nChannel, oSender, sMessage, nRecipientID);
 		int nResult = SendMsg(nChannel, oSender, sMessage, nRecipientID);
-		if (logLevel >= 3)
-			logger->Info("o Return value: %d", nResult); //return value for full message delivery acknowledgement
+		logger->Err("o Return value: %d", nResult); //return value for full message delivery acknowledgement
 		delete[] sMessage;
 		if (nResult) 
 			return TRUE;
@@ -238,8 +225,7 @@ char* Chat::GetString(char* sFunction, char* sParam1, int nParam2)
 	returnBuffer[0] = 0;
 	if (function == "TEXT" && scriptRun) {
 		strncpy(returnBuffer, lastMsg, MAX_BUFFER);
-		if (logLevel >= 2)
-			logger->Info("TEXT: '%s'", lastMsg);
+		logger->Info("TEXT: '%s'", lastMsg);
 	}
 	return returnBuffer;
 
@@ -250,13 +236,11 @@ int Chat::ChatProc(const int mode, const int id, const char **msg, const int to)
 {
 	if ( !msg || !*msg ) return 0; // don't process null-string
 	int cmode = mode & 0xFF;
-	if (logLevel >= 2)
-		logger->Info("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX", cmode, id, *(char **)msg, to);
+	logger->Info("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX", cmode, id, *(char **)msg, to);
 	//Log("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX\n", cmode, id, (char *)msg, to);
 	sprintf(lastMsg, "%02d%10d", cmode, to);
 	strncat(lastMsg, (char*)*msg, maxMsgLen);
-	if (logLevel >= 3)
-		logger->Info("lastMsg: %s", lastMsg);
+	logger->Debug("lastMsg: %s", lastMsg);
 	supressMsg = 0;
 	if(ignore_silent && (cmode==0xD || cmode==0xE)) return 0;
 	if ( (processNPC && id != 0x7F000000) || (!processNPC && (unsigned long)id >> 16 == 0x7FFF) )

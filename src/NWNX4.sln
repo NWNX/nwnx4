@@ -22,8 +22,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_profiler", "plugins\prof
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_pickpocket", "plugins\pickpocket\pickpocket.vcxproj", "{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_chat", "plugins\chat\chat.vcxproj", "{76973E1B-FCFE-48E9-9893-4D41326167D8}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_funcs", "plugins\funcs\funcs.vcxproj", "{D1117291-5C67-4CC8-95A8-00CEA5619956}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xp_leto", "plugins\leto\leto.vcxproj", "{1320C3FE-ACF3-4F58-9C65-C96DFF99A2DB}"
@@ -76,10 +74,6 @@ Global
 		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Debug|Win32.Build.0 = Debug|Win32
 		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Release|Win32.ActiveCfg = Release|Win32
 		{A2F26FB0-EDF0-44B4-B69F-1A0925E9EE3E}.Release|Win32.Build.0 = Release|Win32
-		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Debug|Win32.ActiveCfg = Debug|Win32
-		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Debug|Win32.Build.0 = Debug|Win32
-		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Release|Win32.ActiveCfg = Release|Win32
-		{76973E1B-FCFE-48E9-9893-4D41326167D8}.Release|Win32.Build.0 = Release|Win32
 		{D1117291-5C67-4CC8-95A8-00CEA5619956}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D1117291-5C67-4CC8-95A8-00CEA5619956}.Debug|Win32.Build.0 = Debug|Win32
 		{D1117291-5C67-4CC8-95A8-00CEA5619956}.Release|Win32.ActiveCfg = Release|Win32

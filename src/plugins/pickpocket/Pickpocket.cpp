@@ -190,6 +190,7 @@ bool CPickpocket::Init(char* nwnxhome)
 	logger->Trace("* reading inifile %s", inifile.c_str());
 
 	config = new SimpleIniConfig(inifile);
+	logger->Configure(config);
 
 	if (!config->Read("script", &execScript) )
 	{

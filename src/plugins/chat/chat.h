@@ -50,7 +50,6 @@ public:
 private:
 	LogNWNX* logger;
 	SimpleIniConfig *config;
-	int logLevel;
 	int supressMsg;
 	int maxMsgLen;
 	int processNPC;
