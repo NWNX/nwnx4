@@ -1,4 +1,6 @@
-/bin/
+/bin/*/*
+!/bin/dist/nss
+!/bin/dist/demo
 *.obj
 *.dll
 *.pdb

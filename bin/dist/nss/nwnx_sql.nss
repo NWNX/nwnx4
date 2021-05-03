@@ -37,13 +37,16 @@ int SQLFetch(string mode = " ");
 // Maximum column size: 65KByte
 string SQLGetData(int iCol);
 
+int SQLGetDataInt(int iCol){        return StringToInt(SQLGetData(iCol));   }
+float SQLGetDataFloat(int iCol){    return StringToFloat(SQLGetData(iCol)); }
+
 // Deprecated.
 // Return value of column iCol in the current row of result set sResultSetName
 // Maximum column size: 65KByte
 // Only for compability reasons. Use SQLGetData instead.
 string SQLGetDataText(int iCol);
 
-// Return the number of rows that were affected by the last 
+// Return the number of rows that were affected by the last
 // INSERT, UPDATE, or DELETE operation.
 int SQLGetAffectedRows();
 
@@ -219,7 +222,7 @@ object SQLRetrieveObject(location lLocation, object oOwner = OBJECT_INVALID, str
 }
 
 // These functions deal with various data types. Ultimately, all NWN specific
-// information must be stored in the database as strings, and converted back to 
+// information must be stored in the database as strings, and converted back to
 // the proper form when retrieved.
 
 string SQLVectorToString(vector vVector)
@@ -417,7 +420,7 @@ int GetPersistentInt(object oObject, string sVarName, string sTable = "pwdata")
         "' AND tag='" + sTag + "' AND name='" + sVarName + "'";
     SQLExecDirect(sSQL);
 
-	if (SQLFetch() == SQL_SUCCESS)
+    if (SQLFetch() == SQL_SUCCESS)
         return StringToInt(SQLGetData(1));
     else
         return 0;
@@ -451,7 +454,7 @@ float GetPersistentFloat(object oObject, string sVarName, string sTable = "pwdat
         "' AND tag='" + sTag + "' AND name='" + sVarName + "'";
     SQLExecDirect(sSQL);
 
-	if (SQLFetch() == SQL_SUCCESS)
+    if (SQLFetch() == SQL_SUCCESS)
         return StringToFloat(SQLGetData(1));
     else
         return 0.0f;
@@ -515,7 +518,7 @@ void SetPersistentObject(object oOwner, string sVarName, object oObject, int iEx
         sSQL = "INSERT INTO " + sTable + " (player,tag,name,val,expire) VALUES" +
             "('" + sPlayer + "','" + sTag + "','" + sVarName + "',%s," + IntToString(iExpiration) + ")";
         SQLSCORCOExec(sSQL);
-        SQLStoreObject (oObject);
+        SQLStoreObject(oObject);
     }
 }
 
@@ -543,7 +546,7 @@ object GetPersistentObject(object oObject, string sVarName, object oOwner = OBJE
 
     if (!GetIsObjectValid(oOwner))
         oOwner = oObject;
-    return SQLRetrieveObject (GetLocation(oOwner), oOwner);
+    return SQLRetrieveObject(GetLocation(oOwner), oOwner);
 }
 
 void DeletePersistentVariable(object oObject, string sVarName, string sTable = "pwdata")
@@ -571,7 +574,6 @@ void DeletePersistentVariable(object oObject, string sVarName, string sTable = "
 // Problems can arise with SQL commands if variables or values have single quotes
 // in their names. This function encodes these quotes so the underlying database
 // can safely store them.
-
 string SQLEncodeSpecialChars(string sString)
 {
     return NWNXGetString("SQL", "GET ESCAPE STRING", sString, 0);
