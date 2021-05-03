@@ -636,7 +636,7 @@ bool ReplaceNetLayer()
 		{ false, "AuroraServerNetLayerCreateTlsServer", (void **) &AuroraServerNetLayerCreateTlsServer_ },
 		{ false, "AuroraServerNetLayerSendEx",          (void **) &AuroraServerNetLayerSendEx_          },
 	};
-	AuroraServerNetLayer = LoadLibrary(L"AuroraServerNetLayer.dll");
+	AuroraServerNetLayer = LoadLibraryA("AuroraServerNetLayer.dll");
 
 	if (!AuroraServerNetLayer)
 	{
@@ -662,7 +662,7 @@ bool ReplaceNetLayer()
 		}
 	}
 
-	AuroraServerMsgCheck = LoadLibrary(L"AuroraServerMsgCheck.dll");
+	AuroraServerMsgCheck = LoadLibraryA("AuroraServerMsgCheck.dll");
 	if (!AuroraServerMsgCheck)
 	{
 		_logger->Info("* Failed to load AuroraServerMsgCheck.dll; is it located in the same directory as AuroraServerNetLayer.dll?");

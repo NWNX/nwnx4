@@ -21,48 +21,36 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "dbplugin.h"
 #include "mysql/mysql.h" //This is a temporary design flaw workaround: see below
 
-void (*OriginalSCO)();
-void (*OriginalRCO)();
 //DESIGN FLAW
 //Can't access base class here
 extern MySQL* plugin;
 
-int __stdcall SCOHookProc(char** database, char** key, char** player, int flags, unsigned char * pData, int size)
+int (__fastcall *OriginalSCO)(void* pThis, void* _, char** database, char** key, char** player, int flags, unsigned char* pData, int size);
+unsigned char* (__fastcall *OriginalRCO)(void* pThis, void* _, char** database, char** key, char** player, int* arg4, int* size);
+
+int __fastcall SCOHookProc(void* pThis, void* _, char** database, char** key, char** player, int flags, unsigned char * pData, int size)
 {
-	int *pThis;
-	__asm {mov pThis, ecx}
 	if(!pThis) return 0;
 
-	if (memcmp(*database, "NWNX", 4))
+	if (memcmp(*database, "NWNX", 4) != 0)
 	{
-		_asm {mov ecx, pThis}
-		_asm { leave }
-		_asm { jmp OriginalSCO }
+		return OriginalSCO(pThis, _, database, key, player, flags, pData, size);
 	}
-	__asm { pushad }
 	int lastRet = plugin->WriteScorcoData(pData, size);
-	__asm { popad }
 	return lastRet;
 }
 
-unsigned char * __stdcall RCOHookProc(char** database, char** key, char** player, int* arg4, int* size)
+unsigned char* __fastcall RCOHookProc(void* pThis, void* _, char** database, char** key, char** player, int* arg4, int* size)
 {
-	int *pThis;
-	__asm {mov pThis, ecx}
 	if(!pThis) return NULL;
 
-	if (memcmp(*database, "NWNX", 4))
+	if (memcmp(*database, "NWNX", 4) != 0)
 	{
-		_asm {mov ecx, pThis}
-		_asm { leave }
-		_asm { jmp OriginalRCO }
+		return OriginalRCO(pThis, _, database, key, player, arg4, size);
 	}
-	__asm { pushad }
 	unsigned char * lastRet = plugin->ReadScorcoData(*key, size);
-	__asm { popad }
 	return lastRet; 
 }
-
 
 DWORD FindHookSCO()
 {

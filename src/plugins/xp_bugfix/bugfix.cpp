@@ -526,7 +526,7 @@ bool BugFix::Init(char* nwnxhome)
 	}
 
 
-	nwn2mm   = GetModuleHandle(L"NWN2_MemoryMgr_amdxp.dll");
+	nwn2mm   = GetModuleHandleA("NWN2_MemoryMgr_amdxp.dll");
 
 	if (nwn2mm)
 		NWN2Heap_Deallocate = (NWN2Heap_Deallocate_Proc)GetProcAddress( nwn2mm, "?Deallocate@NWN2_Heap@@SAXPAX@Z" );

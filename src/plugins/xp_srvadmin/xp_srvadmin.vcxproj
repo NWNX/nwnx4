@@ -83,8 +83,6 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/nxcompat /dynamicbase %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>wxmsw28_core.lib;wxbase28_net.lib;wxbase28.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\wxwidgets\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
