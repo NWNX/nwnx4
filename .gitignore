@@ -23,3 +23,6 @@
 /lib/detours/*/Release/
 /src/plugins/*/Debug/
 /src/plugins/*/Release/
+
+cmake-build-debug
+lib/x86-windows-static-md

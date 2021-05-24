@@ -25,7 +25,6 @@
 
 #include "stdwx.h"
 #include "mainframe.h"
-#include "wx/datetime.h"
 #include "wx/mimetype.h"
 #include "dlgabout.h"
 
@@ -45,10 +44,13 @@ IMPLEMENT_CLASS( MainFrame, wxFrame )
  */
 DEFINE_EVENT_TYPE(wxEVT_SERVER_STARTED)
 DEFINE_EVENT_TYPE(wxEVT_SERVER_STOPPED)
+DEFINE_EVENT_TYPE(wxEVT_SERVER_KILLED)
 
 BEGIN_EVENT_TABLE( MainFrame, wxFrame )
 
 ////@begin MainFrame event table entries
+    EVT_CLOSE(MainFrame::OnClose)
+
     EVT_CHECKBOX( ID_PW_ENABLED, MainFrame::OnPwEnabledClick )
 
     EVT_CHECKBOX( ID_GW_ENABLED, MainFrame::OnGwEnabledClick )
@@ -70,21 +72,17 @@ BEGIN_EVENT_TABLE( MainFrame, wxFrame )
 ////@end MainFrame event table entries
 	EVT_COMMAND  (ID_MAINFRAME, wxEVT_SERVER_STARTED, MainFrame::OnServerStarted)
 	EVT_COMMAND  (ID_MAINFRAME, wxEVT_SERVER_STOPPED, MainFrame::OnServerStopped)
+	EVT_COMMAND  (ID_MAINFRAME, wxEVT_SERVER_KILLED, MainFrame::OnServerKilled)
 END_EVENT_TABLE()
+
+LogNWNX* logger;
 
 /*!
  * MainFrame constructors
  */
 
-MainFrame::MainFrame(wxFileConfig *config)
+MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style)
 {
-	m_config = config;
-    Init();
-}
-
-MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style, wxFileConfig *config)
-{
-	m_config = config;
     Init();
     Create( parent, id, caption, pos, size, style );
 }
@@ -95,6 +93,8 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& caption, c
 
 bool MainFrame::Create(wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style)
 {
+    logger = static_cast<LogNWNX*>(new Log());
+
 ////@begin MainFrame creation
     wxFrame::Create( parent, id, caption, pos, size, style );
 
@@ -104,15 +104,17 @@ bool MainFrame::Create(wxWindow* parent, wxWindowID id, const wxString& caption,
 
 	m_logger = new wxLogTextCtrl(m_log);
 	wxLog::SetActiveTarget(m_logger);
-	wxLog::AddTraceMask(TRACE_NORMAL);
-	wxLog::AddTraceMask(TRACE_VERBOSE);
 
 	wxLogMessage(wxT("Running in GUI mode."));
 
 	wxDateTime now = wxDateTime::Now();
 	m_startedAt->AppendText(now.Format());
 
-	controller = new NWNXController(m_config);
+    // open ini file
+    std::string inifile("nwnx.ini");
+    auto config = new SimpleIniConfig(inifile);
+
+    controller = new NWNXController(config);
 
 	m_CmdLine->AppendText(controller->parameters);
 	m_PWEnabled->SetValue(controller->processWatchdog);
@@ -204,21 +206,21 @@ void MainFrame::CreateControls()
     itemStaticBoxSizer5->Add(itemFlexGridSizer6, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText7 = new wxStaticText( itemPanel2, wxID_STATIC, _("Started at:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer6->Add(itemStaticText7, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer6->Add(itemStaticText7, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_startedAt = new wxTextCtrl( itemPanel2, ID_TEXTCTRL1, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_startedAt->Enable(false);
     itemFlexGridSizer6->Add(m_startedAt, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText9 = new wxStaticText( itemPanel2, wxID_STATIC, _("Command line:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer6->Add(itemStaticText9, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer6->Add(itemStaticText9, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_CmdLine = new wxTextCtrl( itemPanel2, ID_TEXTCTRL2, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_CmdLine->Enable(false);
     itemFlexGridSizer6->Add(m_CmdLine, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxBitmap itemStaticBitmap11Bitmap(itemFrame1->GetBitmapResource(wxT("res/nwnx4_logo.xpm")));
-    wxStaticBitmap* itemStaticBitmap11 = new wxStaticBitmap( itemPanel2, wxID_STATIC, itemStaticBitmap11Bitmap, wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(53, 49)), 0 );
+    wxStaticBitmap* itemStaticBitmap11 = new wxStaticBitmap( itemPanel2, wxID_STATIC, itemStaticBitmap11Bitmap, wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(64, 64)), 0 );
     itemBoxSizer4->Add(itemStaticBitmap11, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 10);
 
     wxBoxSizer* itemBoxSizer12 = new wxBoxSizer(wxHORIZONTAL);
@@ -228,11 +230,11 @@ void MainFrame::CreateControls()
     wxStaticBoxSizer* itemStaticBoxSizer13 = new wxStaticBoxSizer(itemStaticBoxSizer13Static, wxVERTICAL);
     itemBoxSizer12->Add(itemStaticBoxSizer13, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    wxFlexGridSizer* itemFlexGridSizer14 = new wxFlexGridSizer(2, 3, 0, 0);
+    wxFlexGridSizer* itemFlexGridSizer14 = new wxFlexGridSizer(0, 3, 0, 0);
     itemStaticBoxSizer13->Add(itemFlexGridSizer14, 0, wxALIGN_LEFT|wxALL, 5);
 
     wxStaticText* itemStaticText15 = new wxStaticText( itemPanel2, wxID_STATIC, _("Enabled"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer14->Add(itemStaticText15, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer14->Add(itemStaticText15, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_PWEnabled = new wxCheckBox( itemPanel2, ID_PW_ENABLED, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_PWEnabled->SetValue(true);
@@ -241,34 +243,34 @@ void MainFrame::CreateControls()
     itemFlexGridSizer14->Add(4, 4, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText18 = new wxStaticText( itemPanel2, wxID_STATIC, _("Interval:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer14->Add(itemStaticText18, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer14->Add(itemStaticText18, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_PWInterval = new wxTextCtrl( itemPanel2, ID_TEXTCTRL3, _T(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_PWInterval->Enable(false);
     itemFlexGridSizer14->Add(m_PWInterval, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText20 = new wxStaticText( itemPanel2, wxID_STATIC, _("seconds"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer14->Add(itemStaticText20, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer14->Add(itemStaticText20, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     wxStaticText* itemStaticText21 = new wxStaticText( itemPanel2, wxID_STATIC, _("Restarts:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer14->Add(itemStaticText21, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer14->Add(itemStaticText21, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_PWRestarts = new wxTextCtrl( itemPanel2, ID_TEXTCTRL4, _("0"), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_PWRestarts->Enable(false);
     itemFlexGridSizer14->Add(m_PWRestarts, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText23 = new wxStaticText( itemPanel2, wxID_STATIC, _("crashes"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer14->Add(itemStaticText23, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer14->Add(itemStaticText23, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     wxStaticBox* itemStaticBoxSizer24Static = new wxStaticBox(itemPanel2, wxID_ANY, _("Gamespy watchdog"));
     wxStaticBoxSizer* itemStaticBoxSizer24 = new wxStaticBoxSizer(itemStaticBoxSizer24Static, wxVERTICAL);
     itemBoxSizer12->Add(itemStaticBoxSizer24, 1, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    wxFlexGridSizer* itemFlexGridSizer25 = new wxFlexGridSizer(2, 5, 0, 0);
+    wxFlexGridSizer* itemFlexGridSizer25 = new wxFlexGridSizer(0, 5, 0, 0);
     itemStaticBoxSizer24->Add(itemFlexGridSizer25, 0, wxALIGN_LEFT|wxALL, 5);
 
     wxStaticText* itemStaticText26 = new wxStaticText( itemPanel2, wxID_STATIC, _("Enabled"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer25->Add(itemStaticText26, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer25->Add(itemStaticText26, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_GWEnabled = new wxCheckBox( itemPanel2, ID_GW_ENABLED, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_GWEnabled->SetValue(true);
@@ -281,38 +283,38 @@ void MainFrame::CreateControls()
     itemFlexGridSizer25->Add(4, 4, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText31 = new wxStaticText( itemPanel2, wxID_STATIC, _("Interval:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer25->Add(itemStaticText31, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer25->Add(itemStaticText31, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_GWInterval = new wxTextCtrl( itemPanel2, ID_TEXTCTRL, _T(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_GWInterval->Enable(false);
     itemFlexGridSizer25->Add(m_GWInterval, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText33 = new wxStaticText( itemPanel2, wxID_STATIC, _("seconds"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer25->Add(itemStaticText33, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer25->Add(itemStaticText33, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_GWRetries = new wxTextCtrl( itemPanel2, ID_TEXTCTRL6, _T(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_GWRetries->Enable(false);
     itemFlexGridSizer25->Add(m_GWRetries, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText35 = new wxStaticText( itemPanel2, wxID_STATIC, _("retries"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer25->Add(itemStaticText35, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer25->Add(itemStaticText35, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     wxStaticText* itemStaticText36 = new wxStaticText( itemPanel2, wxID_STATIC, _("Restarts:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer25->Add(itemStaticText36, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer25->Add(itemStaticText36, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_GWRestarts = new wxTextCtrl( itemPanel2, ID_TEXTCTRL5, _("0"), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_GWRestarts->Enable(false);
     itemFlexGridSizer25->Add(m_GWRestarts, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText38 = new wxStaticText( itemPanel2, wxID_STATIC, _("crashes"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer25->Add(itemStaticText38, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer25->Add(itemStaticText38, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_GWLockups = new wxTextCtrl( itemPanel2, ID_TEXTCTRL7, _("0"), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_GWLockups->Enable(false);
     itemFlexGridSizer25->Add(m_GWLockups, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText40 = new wxStaticText( itemPanel2, wxID_STATIC, _("lockups"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemFlexGridSizer25->Add(itemStaticText40, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE, 5);
+    itemFlexGridSizer25->Add(itemStaticText40, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
     m_log = new wxTextCtrl( itemPanel2, ID_TEXTCTRL_LOG, _T(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(-1, 46)), wxTE_MULTILINE );
     itemBoxSizer3->Add(m_log, 0, wxGROW|wxALL, 10);
@@ -356,7 +358,7 @@ wxBitmap MainFrame::GetBitmapResource( const wxString& name )
     wxUnusedVar(name);
     if (name == _T("res/nwnx4_logo.xpm"))
     {
-        wxBitmap bitmap( nwnx4_logo_xpm);
+        wxBitmap bitmap(nwnx4_logo_xpm);
         return bitmap;
     }
     return wxNullBitmap;
@@ -374,7 +376,7 @@ wxIcon MainFrame::GetIconResource( const wxString& name )
     wxUnusedVar(name);
     if (name == _T("res/nwnx4_icon.xpm"))
     {
-        wxIcon icon( nwnx4_icon_xpm);
+        wxIcon icon(nwnx4_icon_xpm);
         return icon;
     }
     return wxNullIcon;
@@ -423,17 +425,18 @@ void MainFrame::OnBtnrestartClick( wxCommandEvent& event )
 
 void MainFrame::OnServerStarted(wxCommandEvent &event)
 {
-	m_BtnStart->Enable(false);
+    m_BtnStart->Enable(false);
 	m_BtnStop->Enable(true);
 	m_BtnRestart->Enable(true);
 }
 
 void MainFrame::OnServerStopped(wxCommandEvent &event)
 {
-	m_BtnStart->Enable(true);
+    m_BtnStart->Enable(true);
 	m_BtnStop->Enable(false);
 	m_BtnRestart->Enable(false);
 }
+
 /*!
  * wxEVT_COMMAND_CHECKBOX_CLICKED event handler for ID_CHECKBOX1
  */
@@ -527,10 +530,16 @@ void MainFrame::OnForumClick( wxCommandEvent& event )
 void MainFrame::OnABOUTClick( wxCommandEvent& event )
 {
 	AboutDialog *dlg = 
-		new AboutDialog(this, -1, wxT("About NWNX"), wxPoint(100,100), wxSize(200,200),
+		new AboutDialog(this, -1, wxT("About NWNx4"), wxPoint(100,100), wxSize(200,200),
 		wxDEFAULT_FRAME_STYLE |
 		wxRESIZE_BORDER);
 	dlg->ShowModal();
 }
 
+void MainFrame::OnClose(wxCloseEvent& event) {
+    worker->killServer();
+}
 
+void MainFrame::OnServerKilled(wxCommandEvent &event) {
+    Destroy();
+}

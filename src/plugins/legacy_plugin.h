@@ -23,6 +23,8 @@
 
 #include <windows.h>
 #include <string>
+#include <stdlib.h>
+#include <tchar.h>
 
 #define MAX_BUFFER 64*1024
 
@@ -35,7 +37,7 @@ public:
 	virtual ~LegacyPlugin();
 
 	// Called when a plugin DLL gets loaded.
-	virtual bool Init(char*);
+	virtual bool Init(TCHAR*);
 
 	// Called when a request is made from NWScript
 	virtual const char* DoRequest(char *gameObject, char* request, char* parameters) = 0;
@@ -44,12 +46,12 @@ public:
 	void ProcessQueryFunction(string function, char* buffer);
 
 	// Return the function class of the plugin in fClass
-	virtual void GetFunctionClass(char* fClass);
+	virtual void GetFunctionClass(TCHAR* fClass);
 
 	// Plugin file name functions
-	char* GetPluginFileName();
-	char* GetPluginFullPath();
-	void SetPluginFullPath(char* fileName);
+	TCHAR* GetPluginFileName();
+	TCHAR* GetPluginFullPath();
+	void SetPluginFullPath(TCHAR* fileName);
 
 	// Copy a plugin response into the buffer provided by NWN
 	void nwnxcpy(char* buffer, const char* response);
@@ -62,8 +64,8 @@ protected:
 	string description;
 
 private:
-	char *pluginFileName;
-	char *pluginFullPath;
+	TCHAR *pluginFileName;
+	TCHAR *pluginFullPath;
 };
 
 #endif
