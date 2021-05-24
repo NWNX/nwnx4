@@ -770,9 +770,9 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		{0xb6, 0xd7, 0x00, 0x60, 0x97, 0xb0, 0x10, 0xe3}
 	};
 
-	shmem = NULL;
+	shmem = nullptr;
 
-    for (HINSTANCE hinst = NULL; (hinst = DetourEnumerateModules(hinst)) != NULL;)
+    for (HINSTANCE hinst = nullptr; (hinst = DetourEnumerateModules(hinst)) != nullptr;)
 	{
 	    shmem = (SHARED_MEMORY*) DetourFindPayload(hinst, my_guid, &cbData);
 
@@ -799,12 +799,11 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	/*
 	 * If we didn't connect to the controller then bail out here.
 	 */
-
-	//if (!shmem)
-	//{
-	//	//DebugPrint( "NWNXWinMain(): Failed to connect to controller!\n" );
-	//	ExitProcess( ERROR_DEVICE_NOT_CONNECTED );
-	//}
+	if (!shmem)
+	{
+		//DebugPrint( "NWNXWinMain(): Failed to connect to controller!\n" );
+		ExitProcess(ERROR_DEVICE_NOT_CONNECTED);
+	}
 
 	/*
 	 * Call the original entrypoint of the process now that we have done our
