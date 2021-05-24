@@ -196,7 +196,7 @@ char* NWNXGetString(char* sPlugin, char* sFunction, char* sParam1, int nParam2)
 					i++;
 					if (i == nParam2)
 					{
-						sprintf_s(returnBuffer, MAX_BUFFER, "%s", it->first);
+						// sprintf_s(returnBuffer, MAX_BUFFER, "%s", it->first);
 						return returnBuffer;
 					}
 				}
@@ -315,12 +315,12 @@ void PayLoad(char *gameObject, char* nwnName, char* nwnValue)
 			size_t resultLength = strlen(pRes);
 			if (valueLength < resultLength)
 			{
-				strncpy(nwnValue, pRes, valueLength);
+				strncpy_s(nwnValue, valueLength, pRes, valueLength);
 				*(nwnValue+valueLength) = 0x0;
 			}
 			else
 			{
-				strncpy(nwnValue, pRes, resultLength);
+				strncpy_s(nwnValue, resultLength, pRes, resultLength);
 				*(nwnValue+resultLength) = 0x0;
 			}
 		}

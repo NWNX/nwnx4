@@ -30,7 +30,7 @@ LegacyPlugin::~LegacyPlugin()
 {
 }
 
-bool LegacyPlugin::Init(char* parameter)
+bool LegacyPlugin::Init(TCHAR* parameter)
 {
 	return true;
 }
@@ -45,45 +45,32 @@ void LegacyPlugin::ProcessQueryFunction(string function, char* buffer)
 		nwnxcpy(buffer, description.c_str());
 }
 
-void LegacyPlugin::GetFunctionClass(char* fClass)
+void LegacyPlugin::GetFunctionClass(TCHAR* fClass)
 {
 	fClass = NULL;
 }
 
-char* LegacyPlugin::GetPluginFileName()
+TCHAR* LegacyPlugin::GetPluginFileName()
 {
 	return pluginFileName;
 }
 
-char* LegacyPlugin::GetPluginFullPath()
+TCHAR* LegacyPlugin::GetPluginFullPath()
 {
 	return pluginFullPath;
 }
 
-void LegacyPlugin::SetPluginFullPath(char* fileName)
+void LegacyPlugin::SetPluginFullPath(TCHAR* fileName)
 {
-	// TODO: replace with _splitpath
-	pluginFullPath = strdup(fileName);
+    TCHAR drive[5], dir[255], fname[50], ext[3];
+    _tsplitpath((const wchar_t*) fileName, (wchar_t*) drive, (wchar_t*) dir, (wchar_t*) fname, (wchar_t*) ext);
 
-	// extract filename from full path
-	int len = (int)strlen(fileName) - 1;
-	if (len > 0)
-	{
-		int begin = -1, end = -1;
-		for (int i = len; i >= 0; i--)
-		{
-			if ((end == -1) && (fileName[i] == '.'))
-				end = i;
-			else if ((begin == -1) && (fileName[i] == '\\'))
-				begin = i + 1;
-		}
-
-		if (end > begin)
-		{
-			pluginFileName = new char[MAX_PATH];
-			strncpy(pluginFileName, fileName + begin, min(MAX_PATH,  end - begin + 1));
-		}
-	}
+    pluginFullPath = new TCHAR[MAX_BUFFER];
+    pluginFileName = new TCHAR[MAX_BUFFER];
+    strncpy(pluginFullPath, fileName, strlen(fileName));
+	strncat(pluginFileName, dir, strlen(fileName));
+    strncat(pluginFileName, "\\", strlen("\\"));
+    strncat(pluginFileName, fname, strlen(fname));
 }
 
 void LegacyPlugin::nwnxcpy(char* buffer, const char* response)

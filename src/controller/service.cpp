@@ -18,6 +18,7 @@
 
 ***************************************************************************/
 
+#include "stdwx.h"
 #include "service.h"
 
 extern LogNWNX* logger;
@@ -43,9 +44,9 @@ BOOL installservice(int serviceNo)
 	SC_HANDLE schSCManager, schService;
 	SERVICE_DESCRIPTION sdBuf;
 
-    char szPath[MAX_PATH], cmdLine[MAX_PATH];
-	char serviceName[64];
-	char displayName[64];
+    TCHAR szPath[MAX_PATH], cmdLine[MAX_PATH];
+	TCHAR serviceName[64];
+	TCHAR displayName[64];
 
 	logger->Info("* Installing NWNX Service %d...", serviceNo);
 
@@ -59,10 +60,10 @@ BOOL installservice(int serviceNo)
         return FALSE;
     }
 
-	snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
-    snprintf(displayName, 64, "NWNX4 Service %d", serviceNo);
-    snprintf(cmdLine, MAX_PATH, "%s -serviceno %d -runservice", szPath, serviceNo);
-	sdBuf.lpDescription = "Neverwinter Nights Extender 4 service instance";
+	_stprintf_s(serviceName, 64, _T("NWNX4-%d"), serviceNo);
+	_stprintf_s(displayName, 64, _T("NWNX4 Service %d"), serviceNo);
+	_stprintf_s(cmdLine, MAX_PATH, _T("%s -serviceno %d -runservice"), szPath, serviceNo);
+	sdBuf.lpDescription = _T("Neverwinter Nights Extender 4 service instance");
 
     schService = CreateService(
         schSCManager,              // SCManager database
@@ -102,9 +103,9 @@ BOOL installservice(int serviceNo)
 BOOL uninstallservice(int serviceNo)
 {
 	SC_HANDLE schSCManager, schService;
-	char serviceName[64];
+	TCHAR serviceName[64];
 
-    snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+    _stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
 	logger->Info("* Uninstalling NWNX Service %d...", serviceNo);
 
 	schSCManager = getSCManager();
@@ -138,7 +139,7 @@ void WINAPI NWNXServiceStart(DWORD argc, LPTSTR *argv)
 {
     DWORD status;
     DWORD specificError;
-	char serviceName[64];
+    TCHAR serviceName[64];
 
     NWNXServiceStatus.dwServiceType = SERVICE_WIN32;
     NWNXServiceStatus.dwCurrentState = SERVICE_START_PENDING;
@@ -148,7 +149,7 @@ void WINAPI NWNXServiceStart(DWORD argc, LPTSTR *argv)
     NWNXServiceStatus.dwCheckPoint = 0;
     NWNXServiceStatus.dwWaitHint = 0;
 
-    snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+    _stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
     NWNXServiceStatusHandle = RegisterServiceCtrlHandler(serviceName, NWNXServiceCtrlHandler);
 
     if (NWNXServiceStatusHandle == (SERVICE_STATUS_HANDLE)0)
@@ -266,13 +267,13 @@ BOOL StartNWNXService(int serviceNo)
     DWORD dwStartTickCount;
     DWORD dwWaitTime;
     DWORD dwBytesNeeded;
-	char serviceName[64];
+	TCHAR serviceName[64];
 
 	schSCManager = getSCManager();
 	if (NULL == schSCManager)
 		return FALSE;
 
-	snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+	_stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
     schService = OpenService(
         schSCManager,           // SCManager database
         serviceName,            // name of service
@@ -389,9 +390,9 @@ DWORD StopNWNXService(int serviceNo)
     DWORD dwStartTime = GetTickCount();
     DWORD dwBytesNeeded;
 	DWORD dwTimeout = 10000; //msec
-	char serviceName[64];
+	TCHAR serviceName[64];
 
-    snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+    _stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
 
 	schSCManager = getSCManager();
 	if (NULL == schSCManager)

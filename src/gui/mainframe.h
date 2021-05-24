@@ -39,6 +39,7 @@
 #include "wx/thread.h"
 #include "controller.h"
 #include "worker.h"
+#include "Log.h"
 
 /*!
  * Forward declarations
@@ -71,7 +72,7 @@
 #define ID_HELP 10015
 #define ID_FORUM 10016
 #define SYMBOL_MAINFRAME_STYLE wxCAPTION|wxSYSTEM_MENU|wxMINIMIZE_BOX|wxCLOSE_BOX
-#define SYMBOL_MAINFRAME_TITLE _("NWNX4")
+#define SYMBOL_MAINFRAME_TITLE _("NWNx4 0.1.0")
 #define SYMBOL_MAINFRAME_IDNAME ID_MAINFRAME
 #define SYMBOL_MAINFRAME_SIZE wxSize(400, 260)
 #define SYMBOL_MAINFRAME_POSITION wxDefaultPosition
@@ -96,13 +97,14 @@ class MainFrame: public wxFrame
 
 public:
     /// Constructors
-    MainFrame(wxFileConfig *config);
-    MainFrame(wxWindow* parent, wxWindowID id = SYMBOL_MAINFRAME_IDNAME, const wxString& caption = SYMBOL_MAINFRAME_TITLE, const wxPoint& pos = SYMBOL_MAINFRAME_POSITION, const wxSize& size = SYMBOL_MAINFRAME_SIZE, long style = SYMBOL_MAINFRAME_STYLE, wxFileConfig *config = NULL);
+    MainFrame(wxWindow* parent, wxWindowID id = SYMBOL_MAINFRAME_IDNAME, const wxString& caption = SYMBOL_MAINFRAME_TITLE, const wxPoint& pos = SYMBOL_MAINFRAME_POSITION, const wxSize& size = SYMBOL_MAINFRAME_SIZE, long style = SYMBOL_MAINFRAME_STYLE);
 
     bool Create(wxWindow* parent, wxWindowID id = SYMBOL_MAINFRAME_IDNAME, const wxString& caption = SYMBOL_MAINFRAME_TITLE, const wxPoint& pos = SYMBOL_MAINFRAME_POSITION, const wxSize& size = SYMBOL_MAINFRAME_SIZE, long style = SYMBOL_MAINFRAME_STYLE);
 
     /// Initialises member variables
     void Init();
+
+    void OnClose(wxCloseEvent& event);
 
     /// Creates the controls and sizers
     void CreateControls();
@@ -140,6 +142,7 @@ public:
 
 	void OnServerStarted(wxCommandEvent &event);
 	void OnServerStopped(wxCommandEvent &event);
+    void OnServerKilled(wxCommandEvent &event);
 
 ////@begin MainFrame member function declarations
 
@@ -171,9 +174,9 @@ public:
 ////@end MainFrame member variables
 
 private:
-	wxFileConfig* m_config;
 	NWNXController* controller;
-	wxLogTextCtrl* m_logger;
+    SimpleIniConfig* configuration;
+    wxLogTextCtrl* m_logger;
 	wxTimer m_timer;
 	NWNXWorker* worker;
 };

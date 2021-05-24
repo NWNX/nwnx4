@@ -24,12 +24,16 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <tchar.h>
+#include "detours/detours.h"
+#include "wx/fileconf.h"
 #include <string>
-#include "detours.h"
 #include "udp.h"
 #include "../misc/log.h"
 #include "../misc/shmem.h"
 #include "../misc/ini.h"
+#include <atlbase.h>
+#include <atlconv.h>
 
 #define arrayof(x)		(sizeof(x)/sizeof(x[0]))
 #define IDC_SENDMESSAGE_EDIT    0x3FC
@@ -90,7 +94,7 @@ private:
 	static BOOL CALLBACK findServerGuiWindowEnumProc(HWND hwnd, LPARAM lParam);
 	static HWND findServerGuiWindow(ULONG processId);
 	bool performGracefulShutdown();
-	bool broadcastServerMessage(const char *message);
+	bool broadcastServerMessage(const TCHAR *message);
 };
 
 #endif

@@ -19,14 +19,13 @@
 
 ***************************************************************************/
 
+#include "stdwx.h"
 #include "controller.h"
 extern LogNWNX* logger;
 
 NWNXController::NWNXController(SimpleIniConfig* config)
 {
-	this->config = config;
-
-	tick = 0;
+    tick = 0;
 	initialized = false;
 	shuttingDown = false;
 	ZeroMemory(&si, sizeof(si));
@@ -103,9 +102,11 @@ void NWNXController::notifyServiceShutdown()
 
 bool NWNXController::startServerProcessInternal()
 {
+    USES_CONVERSION;
+
     SHARED_MEMORY shmem;
 	std::string nwnexe("\\nwn2server.exe");
-	char* pszHookDLLPath = "NWNX4_Hook.dll";
+	LPWSTR pszHookDLLPath = L"NWNx4Hook.dll";
 
 	ZeroMemory(&si, sizeof(si));
 	ZeroMemory(&pi, sizeof(pi));
@@ -114,10 +115,10 @@ bool NWNXController::startServerProcessInternal()
 	auto exePath = nwnhome + nwnexe;
 	logger->Trace("Starting server executable %s in %s", exePath.c_str(), nwnhome.c_str());
 
-	char szDllPath[MAX_PATH];
-	char* pszFilePart = NULL;
+	TCHAR szDllPath[MAX_PATH];
+	LPWSTR pszFilePart = nullptr;
 
-	if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart))
+    if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart))
 	{
 		logger->Info("Error: %s could not be found.", pszHookDLLPath);
 		return false;
@@ -141,9 +142,14 @@ bool NWNXController::startServerProcessInternal()
 	DWORD dwFlags = CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED;
 	SetLastError(0);
 
-	if (!DetourCreateProcessWithDll(exePath.c_str(), (char*)parameters.c_str(),
-                                    NULL, NULL, TRUE, dwFlags, NULL, nwnhome.c_str(),
-                                    &si, &pi, szDllPath, NULL))
+    auto wexecutable = A2T((nwnhome + nwnexe).c_str());
+    auto wparameters = A2T(parameters.c_str());
+    auto wnwnhome = A2T(nwnhome.c_str());
+    auto dllPath = T2A(szDllPath);
+
+	if (!DetourCreateProcessWithDll(wexecutable, wparameters,
+                                    NULL, NULL, TRUE, dwFlags, NULL, wnwnhome,
+                                    &si, &pi, dllPath, NULL))
 	{
 		auto err = GetLastError();
 		logger->Info("DetourCreateProcessWithDll failed: %d", err);
@@ -166,7 +172,10 @@ bool NWNXController::startServerProcessInternal()
 	GetCurrentDirectory(MAX_PATH, shmem.nwnx_home);
 	logger->Trace("NWNX home directory set to %s", shmem.nwnx_home);
 
-	DetourCopyPayloadToProcess(pi.hProcess, my_guid, &shmem, sizeof(SHARED_MEMORY));
+	if (!DetourCopyPayloadToProcess(pi.hProcess, my_guid, &shmem, sizeof(SHARED_MEMORY))) {
+	    logger->Err("! Error: Could no copy payload to process.", GetLastError());
+	    return false;
+	}
 
 	// Start the main thread running and wait for it to signal that it has read
 	// configuration data and started up it's end of any IPC mechanisms that we
@@ -233,7 +242,7 @@ void NWNXController::restartServerProcess()
 
 		ZeroMemory(&si,sizeof(si));
 		si.cb = sizeof(si);
-		logger->Info("* Starting maintenance file %s", restartCmd);
+		logger->Info("* Starting maintenance file %s", restartCmd.c_str());
 		restartCmd = std::string("cmd.exe /c ") + restartCmd;
 		if (CreateProcess(NULL, (LPTSTR)restartCmd.c_str(), NULL, NULL,FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi))
 		{
@@ -321,6 +330,8 @@ HWND NWNXController::findServerGuiWindow(ULONG processId)
 
 bool NWNXController::performGracefulShutdown()
 {
+    USES_CONVERSION;
+
 	HWND serverGuiWindow;
 
 	// Can't perform a graceful shutdown without a process ID.
@@ -338,7 +349,7 @@ bool NWNXController::performGracefulShutdown()
 	if (gracefulShutdownMessage != "")
 	{
 		logger->Info( "* Sending shutdown server message and waiting %d seconds.", gracefulShutdownMessageWait);
-		broadcastServerMessage(gracefulShutdownMessage.c_str());
+		broadcastServerMessage(A2T(gracefulShutdownMessage.c_str()));
 		Sleep(gracefulShutdownMessageWait * 1000);
 	}
 
@@ -352,7 +363,7 @@ bool NWNXController::performGracefulShutdown()
 	return (WaitForSingleObject(pi.hProcess, gracefulShutdownTimeout * 1000) == WAIT_OBJECT_0);
 }
 
-bool NWNXController::broadcastServerMessage(const char *message)
+bool NWNXController::broadcastServerMessage(const TCHAR *message)
 {
 	HWND srvWnd;
 	HWND sendMsgEdit;
@@ -465,7 +476,7 @@ void NWNXController::runGamespyWatchdog()
 	if (gamespyRetries > gamespyTolerance)
 	{
 		// Restart server
-		logger->Info("* Server did not answer the last %d gamespy queries.", gamespyTolerance);
+		logger->Warn("* Server did not answer the last %d gamespy queries.", gamespyTolerance);
 		gamespyRetries = 0;
 		restartServerProcess();
 	}

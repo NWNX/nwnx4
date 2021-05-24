@@ -23,26 +23,12 @@
 #include "nwnx.h"
 #include "DlgAbout.h"
 
-IMPLEMENT_APP(NWNXGUI)
-
 bool NWNXGUI::OnInit()
 {
-	// open ini file
-	wxString inifile(wxT("nwnx.ini")); 
-	wxFileConfig* config = new wxFileConfig(wxEmptyString, wxEmptyString, 
-		inifile, wxEmptyString, wxCONFIG_USE_RELATIVE_PATH|wxCONFIG_USE_NO_ESCAPE_CHARACTERS);
+    USES_CONVERSION;
 
-	// Setup temporary directories
-	wxString tempPath;
-	config->Read(wxT("nwn2temp"), &tempPath);
-	if (tempPath != wxT(""))
-	{
-		SetEnvironmentVariable(wxT("TEMP"), tempPath);
-		SetEnvironmentVariable(wxT("TMP"), tempPath);
-	}
-
-	m_locale.Init(wxLANGUAGE_DEFAULT, NULL);	
-	MainFrame* frame = new MainFrame(NULL, ID_MAINFRAME, SYMBOL_MAINFRAME_TITLE, SYMBOL_MAINFRAME_POSITION, SYMBOL_MAINFRAME_SIZE, SYMBOL_MAINFRAME_STYLE, config);
+	m_locale.Init(wxLANGUAGE_DEFAULT, NULL);
+	MainFrame* frame = new MainFrame(NULL, ID_MAINFRAME, SYMBOL_MAINFRAME_TITLE, SYMBOL_MAINFRAME_POSITION, SYMBOL_MAINFRAME_SIZE, SYMBOL_MAINFRAME_STYLE);
 
 	frame->Show(true);
 	SetTopWindow(frame);

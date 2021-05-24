@@ -22,6 +22,8 @@
 #define NWNX_H
 
 #include "wx/fileconf.h"
+#include <atlbase.h>
+#include <atlconv.h>
 
 enum
 { GUI_EXIT	= wxID_HIGHEST + 1,
@@ -40,6 +42,8 @@ class NWNXGUI : public wxApp
   private:
 	wxLocale m_locale;
 };
+
+DECLARE_APP(NWNXGUI)
 
 #endif
 
