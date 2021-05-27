@@ -63,6 +63,7 @@ private:
 	std::string user;
 	std::string password;
 	std::string schema;
+	std::string charset;
 	int port;
 
 };
