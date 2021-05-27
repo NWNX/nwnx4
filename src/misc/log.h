@@ -90,8 +90,8 @@ protected:
     std::ofstream m_ofStream;
     LogLevel m_level;
 
-    void LogNWNX::Log(LogLevel level, const char* format, va_list args);
-    void LogNWNX::LogStr(const char* message);
+    void Log(LogLevel level, const char* format, va_list args);
+    void LogStr(const char* message);
 };
 
 
