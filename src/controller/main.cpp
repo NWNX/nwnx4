@@ -176,9 +176,9 @@ int main(int argc,char *argv[])
 	serviceNo = 1;
 
 	// Set the current working directory to the executeables base directory
-	TCHAR path_buffer[_MAX_PATH];
-	TCHAR drive[_MAX_DRIVE];
-	TCHAR dir[_MAX_DIR];
+	wchar_t path_buffer[_MAX_PATH];
+	wchar_t drive[_MAX_DRIVE];
+	wchar_t dir[_MAX_DIR];
 	GetModuleFileName(NULL, path_buffer, MAX_PATH);
 	_wsplitpath( path_buffer, drive, dir, NULL, NULL );
 	_wmakepath(path_buffer, drive, dir, NULL, NULL);
@@ -215,8 +215,8 @@ int main(int argc,char *argv[])
 	else if (STARTUP_ACTION == run_service)
 	{
 		// start as service
-		TCHAR serviceName[64];
-		_stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
+		wchar_t serviceName[64];
+		_stprintf_s(serviceName, 64, L"NWNX4-%d", serviceNo);
 
 		SERVICE_TABLE_ENTRY DispatchTable[] = {{ serviceName, NWNXServiceStart}, { NULL, NULL }};
 		if (!StartServiceCtrlDispatcher(DispatchTable))

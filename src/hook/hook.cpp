@@ -774,9 +774,7 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	shmem = nullptr;
 
-	std::this_thread::sleep_for(10s);
-
-    for (HINSTANCE hinst = nullptr; (hinst = DetourEnumerateModules(hinst)) != nullptr;)
+	for (HINSTANCE hinst = nullptr; (hinst = DetourEnumerateModules(hinst)) != nullptr;)
 	{
 	    shmem = (SHARED_MEMORY*) DetourFindPayload(hinst, my_guid, &cbData);
 

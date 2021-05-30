@@ -30,7 +30,7 @@ LegacyPlugin::~LegacyPlugin()
 {
 }
 
-bool LegacyPlugin::Init(TCHAR* parameter)
+bool LegacyPlugin::Init(char* parameter)
 {
 	return true;
 }
@@ -45,28 +45,28 @@ void LegacyPlugin::ProcessQueryFunction(string function, char* buffer)
 		nwnxcpy(buffer, description.c_str());
 }
 
-void LegacyPlugin::GetFunctionClass(TCHAR* fClass)
+void LegacyPlugin::GetFunctionClass(char* fClass)
 {
 	fClass = NULL;
 }
 
-TCHAR* LegacyPlugin::GetPluginFileName()
+char* LegacyPlugin::GetPluginFileName()
 {
 	return pluginFileName;
 }
 
-TCHAR* LegacyPlugin::GetPluginFullPath()
+char* LegacyPlugin::GetPluginFullPath()
 {
 	return pluginFullPath;
 }
 
-void LegacyPlugin::SetPluginFullPath(TCHAR* fileName)
+void LegacyPlugin::SetPluginFullPath(char* fileName)
 {
-    TCHAR drive[5], dir[255], fname[50], ext[3];
-    _tsplitpath((const wchar_t*) fileName, (wchar_t*) drive, (wchar_t*) dir, (wchar_t*) fname, (wchar_t*) ext);
+    char drive[5], dir[255], fname[50], ext[3];
+    _splitpath(fileName, drive, dir, fname, ext);
 
-    pluginFullPath = new TCHAR[MAX_BUFFER];
-    pluginFileName = new TCHAR[MAX_BUFFER];
+    pluginFullPath = new char[MAX_BUFFER];
+    pluginFileName = new char[MAX_BUFFER];
     strncpy(pluginFullPath, fileName, strlen(fileName));
 	strncat(pluginFileName, dir, strlen(fileName));
     strncat(pluginFileName, "\\", strlen("\\"));
