@@ -31,7 +31,7 @@ PluginHashMap plugins;
 LegacyPluginHashMap legacyplugins;
 
 LogNWNX* logger;
-std::string* nwnxhome;
+std::wstring* nwnxhome;
 SimpleIniConfig* config;
 
 char returnBuffer[MAX_BUFFER];
@@ -418,13 +418,15 @@ void init()
 {
     unsigned char* hookAt;
 
-	std::string logfile = std::string(*nwnxhome) + "\\nwnx.txt";
+	auto logfile = std::wstring(*nwnxhome) + L"\\nwnx.txt";
 	logger = new LogNWNX(logfile);
 	logger->Info("NWN Extender 4 V.1.1.0");
 	logger->Info("(c) 2008 by Ingmar Stieger (Papillon)");
 	logger->Info("visit us at http://www.nwnx.org");
 
-	// signal controller that we are ready
+    logger->Info("NWNX Home: %s", nwnxhome);
+
+    // signal controller that we are ready
 	if (!SetEvent(shmem->ready_event))
 	{
 		logger->Info("* SetEvent failed (%d)", GetLastError());
@@ -433,7 +435,7 @@ void init()
 	CloseHandle(shmem->ready_event);
 
 	// open ini file
-	std::string inifile = *nwnxhome + "\\nwnx.ini";
+	auto inifile = *nwnxhome + L"\\nwnx.ini";
 	logger->Trace("Reading inifile %s", inifile.c_str());
 	config = new SimpleIniConfig(inifile);
 	logger->Configure(config);
@@ -772,6 +774,8 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	shmem = nullptr;
 
+	std::this_thread::sleep_for(10s);
+
     for (HINSTANCE hinst = nullptr; (hinst = DetourEnumerateModules(hinst)) != nullptr;)
 	{
 	    shmem = (SHARED_MEMORY*) DetourFindPayload(hinst, my_guid, &cbData);
@@ -789,8 +793,7 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			// Initialize plugins and load configuration data.
 			//
 
-			nwnxhome = new std::string(shmem->nwnx_home);
-
+			nwnxhome = new std::wstring(shmem->nwnx_home);
 			init();
 			break;
 		}

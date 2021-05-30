@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <unordered_map>
+#include <chrono>
+#include <thread>
 #include "detours/detours.h"
 #include "crashdump.h"
 #include "../misc/ini.h"
@@ -72,7 +74,7 @@ extern PluginHashMap plugins;
 extern LegacyPluginHashMap legacyplugins;
 
 extern LogNWNX* logger;
-extern std::string* nwnxhome;
+extern std::wstring* nwnxhome;
 extern SimpleIniConfig* config;
 
 extern char returnBuffer[MAX_BUFFER];
