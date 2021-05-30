@@ -86,43 +86,16 @@ bool MySQL::Init(char* nwnxhome)
 	else
 		logger->Info("* Hooking failed");
 
-	if (config->Read("server", &server) )
-	{
-		logger->Info("* Connecting to server %s", server.c_str());
-	}
-	else
-	{
-		logger->Info("* MySQL database server not found in ini file");
-		server = "localhost";
-		logger->Info("* Using default server %s", server.c_str());
-	}
+	config->Read("server", &server, std::string("localhost"));
+	config->Read("port", &port, 0);
+	config->Read("user", &user, std::string(""));
+	config->Read("password", &password, std::string(""));
+	config->Read("schema", &schema, std::string("nwn2"));
+	config->Read("charset", &charset, std::string(""));
 
-	if (!config->Read("user", &user) )
-	{
-		logger->Info("* MySQL user account not found in ini file");
-		user = "";
-		logger->Info("* Using default user '%s'", user.c_str());
-	}
-
-	if (!config->Read("password", &password) )
-	{
-		logger->Info("* MySQL password not found in ini file");
-		password = "";
-		logger->Info("* Using default password '%s'", password.c_str());
-	}
-
-	if (!config->Read("schema", &schema) )
-	{
-		logger->Info("* MySQL schema not found in ini file");
-		user = "nwn2";
-		logger->Info("* Using default schema '%s'", schema.c_str());
-	}
-	if (!config->Read("port", &port) )
-	{
-		logger->Info("* MySQL port not found in ini file");
-		port = 0;
-		logger->Info("* Using default port '%d'", port);
-	}
+	logger->Info("* Server: address='%s' port=%d", server.c_str(), port);
+	logger->Info("* Authentication: user='%s' password='%s'", user.c_str(), password.size() > 0 ? "REDACTED" : "None");
+	logger->Info("* Database: schema='%s' charset='%s'", schema.c_str(), charset.c_str());
 
 	if (!Connect())
 	{
@@ -145,10 +118,17 @@ bool MySQL::Connect()
 	if (connection == NULL)
 	{
 		mysql_close(&mysql);
-		return FALSE;
+		return false;
     }
 
-	return TRUE;
+	// Set char set
+	if (charset.size() > 0) {
+		if (mysql_set_character_set(&mysql, charset.c_str()) != 0) {
+			logger->Warn("* Cannot set character set '%s': %s", charset.c_str(), mysql_error(&mysql));
+		}
+	}
+
+	return true;
 }
 
 void MySQL::Disconnect()
