@@ -42,7 +42,7 @@ int __fastcall SCOHookProc(void* pThis, void* _, char** database, char** key, ch
 
 unsigned char* __fastcall RCOHookProc(void* pThis, void* _, char** database, char** key, char** player, int* arg4, int* size)
 {
-	if(!pThis) return nullptr;
+	if(!pThis) return NULL;
 
 	if (memcmp(*database, "NWNX", 4) != 0)
 	{
@@ -96,7 +96,7 @@ DWORD FindHookSCO()
 		else
 			ptr++;
 	}
-	return nullptr;
+	return NULL;
 }
 
 DWORD FindHookRCO()
@@ -136,7 +136,7 @@ DWORD FindHookRCO()
 		else
 			ptr++;
 	}
-	return nullptr;
+	return NULL;
 }
 
 int HookSCORCO(LogNWNX* logger)

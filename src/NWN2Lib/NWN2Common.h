@@ -235,7 +235,7 @@ namespace NWN
 			)
 		{
 			if (GetObjectType( ) != NWN::OBJECT_TYPE_CREATURE)
-				return nullptr;
+				return NULL;
 
 			return (CNWSCreature *) this;
 		}
@@ -246,7 +246,7 @@ namespace NWN
 			)
 		{
 			if (GetObjectType( ) != NWN::OBJECT_TYPE_AREA)
-				return nullptr;
+				return NULL;
 
 			return (CNWSArea *) ((char *) this - ArGameObjectBaseClassOffset);
 		}
@@ -257,7 +257,7 @@ namespace NWN
 			)
 		{
 			if (GetObjectType( ) != NWN::OBJECT_TYPE_ITEM)
-				return nullptr;
+				return NULL;
 
 			return (CNWSItem *) ((char *) this - ItGameObjectBaseClassOffset);
 		}
@@ -271,7 +271,7 @@ namespace NWN
 			{
 
 			case NWN::OBJECT_TYPE_AREA:
-				return nullptr;
+				return NULL;
 
 			case NWN::OBJECT_TYPE_ITEM:
 				return (CNWSObject *) AsItem( );
@@ -294,7 +294,7 @@ namespace NWN
 				return (CNWSObject *) this;
 
 			default:
-				return nullptr;
+				return NULL;
 
 			}
 		}
@@ -1033,7 +1033,7 @@ class GameObjectManager
 public:
 
 	//
-	// Return a game object by object id.  Returns nullptr if there was no match.
+	// Return a game object by object id.  Returns NULL if there was no match.
 	//
 
 	inline
@@ -1054,7 +1054,7 @@ public:
 	}
 
 	//
-	// Return a creature object by object id.  Returns nullptr if there was no
+	// Return a creature object by object id.  Returns NULL if there was no
 	// such object, or if there was an object type mismatch.
 	//
 
@@ -1066,14 +1066,14 @@ public:
 	{
 		GameObject * Object;
 
-		if ((Object = GetGameObject( ObjectId )) == nullptr)
-			return nullptr;
+		if ((Object = GetGameObject( ObjectId )) == NULL)
+			return NULL;
 
 		return Object->AsCreature( );
 	}
 
 	//
-	// Return an area object by object id.  Returns nullptr if there was no
+	// Return an area object by object id.  Returns NULL if there was no
 	// such object, or if there was an object type mismatch.
 	//
 
@@ -1085,8 +1085,8 @@ public:
 	{
 		GameObject * Object;
 
-		if ((Object = GetGameObject( ObjectId )) == nullptr)
-			return nullptr;
+		if ((Object = GetGameObject( ObjectId )) == NULL)
+			return NULL;
 
 		return Object->AsArea( );
 	}

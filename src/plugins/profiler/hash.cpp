@@ -26,10 +26,10 @@
 ** These are used in freeing a table. Perhaps I should code up
 ** something a little less grungy, but it works, so what the heck.
 */
-static void (*function)(void *) = (void (*)(void *))nullptr;
-static hash_table *the_table = nullptr;
+static void (*function)(void *) = (void (*)(void *))NULL;
+static hash_table *the_table = NULL;
 /* Initialize the hash_table to the size asked for. Allocates space
-** for the correct number of pointers and sets them to nullptr. If it
+** for the correct number of pointers and sets them to NULL. If it
 ** can't allocate sufficient memory, signals error by setting the size
 ** of the table to 0.
 */
@@ -40,13 +40,13 @@ hash_table *construct_table(hash_table *table, size_t size)
     table -> size = size;
     table -> table = (bucket * *)malloc(sizeof(bucket *) * size);
     temp = table -> table;
-    if (temp == nullptr)
+    if (temp == NULL)
     {
         table -> size = 0;
         return table;
     }
     for (i=0; i<size; i++)
-	    temp[i] = nullptr;
+	    temp[i] = NULL;
 
     return table;
 }
@@ -139,24 +139,24 @@ ub4 hash(char *key, register ub4 initval)
 /*
 ** Insert 'key' into hash table.
 ** Returns pointer to old data associated with the key, if any, or
-** nullptr if the key wasn't in the table previously.
+** NULL if the key wasn't in the table previously.
 */
 void *insert(char *key, void *data, hash_table *table)
 {
     unsigned val = hash(key, 42) % table->size;
     bucket *ptr;
     /*
-    ** nullptr means this bucket hasn't been used yet. We'll simply
+    ** NULL means this bucket hasn't been used yet. We'll simply
     ** allocate space for our new bucket and put our data there, with
     ** the table pointing at it.
     */
-    if ((table->table)[val] == nullptr)
+    if ((table->table)[val] == NULL)
     {
         (table->table)[val] = (bucket *)malloc(sizeof(bucket));
-        if ((table->table)[val] == nullptr)
-	        return nullptr;
+        if ((table->table)[val] == NULL)
+	        return NULL;
         (table->table)[val]->key = strdup(key);
-        (table->table)[val]->next = nullptr;
+        (table->table)[val]->next = NULL;
         (table->table)[val]->data = data;
         return (table->table)[val] -> data;
     }
@@ -164,7 +164,7 @@ void *insert(char *key, void *data, hash_table *table)
     ** This spot in the table is already in use. See if the current string
     ** has already been inserted, and if so, increment its count.
     */
-    for (ptr = (table->table)[val]; ptr != nullptr; ptr = ptr->next)
+    for (ptr = (table->table)[val]; ptr != NULL; ptr = ptr->next)
 	{
 		if (strcmp(key, ptr->key) == 0)
         {
@@ -183,7 +183,7 @@ void *insert(char *key, void *data, hash_table *table)
     ** list was larger than this one.
     */
     ptr = (bucket *)malloc(sizeof(bucket));
-    if (ptr == nullptr)
+    if (ptr == NULL)
 	    return 0;
     ptr->key = strdup(key);
     ptr->data = data;
@@ -192,32 +192,32 @@ void *insert(char *key, void *data, hash_table *table)
     return data;
 }
 /*
-** Look up a key and return the associated data. Returns nullptr if
+** Look up a key and return the associated data. Returns NULL if
 ** the key is not in the table.
 */
 void *lookup(char *key, hash_table *table)
 {
     unsigned val = hash(key, 42) % table->size;
     bucket *ptr;
-    if ((table->table)[val] == nullptr)
-	    return nullptr;
-    for (ptr = (table->table)[val]; ptr != nullptr; ptr = ptr->next )
+    if ((table->table)[val] == NULL)
+	    return NULL;
+    for (ptr = (table->table)[val]; ptr != NULL; ptr = ptr->next )
         if (strcmp(key, ptr->key) == 0)
 			return ptr->data;
 
-	return nullptr;
+	return NULL;
 }
 /*
 ** Delete a key from the hash table and return associated
-** data, or nullptr if not present.
+** data, or NULL if not present.
 */
 void *del(char *key, hash_table *table)
 {
     unsigned val = hash(key, 42) % table->size;
     void *data;
-    bucket *ptr, *last = nullptr;
-    if ((table->table)[val] == nullptr)
-	    return nullptr;
+    bucket *ptr, *last = NULL;
+    if ((table->table)[val] == NULL)
+	    return NULL;
     /*
     ** Traverse the list, keeping track of the previous node in the list.
     ** When we find the node to delete, we set the previous node's next
@@ -225,11 +225,11 @@ void *del(char *key, hash_table *table)
     ** the key from the present node, and return a pointer to the data it
     ** contains.
     */
-    for (last = nullptr, ptr = (table->table)[val]; ptr != nullptr; last = ptr, ptr = ptr->next)
+    for (last = NULL, ptr = (table->table)[val]; ptr != NULL; last = ptr, ptr = ptr->next)
     {
         if (strcmp(key, ptr -> key) == 0)
         {
-            if (last != nullptr )
+            if (last != NULL )
             {
                 data = ptr->data;
                 last->next = ptr->next;
@@ -238,7 +238,7 @@ void *del(char *key, hash_table *table)
                 return data;
             }
             /*
-            ** If 'last' still equals nullptr, it means that we need to
+            ** If 'last' still equals NULL, it means that we need to
             ** delete the first node in the list. This simply consists
             ** of putting our own 'next' pointer in the array holding
             ** the head of the list. We then dispose of the current
@@ -256,9 +256,9 @@ void *del(char *key, hash_table *table)
     }
     /*
     ** If we get here, it means we didn't find the item in the table.
-    ** Signal this by returning nullptr.
+    ** Signal this by returning NULL.
     */
-    return nullptr;
+    return NULL;
 }
 /*
 ** free_table iterates the table, calling this repeatedly to free
@@ -288,10 +288,10 @@ void free_table(hash_table *table, void (*func)(void *))
     the_table = table;
     enumerate( table, free_node);
     free(table->table);
-    table->table = nullptr;
+    table->table = NULL;
     table->size = 0;
-    the_table = nullptr;
-    function = (void (*)(void *))nullptr;
+    the_table = NULL;
+    function = (void (*)(void *))NULL;
 }
 /*
 ** Simply invokes the function given as the second parameter for each
@@ -302,8 +302,8 @@ void enumerate( hash_table *table, void (*func)(char *, void *))
     unsigned i;
     bucket *temp;
     for (i=0; i < table->size; i++)
-        if ((table->table)[i] != nullptr)
-            for (temp = (table->table)[i]; temp != nullptr; temp = temp->next)
+        if ((table->table)[i] != NULL)
+            for (temp = (table->table)[i]; temp != NULL; temp = temp->next)
                 func(temp->key, temp->data);
 
 }

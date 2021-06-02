@@ -22,8 +22,6 @@
 #define HOOK_H_INCLUDED
 
 #include <windows.h>
-#include <stdio.h>
-#include <tchar.h>
 #include <unordered_map>
 #include <chrono>
 #include <thread>

@@ -480,7 +480,7 @@ BugFix::BugFix()
 	for (ULONG Index = 0; Index < 1 + GAME_OBJ_CACHE_SIZE; Index += 1)
 	{
 		GameObjectCache[ Index ].ObjectId = NWN::INVALIDOBJID;
-		GameObjectCache[ Index ].Object = nullptr;
+		GameObjectCache[ Index ].Object = NULL;
 	}
 
 #endif
@@ -756,7 +756,7 @@ bool BugFix::Init(char* nwnxhome)
 
 			delete tracer;
 
-			tracer = nullptr;
+			tracer = NULL;
 		}
 		else
 		{
@@ -783,11 +783,11 @@ int BugFix::GetInt(char* sFunction, char* sParam1, int nParam2)
 		NWN::CNWSCreature * Creature;
 
 		Object = GetGameObject( (NWN::OBJECTID) nParam2 );
-		if (Object == nullptr)
+		if (Object == NULL)
 			return 0;
 
 		Creature = Object->AsCreature( );
-		if (Creature == nullptr)
+		if (Creature == NULL)
 			return 0;
 
 		if (!Creature->GetIsPlayerCharacter( ))
@@ -819,7 +819,7 @@ void BugFix::SetString(char* sFunction, char* sParam1, int nParam2, char* sValue
 char* BugFix::GetString(char* sFunction, char* sParam1, int nParam2)
 {
 	logger->Trace("* Plugin GetString(0x%x, %s, %d)", 0x0, sParam1, nParam2);
-	return nullptr;
+	return NULL;
 }
 
 bool BugFix::Check()
@@ -1312,7 +1312,7 @@ void __stdcall BugFix::LogNullDerefCrash8()
 	{
 		plugin->lastlog = now;
 
-		_logger->Info(  "LogNullDerefCrash8: Avoided null deference crash #8 (nullptr CItemRepository in item acquisition)."  );
+		_logger->Info(  "LogNullDerefCrash8: Avoided null deference crash #8 (NULL CItemRepository in item acquisition)."  );
 	}
 }
 
@@ -1785,7 +1785,7 @@ Skip:
  *   returns false, the [out] pointer is uninitialized, but
  *   CNetLayerWindow::UnpacketizeFullMessages (incorrectly) assumes that
  *   CExoNetExtendableBuffer::GetFrameData signals a failure condition by
- *   setting the [out] pointer to nullptr.  Thus, we use an uninitialized
+ *   setting the [out] pointer to NULL.  Thus, we use an uninitialized
  *   buffer pointer (stack based) in this case.
  *
  * - The actual fix for this problem should be:
@@ -1840,7 +1840,7 @@ void BugFix::Crash5Fix()
  * CNWSMessage::HandlePlayerToServerInventoryMessage
  *
  * - We call CNWSPlayer::GetGameObject, but fail to handle the contingency
- *   where this returns nullptr.
+ *   where this returns NULL.
  *
  * - The actual fix to this problem should be:
  *
@@ -2078,7 +2078,7 @@ Skip:
 /*
  * CItemRepository::GetItemPtrInRepository
  *
- * - We do not check that GetItemByGameObjectID returns a non-nullptr CNWSItem*.
+ * - We do not check that GetItemByGameObjectID returns a non-NULL CNWSItem*.
  *
  * - The actual fix to this problem should be:
  *
@@ -2118,7 +2118,7 @@ Skip:
 /*
  * CNWSCreatureStats::ValidateLevelUp
  *
- * - We don't handle the case where CNWSFeat::GetFeat returns nullptr.  This
+ * - We don't handle the case where CNWSFeat::GetFeat returns NULL.  This
  *   results in a crash during level-up processing (inside
  *   CNWSRules::IgnoreValidation) if a client specifies a bogus feat identifier
  *   in their level-up packet.
@@ -2244,7 +2244,7 @@ Skip:
 /*
  * CNWSMessage::HandlePlayerToServerLevelUpMessage
  *
- * - We don't handle the case of the player LUO being nullptr.
+ * - We don't handle the case of the player LUO being NULL.
  *
  * - The actual fix to this problem should be:
  *
@@ -3620,9 +3620,9 @@ void __fastcall BugFix::AddGameObject(__in NWN::OBJECTID ObjectId, __in NWN::CGa
 
 	NewNode->m_objectId = ObjectId;
 	NewNode->m_objectPtr = Object;
-	NewNode->m_nextNode = nullptr;
+	NewNode->m_nextNode = NULL;
 
-	if ((SearchNode = GameObjectNodes[MaskObjId]) == nullptr)
+	if ((SearchNode = GameObjectNodes[MaskObjId]) == NULL)
 	{
 		GameObjectNodes[MaskObjId] = NewNode;
 #if BUGFIX_LOG_GAMEOBJACCESS
@@ -3631,7 +3631,7 @@ void __fastcall BugFix::AddGameObject(__in NWN::OBJECTID ObjectId, __in NWN::CGa
 		return;
 	}
 
-	while (SearchNode->m_nextNode != nullptr)
+	while (SearchNode->m_nextNode != NULL)
 		SearchNode = SearchNode->m_nextNode;
 
 	SearchNode->m_nextNode = NewNode;
@@ -3657,7 +3657,7 @@ void __fastcall BugFix::AddGameObjectAtPos(__in NWN::CGameObjectArray * GameObjA
 	//       game object array itself.
 	//
 	
-	if (GetGameObject( ObjectId ) != nullptr)
+	if (GetGameObject( ObjectId ) != NULL)
 	{
 		if (ObjectId & 0x7F000000)
 			ObjectId =(GameObjArray->m_nNextCharArrayID[ 0 ] + 1);
@@ -3672,9 +3672,9 @@ void __fastcall BugFix::AddGameObjectAtPos(__in NWN::CGameObjectArray * GameObjA
 
 	NewNode->m_objectId = ObjectId;
 	NewNode->m_objectPtr = Object;
-	NewNode->m_nextNode = nullptr;
+	NewNode->m_nextNode = NULL;
 
-	if ((SearchNode = GameObjectNodes[MaskObjId]) == nullptr)
+	if ((SearchNode = GameObjectNodes[MaskObjId]) == NULL)
 	{
 		GameObjectNodes[MaskObjId] = NewNode;
 #if BUGFIX_LOG_GAMEOBJACCESS
@@ -3683,7 +3683,7 @@ void __fastcall BugFix::AddGameObjectAtPos(__in NWN::CGameObjectArray * GameObjA
 		return;
 	}
 
-	while (SearchNode->m_nextNode != nullptr)
+	while (SearchNode->m_nextNode != NULL)
 		SearchNode = SearchNode->m_nextNode;
 
 	SearchNode->m_nextNode = NewNode;
@@ -3705,7 +3705,7 @@ void __fastcall BugFix::RemoveGameObject(__in NWN::OBJECTID ObjectId)
 
 	PrevNodeNext = &GameObjectNodes[MaskObjId];
 
-	if ((SearchNode = *PrevNodeNext) == nullptr)
+	if ((SearchNode = *PrevNodeNext) == NULL)
 	{
 		if (plugin->verboseLogging)
 			_logger->Info(  "RemoveGameObject: Removing unknown game object %08X (toplevel node unmatched)" , ObjectId );
@@ -3714,7 +3714,7 @@ void __fastcall BugFix::RemoveGameObject(__in NWN::OBJECTID ObjectId)
 
 	while (SearchNode->m_objectId != ObjectId)
 	{
-		if (SearchNode->m_nextNode == nullptr)
+		if (SearchNode->m_nextNode == NULL)
 		{
 			if (plugin->verboseLogging)
 				_logger->Info(  "RemoveGameObject: Removing unknown game object %08X (overflow nodelist unmatched" , ObjectId );
@@ -3732,12 +3732,12 @@ void __fastcall BugFix::RemoveGameObject(__in NWN::OBJECTID ObjectId)
 	// being deleted.
 	//
 
-	if ((Area = SearchNode->m_objectPtr->AsArea( )) != nullptr)
+	if ((Area = SearchNode->m_objectPtr->AsArea( )) != NULL)
 	{
-		if (Area->BugFix_AreaObjectList.m_Array != nullptr)
+		if (Area->BugFix_AreaObjectList.m_Array != NULL)
 		{
 			delete [] Area->BugFix_AreaObjectList.m_Array;
-			Area->BugFix_AreaObjectList.m_Array = nullptr;
+			Area->BugFix_AreaObjectList.m_Array = NULL;
 			Area->BugFix_AreaObjectList.m_nAllocatedSize = 0;
 			Area->BugFix_AreaObjectList.m_nUsedSize = 0;
 		}
@@ -3751,7 +3751,7 @@ void __fastcall BugFix::RemoveGameObject(__in NWN::OBJECTID ObjectId)
 		if (GameObjectCache[ Index ].ObjectId == ObjectId)
 		{
 			GameObjectCache[ Index ].ObjectId = NWN::INVALIDOBJID;
-			GameObjectCache[ Index ].Object = nullptr;
+			GameObjectCache[ Index ].Object = NULL;
 			break;
 		}
 	}
@@ -3766,7 +3766,7 @@ void __fastcall BugFix::DeleteAllGameObjects()
 
 		Next = GameObjectNodes[i];
 
-		while (Next != nullptr)
+		while (Next != NULL)
 		{
 			NWN::CGameObjectArrayNode * Node;
 			Node = Next;
@@ -3775,14 +3775,14 @@ void __fastcall BugFix::DeleteAllGameObjects()
 			delete Node;
 		}
 
-		GameObjectNodes[i] = nullptr;
+		GameObjectNodes[i] = NULL;
 	}
 
 #ifdef XP_BUGFIX_GAMEOBJ_CACHE
 	for (ULONG Index = 1; Index < 1 + GAME_OBJ_CACHE_SIZE; Index += 1)
 	{
 		GameObjectCache[ Index ].ObjectId = NWN::INVALIDOBJID;
-		GameObjectCache[ Index ].Object = nullptr;
+		GameObjectCache[ Index ].Object = NULL;
 	}
 #endif
 }
@@ -3810,20 +3810,20 @@ NWN::CGameObject * __fastcall BugFix::GetGameObject(__in NWN::OBJECTID ObjectId)
 #else // defined(XP_BUGFIX_GAMEOBJ_CACHE)
 
 	if (ObjectId == NWN::INVALIDOBJID)
-		return nullptr;
+		return NULL;
 
 #endif
 
 	ULONG MaskObjId = ObjectId & OBJARRAY_MASK;
 	NWN::CGameObjectArrayNode * SearchNode;
 
-	if ((SearchNode = GameObjectNodes[MaskObjId]) == nullptr)
-		return nullptr;
+	if ((SearchNode = GameObjectNodes[MaskObjId]) == NULL)
+		return NULL;
 
 	while (SearchNode->m_objectId != ObjectId)
 	{
-		if (SearchNode->m_nextNode == nullptr)
-			return nullptr;
+		if (SearchNode->m_nextNode == NULL)
+			return NULL;
 
 		SearchNode = SearchNode->m_nextNode;
 	}
@@ -3878,7 +3878,7 @@ void __fastcall BugFix::AddObjectToAIMaster(__in NWN::CNWSObject * Object, __in 
 	// Save the CServerAIMaster pointer for easy debugging access.
 	//
 
-	if (AIMaster == nullptr)
+	if (AIMaster == NULL)
 	{
 		AIMaster = NWN::g_pAppManager->m_pServerExoApp->m_pcExoAppInternal->AIMaster;
 	}
@@ -3945,7 +3945,7 @@ NWN::CNWSObject * __fastcall BugFix::CheckForSafeEffect(NWN::CNWSObject *Object,
 
 		Item = Object->AsItem( );
 
-		if ((Item != nullptr) && (Item->GetShouldUpdateEffects( ) == FALSE))
+		if ((Item != NULL) && (Item->GetShouldUpdateEffects( ) == FALSE))
 		{
 			Item->SetShouldUpdateEffects( TRUE );
 			AddObjectToAIMaster( Object, 0 );
@@ -4025,7 +4025,7 @@ NWN::CServerAIMaster * __fastcall BugFix::OnServerAIMaster_UpdateState(__in NWN:
 					 (rsize_t) AIMasterThis->m_aGameAIList.m_aoGameObjects.m_nUsedSize,
 					 sizeof( NWN::CGameObject * ),
 					 SortGameObjectsByAISortingLevel,
-					 nullptr );
+					 NULL );
 
 			AIListSortCount += 1;
 		}
@@ -4033,12 +4033,12 @@ NWN::CServerAIMaster * __fastcall BugFix::OnServerAIMaster_UpdateState(__in NWN:
 
 	if (overrideNetRecv != false)
 	{
-		if (ServerGuiWindow == nullptr)
+		if (ServerGuiWindow == NULL)
 		{
 			ServerGuiWindow = FindServerGuiWindow( );
 		}
 
-		if (ServerGuiWindow != nullptr)
+		if (ServerGuiWindow != NULL)
 		{
 			SOCKET ServerSocket = GetServerNetLayerSocket( );
 
@@ -4065,7 +4065,7 @@ NWN::CServerAIMaster * __fastcall BugFix::OnServerAIMaster_UpdateState(__in NWN:
 
 			NetLayerInt = GetServerNetLayer( );
 
-			if (NetLayerInt != nullptr)
+			if (NetLayerInt != NULL)
 			{
 #ifdef XP_BUGFIX_NETLAYER_INSTRUMENT
 				LastDirectNetRecvTick = GetTickCount( );
@@ -4081,7 +4081,7 @@ NWN::CServerAIMaster * __fastcall BugFix::OnServerAIMaster_UpdateState(__in NWN:
 					RecvfromSuccess = false;
 
 					CallCNetLayerInternal_MessageArrived( NetLayerInt,
-														  nullptr,
+														  NULL, 
 														  CExoNet::PROTOCOL_UDP,
 														  ServerSocket,
 														  0,
@@ -4102,7 +4102,7 @@ NWN::CServerAIMaster * __fastcall BugFix::OnServerAIMaster_UpdateState(__in NWN:
 	// Save the CServerAIMaster pointer for easy debugging access.
 	//
 
-	if (BugFix::AIMaster == nullptr)
+	if (BugFix::AIMaster == NULL)
 	{
 		BugFix::AIMaster = AIMasterThis;
 	}
@@ -4158,7 +4158,7 @@ NWN::CGameObject * __fastcall BugFix::OnServerAIMaster_UpdateState_PreUpdateObje
 			{
 				NWN::CNWSCreature * Creature = Object->AsCreature( );
 
-				if (Creature == nullptr)
+				if (Creature == NULL)
 					break;
 
 				if ((Creature->GetIsPlayerCharacter( ) != FALSE) ||
@@ -4274,7 +4274,7 @@ NWN::CGameObject * __fastcall BugFix::OnServerAIMaster_UpdateState_PreUpdateObje
 
 				ResortAIListArray = true;
 
-				Object = nullptr;
+				Object = NULL;
 			}
 			else
 			{
@@ -4343,7 +4343,7 @@ NWN::CGameObject * __fastcall BugFix::OnServerAIMaster_UpdateState_PreUpdateObje
 	// Save away the object about to be updated for debugging purposes.
 	//
 
-	if (Object != nullptr)
+	if (Object != NULL)
 	{
 		AIUpdate_LastUpdateObject = Object;
 	}
@@ -4394,9 +4394,9 @@ void BugFix::OnServerCreatedObject(__in NWN::CGameObject * Object)
 	// object pointer resolution.
 	//
 
-	if ((Area = Object->AsArea( )) != nullptr)
+	if ((Area = Object->AsArea( )) != NULL)
 	{
-		Area->BugFix_AreaObjectList.m_Array = nullptr;
+		Area->BugFix_AreaObjectList.m_Array = NULL;
 		Area->BugFix_AreaObjectList.m_nAllocatedSize = 0;
 		Area->BugFix_AreaObjectList.m_nUsedSize = 0;
 		Object->BugFix_UpdateGeneration = 0;
@@ -4412,7 +4412,7 @@ void BugFix::OnServerCreatedObject(__in NWN::CGameObject * Object)
 	// has removed no objects since the last check.
 	//
 
-	if (((NWSObject = Object->AsNWSObject( )) != nullptr) && (Object->GetObjectType( ) == NWN::OBJECT_TYPE_CREATURE))
+	if (((NWSObject = Object->AsNWSObject( )) != NULL) && (Object->GetObjectType( ) == NWN::OBJECT_TYPE_CREATURE))
 	{
 		NWSObject->GetBugFix_CNWSObject( )->LastUpdateAreaObjectId = NWN::INVALIDOBJID;
 		Object->BugFix_UpdateGeneration = 0;
@@ -4499,7 +4499,7 @@ void __fastcall BugFix::AddObjectToArea(__in NWN::CNWSArea * Area, __in NWN::CGa
 		        Area->BugFix_AreaObjectList.m_Array,
 		        Area->BugFix_AreaObjectList.m_nUsedSize * sizeof( NWN::BugFix_ObjectInfo ) );
 
-		if (Area->BugFix_AreaObjectList.m_Array != nullptr)
+		if (Area->BugFix_AreaObjectList.m_Array != NULL)
 		{
 			delete [] Area->BugFix_AreaObjectList.m_Array;
 		}
@@ -4779,7 +4779,7 @@ void __fastcall BugFix::OnAddLUO(__in NWN::CNWSPlayer * Player, __in NWN::CLastU
 	//
 
 	ObjectId = LUO->m_nId;
-	LUOEntry = nullptr;
+	LUOEntry = NULL;
 
 	Low = 0;
 	High = LUOMap->m_nUsedSize - 1;
@@ -4793,7 +4793,7 @@ void __fastcall BugFix::OnAddLUO(__in NWN::CNWSPlayer * Player, __in NWN::CLastU
 		{
 			if (Middle == 0)
 			{
-				LUOEntry = nullptr;
+				LUOEntry = NULL;
 				break;
 			}
 
@@ -4824,7 +4824,7 @@ void __fastcall BugFix::OnAddLUO(__in NWN::CNWSPlayer * Player, __in NWN::CLastU
 	}
 	else
 	{
-		if (LUOEntry != nullptr)
+		if (LUOEntry != NULL)
 		{
 			_logger->Info(  "OnAddLUO: Created LUO %p for object %08x for player %p but that LUO %p already exists!" , (void *) LUO, ObjectId, (void *) Player, (void *) LUOEntry->LUO );
 			__debugbreak();
@@ -4873,7 +4873,7 @@ void __fastcall BugFix::OnDeleteLUO(__in NWN::CLastUpdateObject * LUO)
 
 	LUOMap = Player->BugFix_LUOMap;
 	LUOTable = LUOMap->m_Array;
-	LUOEntry = nullptr;
+	LUOEntry = NULL;
 
 	Low = 0;
 	High = LUOMap->m_nUsedSize - 1;
@@ -4950,14 +4950,14 @@ NWN::CLastUpdateObject * __fastcall BugFix::GetLastUpdateObject(__in NWN::CNWSPl
 	LONG Middle;
 
 	//
-	// Check for nullptr first because otherwise the LUO map is not guaranteed to
+	// Check for NULL first because otherwise the LUO map is not guaranteed to
 	// be initialized.
 	//
 
-	if ((Player->m_pActiveObjectsLastUpdate == nullptr) ||
+	if ((Player->m_pActiveObjectsLastUpdate == NULL) ||
 	    (Player->m_pActiveObjectsLastUpdate->m_nCount == 0))
 	{
-		return nullptr;
+		return NULL;
 	}
 
 	//
@@ -4966,7 +4966,7 @@ NWN::CLastUpdateObject * __fastcall BugFix::GetLastUpdateObject(__in NWN::CNWSPl
 
 	LUOMap = Player->BugFix_LUOMap;
 	LUOTable = LUOMap->m_Array;
-	LUOEntry = nullptr;
+	LUOEntry = NULL;
 
 	Low = 0;
 	High = LUOMap->m_nUsedSize - 1;
@@ -4980,7 +4980,7 @@ NWN::CLastUpdateObject * __fastcall BugFix::GetLastUpdateObject(__in NWN::CNWSPl
 		{
 			if (Middle == 0)
 			{
-				return nullptr;
+				return NULL;
 			}
 
 			High = Middle - 1;
@@ -4997,7 +4997,7 @@ NWN::CLastUpdateObject * __fastcall BugFix::GetLastUpdateObject(__in NWN::CNWSPl
 
 	if (High < Low)
 	{
-		return nullptr;
+		return NULL;
 	}
 
 	PreFetchCacheLine( PF_TEMPORAL_LEVEL_1, LUOEntry->LUO );
@@ -5042,12 +5042,12 @@ BOOL __fastcall BugFix::ShouldSkipOtherAreaLUODeleteCheck(__in NWN::CGameObject 
 	AreaId = NWSObject->GetArea( );
 	LastAreaId = BugFixNWSObject->LastUpdateAreaObjectId;
 	AreaObject = GetGameObject( AreaId );
-	if (AreaObject == nullptr)
+	if (AreaObject == NULL)
 	{
 		return FALSE;
 	}
 
-	if (AreaObject->AsArea( ) == nullptr)
+	if (AreaObject->AsArea( ) == NULL)
 	{
 		_logger->Info("ShouldSkipOtherAreaLUODeleteCheck: %08x (%p) is not an area!", AreaId, (void *) AreaObject );
 		__debugbreak();
@@ -5083,32 +5083,32 @@ void BugFix::PrintObjectInfo(__in const char * Header, __in NWN::CGameObject * O
 	const NWN::CExoString * FirstName;
 	const NWN::CExoString * LastName;
 	NWN::CNWSObject * NWSObject;
-	if (Object == nullptr)
+	if (Object == NULL)
 	{
 		_logger->Info(  "%s: ObjectId=%08X Object=%p" , Header, ObjectId, (void *) Object );
 		return;
 	}
 
 	NWSObject = Object->AsNWSObject( );
-	if (Object == nullptr)
+	if (Object == NULL)
 	{
 		_logger->Info(  "%s: ObjectId=%08X Object=%p ObjectType=%02X" , Header, ObjectId, (void *) Object, Object->GetObjectType( ) );
 		return;
 	}
 
 	FirstName = NWSObject->GetFirstName( );
-	if ((FirstName->m_sString == nullptr) || (FirstName->m_nBufferLength == 0))
+	if ((FirstName->m_sString == NULL) || (FirstName->m_nBufferLength == 0))
 	{
-		FirstName = nullptr;
+		FirstName = NULL;
 	}
 
 	LastName = NWSObject->GetLastName( );
-	if ((LastName->m_sString == nullptr) || (LastName->m_nBufferLength == 0))
+	if ((LastName->m_sString == NULL) || (LastName->m_nBufferLength == 0))
 	{
-		LastName = nullptr;
+		LastName = NULL;
 	}
 
-	_logger->Info(  "%s: ObjectId=%08X Object=%p ObjectType=%02X FirstName=%s LastName=%s" , Header, ObjectId, (void *) Object, Object->GetObjectType( ), (FirstName != nullptr ? FirstName->m_sString : ""), (LastName != nullptr ? LastName->m_sString : "") );
+	_logger->Info(  "%s: ObjectId=%08X Object=%p ObjectType=%02X FirstName=%s LastName=%s" , Header, ObjectId, (void *) Object, Object->GetObjectType( ), (FirstName != NULL ? FirstName->m_sString : ""), (LastName != NULL ? LastName->m_sString : "") );
 }
 
 void BugFix::PrintObjectLists(__in NWN::CNWSArea * Area)
@@ -5143,26 +5143,26 @@ void BugFix::LogServerDebugInfo()
 	ConsoleCmdProc Cmd;
 
 	OutStr.m_nBufferLength = 0;
-	OutStr.m_sString = nullptr;
+	OutStr.m_sString = NULL;
 
 	_logger->Info(  "LogServerDebugInfo: Logging server debug info via console commands..."  );
 
 	Cmd = (ConsoleCmdProc) (OFFS_ServerConsoleCommandMgr_Handle_LogAreaObjects);
 	Cmd( OutStr );
 
-	if (OutStr.m_sString != nullptr)
+	if (OutStr.m_sString != NULL)
 	{
 		FreeNwn2Heap( OutStr.m_sString );
-		OutStr.m_sString = nullptr;
+		OutStr.m_sString = NULL;
 	}
 
 	Cmd = (ConsoleCmdProc) (OFFS_ServerConsoleCommandMgr_Handle_LogServerAI);
 	Cmd( OutStr );
 
-	if (OutStr.m_sString != nullptr)
+	if (OutStr.m_sString != NULL)
 	{
 		FreeNwn2Heap( OutStr.m_sString );
-		OutStr.m_sString = nullptr;
+		OutStr.m_sString = NULL;
 	}
 
 	_logger->Info(  "LogServerDebugInfo: Done."  );
@@ -5233,7 +5233,7 @@ __declspec(naked) NWN::CNWSPlayer * __fastcall BugFix::GetClientObjectByPlayerId
 
 NWN::CNWSPlayer * BugFix::GetClientObjectByPlayerId(__in NWN::PLAYERID PlayerId)
 {
-	return BugFix::GetClientObjectByPlayerId2(NWN::g_pAppManager->m_pServerExoApp, nullptr, PlayerId, 0);
+	return BugFix::GetClientObjectByPlayerId2(NWN::g_pAppManager->m_pServerExoApp, NULL, PlayerId, 0);
 }
 
 int __stdcall BugFix::recvfromHook(__in SOCKET s, __out char *buf, __in int len, __in int flags, __out struct sockaddr *from, __inout_opt int *fromlen)
@@ -5327,7 +5327,7 @@ int __stdcall BugFix::recvfromHook(__in SOCKET s, __out char *buf, __in int len,
 
 #endif
 
-	if (RecvfromCallout != nullptr)
+	if (RecvfromCallout != NULL)
 	{
 		rlen = RecvfromCallout(s, buf, rlen, flags, from, fromlen);
 
@@ -5657,7 +5657,7 @@ int __stdcall BugFix::sendtoMstHook(__in SOCKET s, __in const char *buf, __in in
 	{
 		hostent *he = gethostbyname(MASTER_SERVER_HOSTNAME);
 
-		if (he == nullptr)
+		if (he == NULL)
 		{
 			_logger->Info("* BugFix::sendtoMstHook: Failed to resolve " MASTER_SERVER_HOSTNAME);
 		}
@@ -5842,12 +5842,12 @@ NWN::PLAYERID __stdcall GetCreatureControllingPlayerId(__in NWN::OBJECTID Object
 	NWN::CGameObject * GameObj;
 
 	GameObj = BugFix::GetGameObject( ObjectId );
-	if (GameObj == nullptr)
+	if (GameObj == NULL)
 	{
 		return PLAYERID_INVALIDID;
 	}
 
-	if ((CreatureObject = GameObj->AsCreature( )) == nullptr)
+	if ((CreatureObject = GameObj->AsCreature( )) == NULL)
 	{
 		return PLAYERID_INVALIDID;
 	}
@@ -5863,9 +5863,9 @@ NWN::PLAYERID __stdcall GetCreatureControllingPlayerId(__in NWN::OBJECTID Object
 NWN::CLastUpdateObject *__stdcall GetPlayerLUOForObject(__in NWN::PLAYERID PlayerId, __in NWN::OBJECTID ObjectId)
 {
 	NWN::CNWSPlayer * PlayerObject = BugFix::GetClientObjectByPlayerId( PlayerId );
-	if (PlayerObject == nullptr)
+	if (PlayerObject == NULL)
 	{
-		return nullptr;
+		return NULL;
 	}
 
 	return BugFix::GetLastUpdateObject(PlayerObject, ObjectId);

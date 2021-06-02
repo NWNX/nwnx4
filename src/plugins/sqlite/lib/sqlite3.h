@@ -134,7 +134,7 @@ typedef int (*sqlite3_callback)(void*,int,char**, char**);
 ** The 4th parameter to the callback is an array of strings holding
 ** the names of each column.
 **
-** The callback function may be nullptr, even for queries.  A nullptr
+** The callback function may be NULL, even for queries.  A NULL
 ** callback is not an error.  It just means that no callback
 ** will be invoked.
 **
@@ -143,7 +143,7 @@ typedef int (*sqlite3_callback)(void*,int,char**, char**);
 ** message is written into memory obtained from malloc() and
 ** *errmsg is made to point to that message.  The calling function
 ** is responsible for freeing the memory that holds the error
-** message.   Use sqlite3_free() for this.  If errmsg==nullptr,
+** message.   Use sqlite3_free() for this.  If errmsg==NULL,
 ** then no error message is ever written.
 **
 ** The return value is is SQLITE_OK if there are no errors and
@@ -328,8 +328,8 @@ int sqlite3_complete16(const void *sql);
 ** This routine identifies a callback function that is invoked
 ** whenever an attempt is made to open a database table that is
 ** currently locked by another process or thread.  If the busy callback
-** is nullptr, then sqlite3_exec() returns SQLITE_BUSY immediately if
-** it finds a locked table.  If the busy callback is not nullptr, then
+** is NULL, then sqlite3_exec() returns SQLITE_BUSY immediately if
+** it finds a locked table.  If the busy callback is not NULL, then
 ** sqlite3_exec() invokes the callback with two arguments.  The
 ** first argument to the handler is a copy of the void* pointer which
 ** is the third argument to this routine.  The second argument to
@@ -354,7 +354,7 @@ int sqlite3_complete16(const void *sql);
 ** will induce the first process to release its read lock and allow
 ** the second process to proceed.
 **
-** The default busy callback is nullptr.
+** The default busy callback is NULL.
 **
 ** Sqlite is re-entrant, so the busy handler may start a new query. 
 ** (It is not clear why anyone would every want to do this, but it
@@ -495,7 +495,7 @@ void sqlite3_free(void*);
 ** attempt to access a column of a table in the database.  The callback
 ** returns SQLITE_OK if access is allowed, SQLITE_DENY if the entire
 ** SQL statement should be aborted with an error and SQLITE_IGNORE
-** if the column should be treated as a nullptr value.
+** if the column should be treated as a NULL value.
 */
 int sqlite3_set_authorizer(
   sqlite3*,
@@ -508,47 +508,47 @@ int sqlite3_set_authorizer(
 ** The second parameter to the access authorization function above will
 ** be one of the values below.  These values signify what kind of operation
 ** is to be authorized.  The 3rd and 4th parameters to the authorization
-** function will be parameters or nullptr depending on which of the following
+** function will be parameters or NULL depending on which of the following
 ** codes is used as the second parameter.  The 5th parameter is the name
 ** of the database ("main", "temp", etc.) if applicable.  The 6th parameter
 ** is the name of the inner-most trigger or view that is responsible for
-** the access attempt or nullptr if this access attempt is directly from
+** the access attempt or NULL if this access attempt is directly from 
 ** input SQL code.
 **
 **                                          Arg-3           Arg-4
 */
 #define SQLITE_COPY                  0   /* Table Name      File Name       */
 #define SQLITE_CREATE_INDEX          1   /* Index Name      Table Name      */
-#define SQLITE_CREATE_TABLE          2   /* Table Name      nullptr            */
+#define SQLITE_CREATE_TABLE          2   /* Table Name      NULL            */
 #define SQLITE_CREATE_TEMP_INDEX     3   /* Index Name      Table Name      */
-#define SQLITE_CREATE_TEMP_TABLE     4   /* Table Name      nullptr            */
+#define SQLITE_CREATE_TEMP_TABLE     4   /* Table Name      NULL            */
 #define SQLITE_CREATE_TEMP_TRIGGER   5   /* Trigger Name    Table Name      */
-#define SQLITE_CREATE_TEMP_VIEW      6   /* View Name       nullptr            */
+#define SQLITE_CREATE_TEMP_VIEW      6   /* View Name       NULL            */
 #define SQLITE_CREATE_TRIGGER        7   /* Trigger Name    Table Name      */
-#define SQLITE_CREATE_VIEW           8   /* View Name       nullptr            */
-#define SQLITE_DELETE                9   /* Table Name      nullptr            */
+#define SQLITE_CREATE_VIEW           8   /* View Name       NULL            */
+#define SQLITE_DELETE                9   /* Table Name      NULL            */
 #define SQLITE_DROP_INDEX           10   /* Index Name      Table Name      */
-#define SQLITE_DROP_TABLE           11   /* Table Name      nullptr            */
+#define SQLITE_DROP_TABLE           11   /* Table Name      NULL            */
 #define SQLITE_DROP_TEMP_INDEX      12   /* Index Name      Table Name      */
-#define SQLITE_DROP_TEMP_TABLE      13   /* Table Name      nullptr            */
+#define SQLITE_DROP_TEMP_TABLE      13   /* Table Name      NULL            */
 #define SQLITE_DROP_TEMP_TRIGGER    14   /* Trigger Name    Table Name      */
-#define SQLITE_DROP_TEMP_VIEW       15   /* View Name       nullptr            */
+#define SQLITE_DROP_TEMP_VIEW       15   /* View Name       NULL            */
 #define SQLITE_DROP_TRIGGER         16   /* Trigger Name    Table Name      */
-#define SQLITE_DROP_VIEW            17   /* View Name       nullptr            */
-#define SQLITE_INSERT               18   /* Table Name      nullptr            */
-#define SQLITE_PRAGMA               19   /* Pragma Name     1st arg or nullptr */
+#define SQLITE_DROP_VIEW            17   /* View Name       NULL            */
+#define SQLITE_INSERT               18   /* Table Name      NULL            */
+#define SQLITE_PRAGMA               19   /* Pragma Name     1st arg or NULL */
 #define SQLITE_READ                 20   /* Table Name      Column Name     */
-#define SQLITE_SELECT               21   /* nullptr            nullptr            */
-#define SQLITE_TRANSACTION          22   /* nullptr            nullptr            */
+#define SQLITE_SELECT               21   /* NULL            NULL            */
+#define SQLITE_TRANSACTION          22   /* NULL            NULL            */
 #define SQLITE_UPDATE               23   /* Table Name      Column Name     */
-#define SQLITE_ATTACH               24   /* Filename        nullptr            */
-#define SQLITE_DETACH               25   /* Database Name   nullptr            */
+#define SQLITE_ATTACH               24   /* Filename        NULL            */
+#define SQLITE_DETACH               25   /* Database Name   NULL            */
 #define SQLITE_ALTER_TABLE          26   /* Database Name   Table Name      */
-#define SQLITE_REINDEX              27   /* Index Name      nullptr            */
-#define SQLITE_ANALYZE              28   /* Table Name      nullptr            */
+#define SQLITE_REINDEX              27   /* Index Name      NULL            */
+#define SQLITE_ANALYZE              28   /* Table Name      NULL            */
 #define SQLITE_CREATE_VTABLE        29   /* Table Name      Module Name     */
 #define SQLITE_DROP_VTABLE          30   /* Table Name      Module Name     */
-#define SQLITE_FUNCTION             31   /* Function Name   nullptr            */
+#define SQLITE_FUNCTION             31   /* Function Name   NULL            */
 
 /*
 ** The return value of the authorization function should be one of the
@@ -588,7 +588,7 @@ void *sqlite3_profile(sqlite3*,
 ** in less than N opcodes being executed, then the progress callback is not
 ** invoked.
 ** 
-** To remove the progress callback altogether, pass nullptr as the third
+** To remove the progress callback altogether, pass NULL as the third
 ** argument to this function.
 **
 ** If the progress callback returns a result other than 0, then the current 
@@ -607,9 +607,9 @@ void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 ** is converted into a rollback.
 **
 ** If another function was previously registered, its pArg value is returned.
-** Otherwise nullptr is returned.
+** Otherwise NULL is returned.
 **
-** Registering a nullptr function disables the callback.
+** Registering a NULL function disables the callback.
 **
 ******* THIS IS AN EXPERIMENTAL API AND IS SUBJECT TO CHANGE ******
 */
@@ -704,8 +704,8 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 **
 ** *ppStmt is left pointing to a compiled SQL statement that can be
 ** executed using sqlite3_step().  Or if there is an error, *ppStmt may be
-** set to nullptr.  If the input text contained no SQL (if the input is and
-** empty string or a comment) then *ppStmt is set to nullptr.
+** set to NULL.  If the input text contained no SQL (if the input is and
+** empty string or a comment) then *ppStmt is set to NULL.
 **
 ** On success, SQLITE_OK is returned.  Otherwise an error code is returned.
 */
@@ -783,7 +783,7 @@ typedef struct Mem sqlite3_value;
 ** The sqlite3_bind_* routine must be called before sqlite3_step() and after
 ** an sqlite3_prepare() or sqlite3_reset().  Bindings persist across
 ** multiple calls to sqlite3_reset() and sqlite3_step().  Unbound parameters 
-** are interpreted as nullptr.
+** are interpreted as NULL.
 */
 int sqlite3_bind_blob(sqlite3_stmt*, int, const void*, int n, void(*)(void*));
 int sqlite3_bind_double(sqlite3_stmt*, int, double);
@@ -802,9 +802,9 @@ int sqlite3_bind_parameter_count(sqlite3_stmt*);
 
 /*
 ** Return the name of the i-th name parameter.  Ordinary parameters "?" are
-** nameless and a nullptr is returned.  For parameters of the form :AAA or
+** nameless and a NULL is returned.  For parameters of the form :AAA or
 ** $VVV the complete text of the parameter name is returned, including
-** the initial ":" or "$".  nullptr is returned if the index is out of range.
+** the initial ":" or "$".  NULL is returned if the index is out of range.
 */
 const char *sqlite3_bind_parameter_name(sqlite3_stmt*, int);
 
@@ -816,7 +816,7 @@ const char *sqlite3_bind_parameter_name(sqlite3_stmt*, int);
 int sqlite3_bind_parameter_index(sqlite3_stmt*, const char *zName);
 
 /*
-** Set all the parameters in the compiled SQL statement to nullptr.
+** Set all the parameters in the compiled SQL statement to NULL.
 */
 int sqlite3_clear_bindings(sqlite3_stmt*);
 
@@ -842,7 +842,7 @@ const void *sqlite3_column_name16(sqlite3_stmt*,int);
 ** the statement, where N is the second function argument.
 **
 ** If the Nth column returned by the statement is not a column value,
-** then all of the functions return nullptr. Otherwise, the return the
+** then all of the functions return NULL. Otherwise, the return the 
 ** name of the attached database, table and column that the expression
 ** extracts a value from.
 **
@@ -865,7 +865,7 @@ const void *sqlite3_column_origin_name16(sqlite3_stmt*,int);
 ** is a SELECT statement, the Nth column of the returned result set 
 ** of the SELECT is a table column then the declared type of the table
 ** column is returned. If the Nth column of the result set is not at table
-** column, then a nullptr pointer is returned. The returned string is always
+** column, then a NULL pointer is returned. The returned string is always
 ** UTF-8 encoded. For example, in the database schema:
 **
 ** CREATE TABLE t1(c1 VARIANT);
@@ -875,7 +875,7 @@ const void *sqlite3_column_origin_name16(sqlite3_stmt*,int);
 ** SELECT c1 + 1, c1 FROM t1;
 **
 ** Then this routine would return the string "VARIANT" for the second
-** result column (i==1), and a nullptr pointer for the first result column
+** result column (i==1), and a NULL pointer for the first result column
 ** (i==0).
 */
 const char *sqlite3_column_decltype(sqlite3_stmt *, int i);
@@ -885,7 +885,7 @@ const char *sqlite3_column_decltype(sqlite3_stmt *, int i);
 ** is a SELECT statement, the Nth column of the returned result set 
 ** of the SELECT is a table column then the declared type of the table
 ** column is returned. If the Nth column of the result set is not at table
-** column, then a nullptr pointer is returned. The returned string is always
+** column, then a NULL pointer is returned. The returned string is always
 ** UTF-16 encoded. For example, in the database schema:
 **
 ** CREATE TABLE t1(c1 INTEGER);
@@ -895,7 +895,7 @@ const char *sqlite3_column_decltype(sqlite3_stmt *, int i);
 ** SELECT c1 + 1, c1 FROM t1;
 **
 ** Then this routine would return the string "INTEGER" for the second
-** result column (i==1), and a nullptr pointer for the first result column
+** result column (i==1), and a NULL pointer for the first result column
 ** (i==0).
 */
 const void *sqlite3_column_decltype16(sqlite3_stmt*,int);
@@ -953,7 +953,7 @@ int sqlite3_data_count(sqlite3_stmt *pStmt);
 #define SQLITE_FLOAT    2
 /* #define SQLITE_TEXT  3  // See below */
 #define SQLITE_BLOB     4
-#define SQLITE_nullptr     5
+#define SQLITE_NULL     5
 
 /*
 ** SQLite version 2 defines SQLITE_TEXT differently.  To allow both
@@ -987,10 +987,10 @@ int sqlite3_data_count(sqlite3_stmt *pStmt);
 **
 **    Internal Type    Requested Type     Conversion
 **    -------------    --------------    --------------------------
-**       nullptr             INTEGER         Result is 0
-**       nullptr             FLOAT           Result is 0.0
-**       nullptr             TEXT            Result is an empty string
-**       nullptr             BLOB            Result is a zero-length BLOB
+**       NULL             INTEGER         Result is 0
+**       NULL             FLOAT           Result is 0.0
+**       NULL             TEXT            Result is an empty string
+**       NULL             BLOB            Result is a zero-length BLOB
 **       INTEGER          FLOAT           Convert from integer to float
 **       INTEGER          TEXT            ASCII rendering of the integer
 **       INTEGER          BLOB            Same as for INTEGER->TEXT
@@ -1008,7 +1008,7 @@ int sqlite3_data_count(sqlite3_stmt *pStmt);
 **
 ** _type()     Return the datatype of the result.  This is one of
 **             SQLITE_INTEGER, SQLITE_FLOAT, SQLITE_TEXT, SQLITE_BLOB,
-**             or SQLITE_nullptr.
+**             or SQLITE_NULL.
 ** _blob()     Return the value of a BLOB.
 ** _bytes()    Return the number of bytes in a BLOB value or the number
 **             of bytes in a TEXT value represented as UTF-8.  The \000
@@ -1088,10 +1088,10 @@ int sqlite3_reset(sqlite3_stmt *pStmt);
 ** The seventh, eighth and ninth parameters, xFunc, xStep and xFinal, are
 ** pointers to user implemented C functions that implement the user
 ** function or aggregate. A scalar function requires an implementation of
-** the xFunc callback only, nullptr pointers should be passed as the xStep
+** the xFunc callback only, NULL pointers should be passed as the xStep
 ** and xFinal parameters. An aggregate function requires an implementation
-** of xStep and xFinal, but nullptr should be passed for xFunc. To delete an
-** existing user function or aggregate, pass nullptr for all three function
+** of xStep and xFinal, but NULL should be passed for xFunc. To delete an
+** existing user function or aggregate, pass NULL for all three function
 ** callback. Specifying an inconstent set of callback values, such as an
 ** xFunc and an xFinal, or an xStep but no xFinal, SQLITE_ERROR is
 ** returned.
@@ -1176,14 +1176,14 @@ void *sqlite3_user_data(sqlite3_context*);
 ** Calling sqlite3_get_auxdata() returns a pointer to the meta data
 ** associated with the Nth argument value to the current user function
 ** call, where N is the second parameter. If no meta-data has been set for
-** that value, then a nullptr pointer is returned.
+** that value, then a NULL pointer is returned.
 **
 ** The sqlite3_set_auxdata() is used to associate meta data with a user
 ** function argument. The third parameter is a pointer to the meta data
 ** to be associated with the Nth user function argument value. The fourth
 ** parameter specifies a 'delete function' that will be called on the meta
 ** data pointer to release it when it is no longer required. If the delete
-** function pointer is nullptr, it is not invoked.
+** function pointer is NULL, it is not invoked.
 **
 ** In practice, meta-data is preserved between function calls for
 ** expressions that are constant at compile time. This includes literal
@@ -1252,7 +1252,7 @@ void sqlite3_result_value(sqlite3_context*, sqlite3_value*);
 ** UTF-16 little-endian or UTF-16 big-endian respectively.
 **
 ** A pointer to the user supplied routine must be passed as the fifth
-** argument. If it is nullptr, this is the same as deleting the collation
+** argument. If it is NULL, this is the same as deleting the collation
 ** sequence (so that SQLite cannot call it anymore). Each time the user
 ** supplied function is invoked, it is passed a copy of the void* passed as
 ** the fourth argument to sqlite3_create_collation() or
@@ -1375,7 +1375,7 @@ int sqlite3_transfer_bindings(sqlite3_stmt*, sqlite3_stmt*);
 ** If the following global variable is made to point to a
 ** string which is the name of a directory, then all temporary files
 ** created by SQLite will be placed in that directory.  If this variable
-** is nullptr pointer, then SQLite does a search for an appropriate temporary
+** is NULL pointer, then SQLite does a search for an appropriate temporary
 ** file directory.
 **
 ** Once sqlite3_open() has been called, changing this variable will invalidate
@@ -1440,7 +1440,7 @@ sqlite3 *sqlite3_db_handle(sqlite3_stmt*);
 ** modified (i.e. sqlite_master and sqlite_sequence).
 **
 ** If another function was previously registered, its pArg value is returned.
-** Otherwise nullptr is returned.
+** Otherwise NULL is returned.
 */
 void *sqlite3_update_hook(
   sqlite3*, 
@@ -1455,7 +1455,7 @@ void *sqlite3_update_hook(
 ** The new callback function overrides any existing rollback-hook
 ** callback. If there was an existing callback, then it's pArg value 
 ** (the third argument to sqlite3_rollback_hook() when it was registered) 
-** is returned. Otherwise, nullptr is returned.
+** is returned. Otherwise, NULL is returned.
 **
 ** For the purposes of this API, a transaction is said to have been 
 ** rolled back if an explicit "ROLLBACK" statement is executed, or
@@ -1520,17 +1520,17 @@ void sqlite3_thread_cleanup(void);
 ** The column is identified by the second, third and fourth parameters to 
 ** this function. The second parameter is either the name of the database
 ** (i.e. "main", "temp" or an attached database) containing the specified
-** table or nullptr. If it is nullptr, then all attached databases are searched
+** table or NULL. If it is NULL, then all attached databases are searched
 ** for the table using the same algorithm as the database engine uses to 
 ** resolve unqualified table references.
 **
 ** The third and fourth parameters to this function are the table and column 
 ** name of the desired column, respectively. Neither of these parameters 
-** may be nullptr.
+** may be NULL.
 **
 ** Meta information is returned by writing to the memory locations passed as
 ** the 5th and subsequent parameters to this function. Any of these 
-** arguments may be nullptr, in which case the corresponding element of meta
+** arguments may be NULL, in which case the corresponding element of meta 
 ** information is ommitted.
 **
 ** Parameter     Output Type      Description
@@ -1538,7 +1538,7 @@ void sqlite3_thread_cleanup(void);
 **
 **   5th         const char*      Data type
 **   6th         const char*      Name of the default collation sequence 
-**   7th         int              True if the column has a NOT nullptr constraint
+**   7th         int              True if the column has a NOT NULL constraint
 **   8th         int              True if the column is part of the PRIMARY KEY
 **   9th         int              True if the column is AUTOINCREMENT
 **
@@ -1571,12 +1571,12 @@ void sqlite3_thread_cleanup(void);
 */
 int sqlite3_table_column_metadata(
   sqlite3 *db,                /* Connection handle */
-  const char *zDbName,        /* Database name or nullptr */
+  const char *zDbName,        /* Database name or NULL */
   const char *zTableName,     /* Table name */
   const char *zColumnName,    /* Column name */
   char const **pzDataType,    /* OUTPUT: Declared data type */
   char const **pzCollSeq,     /* OUTPUT: Collation sequence name */
-  int *pNotNull,              /* OUTPUT: True if NOT nullptr constraint exists */
+  int *pNotNull,              /* OUTPUT: True if NOT NULL constraint exists */
   int *pPrimaryKey,           /* OUTPUT: True if column part of PK */
   int *pAutoinc               /* OUTPUT: True if colums is auto-increment */
 );

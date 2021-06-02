@@ -1,5 +1,5 @@
 #include "Pickpocket.h"
-#include "detours/detours.h"
+#include "detours.h"
 
 // 1.13
 // g_pVirtualMachine
@@ -65,7 +65,7 @@ struct CExoString
 //	ParameterType m_eType;
 //};
 
-CExoArrayList g_scriptArray = {nullptr, 0, 0};
+CExoArrayList g_scriptArray = {NULL, 0, 0};
 CExoString g_scriptVar;
 
 char pszScript[128];
@@ -149,7 +149,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	else if (ul_reason_for_call == DLL_PROCESS_DETACH)
 	{
 		delete plugin;
-		plugin = nullptr;
+		plugin = NULL;
 	}
 	return TRUE;
 }

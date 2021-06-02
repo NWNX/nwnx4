@@ -104,8 +104,8 @@ BOOL CNWNXVaultster::OnCreate(const char* logDir)
 
 	// start up the server
 	if (startServer) {
-		hServer = CreateThread (nullptr, 0, CServer::thread, &server, 0, &serverId);
-		if (hServer == nullptr) {
+		hServer = CreateThread (NULL, 0, CServer::thread, &server, 0, &serverId);
+		if (hServer == NULL) {
 			// Failing starting up the server should not end
 			// VaultSTER, the client part can still run.
 			Log ("o Failed to start up the server.\n");
@@ -140,7 +140,7 @@ char* CNWNXVaultster::OnRequest(char* gameObject, char* request, char* parameter
 		if (status == STATUS_ERROR)
 			clients[job].setStatus (STATUS_OK);
 		sprintf (parameters, "%d", status);
-		return nullptr;
+		return NULL;
 	}
 	else if (cmd == Get || cmd == Put) {
 		char* pos[2];
@@ -157,7 +157,7 @@ char* CNWNXVaultster::OnRequest(char* gameObject, char* request, char* parameter
 			Log ("o Too many clients already.\n");
 			// can not help this client yet
 			sprintf (parameters, "-2");
-			return nullptr;
+			return NULL;
 		}
 		else
 			clients[i].setStatus (STATUS_BUSY);
@@ -167,7 +167,7 @@ char* CNWNXVaultster::OnRequest(char* gameObject, char* request, char* parameter
 		if (!pos[0] || !pos[1]) {
 			Log ("o Invalid parameter (%s)!\n", parameters);
 			sprintf (parameters, "-4");
-			return nullptr;
+			return NULL;
 		}
 
 		// set up the client for running
@@ -180,19 +180,19 @@ char* CNWNXVaultster::OnRequest(char* gameObject, char* request, char* parameter
 		clients[i].setCommand (cmd);
 
 		// start up the client thread
-		clients[i].hThread = CreateThread (nullptr, 0, CClient::thread, &clients[i], 0, &id);
-		if (clients[i].hThread == nullptr) {
+		clients[i].hThread = CreateThread (NULL, 0, CClient::thread, &clients[i], 0, &id);
+		if (clients[i].hThread == NULL) {
 			Log ("o Failed to start client thread!\n");
 			sprintf (parameters, "-1");
 		}
 		else {
 			sprintf (parameters, "%d", i);
 		}
-		return nullptr;
+		return NULL;
 	}
 	else {
 		Log ("o Invalid command.\n");
-		return nullptr;
+		return NULL;
 	}
 	/*
 	// NWNX 2.61 Base class doesn't have OnRequest

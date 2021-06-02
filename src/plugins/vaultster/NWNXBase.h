@@ -61,7 +61,7 @@ public:
 	//	Overloading is allowed, but the base class function must be called first.
 	// Parameters
 	//	LogFile		: optionally a path and filename of the log file
-	virtual BOOL OnCreate (const char* logFileName = nullptr);
+	virtual BOOL OnCreate (const char* logFileName = NULL);
 
 	///////////////////////////////////////////////////////////////////////////
 	// Function: OnRequest (char* Request, char* Parameters)

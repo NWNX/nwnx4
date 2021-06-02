@@ -29,7 +29,7 @@
 StackTracer::StackTracer()
 : m_SymInitialized(false),
   m_Process( GetCurrentProcess() ),
-  m_TraceLog( nullptr ),
+  m_TraceLog( NULL ),
   m_CurSequence( 1 ),
   m_CurTrace( 0 )
 {
@@ -49,8 +49,8 @@ bool StackTracer::Initialize(
 	)
 {
 	HANDLE           File = INVALID_HANDLE_VALUE;
-	HANDLE           Section = nullptr;
-	PSTACK_TRACE_LOG TraceLog = nullptr;
+	HANDLE           Section = NULL;
+	PSTACK_TRACE_LOG TraceLog = NULL;
 	LARGE_INTEGER    FilePointer;
 
 	for (;;)
@@ -63,10 +63,10 @@ bool StackTracer::Initialize(
 			TraceLogFileName.c_str(),
 			GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ,
-			nullptr,
+			NULL,
 			CREATE_ALWAYS,
 			FILE_ATTRIBUTE_NORMAL,
-			nullptr
+			NULL
 			);
 
 		if (File == INVALID_HANDLE_VALUE)
@@ -74,7 +74,7 @@ bool StackTracer::Initialize(
 
 		FilePointer.QuadPart = (ULONGLONG)TraceCount * sizeof( STACK_TRACE ) + sizeof( STACK_TRACE_LOG ) - sizeof( STACK_TRACE );
 
-		if (!SetFilePointerEx( File, FilePointer, nullptr, FILE_BEGIN ))
+		if (!SetFilePointerEx( File, FilePointer, NULL, FILE_BEGIN ))
 			break;
 
 		if (!SetEndOfFile( File ))
@@ -86,11 +86,11 @@ bool StackTracer::Initialize(
 
 		Section = CreateFileMapping(
 			File,
-			nullptr,
+			NULL,
 			PAGE_READWRITE,
 			0,
 			0,
-			nullptr
+			NULL
 			);
 
 		if (!Section)
@@ -111,7 +111,7 @@ bool StackTracer::Initialize(
 		// Setup DbgHelp.
 		//
 
-		if (!SymInitialize( m_Process, nullptr, FALSE ))
+		if (!SymInitialize( m_Process, NULL, FALSE ))
 			break;
 
 		SymSetOptions( SymGetOptions() | SYMOPT_DEBUG );
@@ -243,7 +243,7 @@ void StackTracer::LogTrace(
 			ReadProcessMemory64,
 			SymFunctionTableAccess64,
 			SymGetModuleBase64,
-			nullptr))
+			NULL))
 		{
 			break;
 		}

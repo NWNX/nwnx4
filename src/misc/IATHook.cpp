@@ -109,7 +109,7 @@ RedirectImageImports(
 			if ((!ImportDescriptor->Name) ||
 				(!ImportDescriptor->FirstThunk))
 			{
-//				DebugPrint( "Reached nullptr import descriptor.\n" );
+//				DebugPrint( "Reached null import descriptor.\n" );
 				break;
 			}
 

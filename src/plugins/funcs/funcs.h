@@ -39,7 +39,7 @@ public:
 	float GetFloat(char* sFunction, char* sParam1, int nParam2) { return 0.0; }
 	void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue) {};
 	void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue) { return; }
-	char* GetString(char* sFunction, char* sParam1, int nParam2) { return nullptr; }
+	char* GetString(char* sFunction, char* sParam1, int nParam2) { return NULL; }
 	void GetFunctionClass(char* fClass);
 
 private:

@@ -23,8 +23,6 @@
 
 #include <windows.h>
 #include <string>
-#include <stdlib.h>
-#include <tchar.h>
 
 #define MAX_BUFFER 64*1024
 
@@ -64,8 +62,8 @@ protected:
 	string description;
 
 private:
-	char* pluginFileName;
-	char* pluginFullPath;
+	char *pluginFileName;
+	char *pluginFullPath;
 };
 
 #endif

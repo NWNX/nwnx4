@@ -335,7 +335,7 @@ bool CServer::run ()
 	// See if there is already a VaultSTER server running on 
 	// this system. There can be only one, so leave when the
 	// mutex already exists.
-	HANDLE mutex = CreateMutex (nullptr, TRUE, "VAULTSTER");
+	HANDLE mutex = CreateMutex (NULL, TRUE, "VAULTSTER");
 	if (GetLastError () == ERROR_ALREADY_EXISTS)
 		return true;
 
@@ -357,7 +357,7 @@ bool CServer::run ()
 					if (clients[i].isReady ()) {
 					clients[i].setReady (false);
 					clients[i].setSocket (client);
-					CreateThread (nullptr, 0, CServerClient::thread, &clients[i], 0, &id);
+					CreateThread (NULL, 0, CServerClient::thread, &clients[i], 0, &id);
 					break;
 					}
 				}

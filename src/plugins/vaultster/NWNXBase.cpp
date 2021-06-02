@@ -62,8 +62,8 @@ void CIniFile::ReadString (LPCSTR lpszSection, LPCSTR lpszKey, LPSTR lpszBuffer,
 
 CNWNXBase::CNWNXBase()
 {
-	m_fFile = nullptr;
-	logFile = nullptr;
+	m_fFile = NULL;
+	logFile = NULL;
 }
 
 CNWNXBase::~CNWNXBase()
@@ -81,11 +81,11 @@ BOOL CNWNXBase::OnCreate(const char* logFileName)
    // try to open the log file
 	logFile = _strdup (logFileName);
 	m_fFile = fopen (logFile, "w");
-   if (m_fFile == nullptr)
+   if (m_fFile == NULL)
       return FALSE;
 
    // try to open the ini file
-   _splitpath (logFileName, nullptr, nullptr, name, nullptr);
+   _splitpath (logFileName, NULL, NULL, name, NULL);
    sprintf (fullname, "%s.ini", name);
    iniFile.open (fullname);
    return TRUE;
@@ -98,12 +98,12 @@ BOOL CNWNXBase::OnRelease()
 	if (m_fFile)
 	{
 		ret = fclose (m_fFile);
-		m_fFile = nullptr;
+		m_fFile = NULL;
 	}
 	if (logFile)
 	{
 		free (logFile);
-		logFile = nullptr;
+		logFile = NULL;
 	}
 	return (ret == 0);
 }
@@ -117,9 +117,9 @@ char* CNWNXBase::OnRequest (char *gameObject, char* Request, char* Parameters)
 		{
 			// close current file and remove it
 			fclose (m_fFile);
-			m_fFile = nullptr;
+			m_fFile = NULL;
 			remove (logFile);
-			logFile = nullptr;
+			logFile = NULL;
 		}
 		else if (log == '1' && !m_fFile)
 		{
@@ -127,7 +127,7 @@ char* CNWNXBase::OnRequest (char *gameObject, char* Request, char* Parameters)
 			m_fFile = fopen (logFile, "w");
 		}
 	}
-	return nullptr;
+	return NULL;
 }
 
 void CNWNXBase::Log(const char *pcMsg, ...)

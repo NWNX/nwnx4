@@ -69,7 +69,7 @@ int StackPopFloat(float *buf)
 int StackPopString(char **buf)
 {
 	CExoString *str = (CExoString *) malloc(sizeof(CExoString));
-	str->Text = nullptr;
+	str->Text = NULL;
 	str->Length = 0;
 	int retval = CVirtualMachine_StackPopString(*g_pVirtualMachine, 0, str);
 	if (!str->Text)

@@ -306,15 +306,15 @@ GetServerNetLayerSocket(
 {
 	CExoNetInternal * NetI;
 
-	if (NetLayerInternal == nullptr)
+	if (NetLayerInternal == NULL)
 		return INVALID_SOCKET;
 
-	if (NetLayerInternal->Net == nullptr)
+	if (NetLayerInternal->Net == NULL)
 		return INVALID_SOCKET;
 
 	NetI = NetLayerInternal->Net->Internal;
 
-	if (NetI == nullptr)
+	if (NetI == NULL)
 		return INVALID_SOCKET;
 
 	return NetI->Socket;
@@ -334,12 +334,12 @@ GetPlayerAccountName(
 	)
 {
 	if (PlayerId > MAX_PLAYERS)
-		return nullptr;
+		return NULL;
 
 	if (!NetLayerInternal->Players[PlayerId].m_bPlayerInUse)
-		return nullptr;
+		return NULL;
 
-	if (NetLayerInternal->Players[PlayerId].m_sPlayerName.m_sString == nullptr)
+	if (NetLayerInternal->Players[PlayerId].m_sPlayerName.m_sString == NULL)
 		return "";
 	else
 		return NetLayerInternal->Players[PlayerId].m_sPlayerName.m_sString;
@@ -396,10 +396,10 @@ GetPlayerConnectionInfo(
 	SlidingWindow   * Winfo;
 	CExoNetInternal * NetI;
 
-	if (PlayerId > MAX_PLAYERS || NetLayerInternal == nullptr)
+	if (PlayerId > MAX_PLAYERS || NetLayerInternal == NULL)
 		return false;
 
-	Winfo = nullptr;
+	Winfo = NULL;
 	for (unsigned long i = 0; i < MAX_PLAYERS; i += 1)
 	{
 		if (NetLayerInternal->Windows[i].m_WindowInUse != 1)
@@ -412,7 +412,7 @@ GetPlayerConnectionInfo(
 		}
 	}
 
-	if (Winfo == nullptr)
+	if (Winfo == NULL)
 		return false;
 
 	NetI = NetLayerInternal->Net->Internal;
@@ -586,11 +586,11 @@ void ResetWindow(unsigned long PlayerId)
 	{
 		AURORA_SERVER_QUERY_SET_WINDOW_EXTENSIONS SetWindowExtensions;
 
-		if (Connections[PlayerId] == nullptr)
+		if (Connections[PlayerId] == NULL)
 		{
 			Handle = AuroraServerNetLayerCreate_(Connections[PlayerId], &Callbacks);
 
-			if (Handle == nullptr)
+			if (Handle == NULL)
 				return;
 		}
 
@@ -600,7 +600,7 @@ void ResetWindow(unsigned long PlayerId)
 			Connections[ PlayerId ],
 			AuroraServerQuerySetWindowExtensions,
 			sizeof( SetWindowExtensions ),
-			nullptr,
+			NULL,
 			&SetWindowExtensions))
 		{
 			_logger->Info("! Failed to configure window extensions.  AuroraServerNetLayer.dll may be out of date.");
@@ -608,11 +608,11 @@ void ResetWindow(unsigned long PlayerId)
 
 		Handle = AuroraServerNetLayerCreateTlsServer_(Connections[PlayerId], &Callbacks, TlsCert);
 
-		if (Handle != nullptr)
+		if (Handle != NULL)
 			PlayerState[PlayerId].TlsActive = true;
 	}
 
-	if (Handle == nullptr)
+	if (Handle == NULL)
 		return;
 
 	Connections[PlayerId] = Handle;
@@ -670,13 +670,13 @@ bool ReplaceNetLayer()
 	else
 	{
 		ValidateReceiveProtocolMessage = (ValidateReceiveProtocolMessageProc)GetProcAddress(AuroraServerMsgCheck, "ValidateReceiveProtocolMessage");
-		if (ValidateReceiveProtocolMessage == nullptr)
+		if (ValidateReceiveProtocolMessage == NULL)
 		{
 			_logger->Info("* Failed to resolve ValidateReceiveProtocolMessage in AuroraServerMsgCheck.dll");
 		}
 
 		ValidateReceiveDatagram = (ValidateReceiveDatagramProc)GetProcAddress(AuroraServerMsgCheck, "ValidateReceiveDatagram");
-		if (ValidateReceiveDatagram == nullptr)
+		if (ValidateReceiveDatagram == NULL)
 		{
 			_logger->Info("* Failed to resolve ValidateReceiveDatagram in AuroraServerMsgCheck.dll");
 		}
@@ -741,20 +741,20 @@ bool EnableTls()
 
 	ZeroMemory( &Cert, sizeof( Cert ) );
 
-	if ((AuroraServerNetLayerCreateTlsServer_ == nullptr) ||
-	    (AuroraServerNetLayerQuery_ == nullptr) ||
-		(AuroraServerNetLayerSendEx_ == nullptr))
+	if ((AuroraServerNetLayerCreateTlsServer_ == NULL) ||
+	    (AuroraServerNetLayerQuery_ == NULL) ||
+		(AuroraServerNetLayerSendEx_ == NULL))
 	{
 		_logger->Info("! EnableTls: Old version of AuroraServerNetLayer in use without TLS support.");
 		return false;
 	}
 
 	if (AuroraServerNetLayerQuery_(
-		nullptr,
+		NULL,
 		AuroraServerQueryTlsInitialized,
 		0,
-		nullptr,
-		nullptr ) == FALSE)
+		NULL,
+		NULL ) == FALSE)
 	{
 		_logger->Info("! EnableTls: Failed to initialize TLS.  Check that .NET Framework 4.7.2 or newer is enabled.  https://support.microsoft.com/en-us/help/4054530/microsoft-net-framework-4-7-2-offline-installer-for-windows");
 		return false;
@@ -772,10 +772,10 @@ bool EnableTls()
 		"CN=Neverwinter Nights" );
 
 	if (AuroraServerNetLayerQuery_(
-		nullptr,
+		NULL,
 		AuroraServerQueryCreateCertificate,
 		sizeof( Cert ),
-		nullptr,
+		NULL,
 		&Cert ) == FALSE)
 	{
 		_logger->Info("! EnableTls: Failed to create server certificate and store it in directory '%s'.  Check that .NET Framework 4.7.2 or newer is enabled.  https://support.microsoft.com/en-us/help/4054530/microsoft-net-framework-4-7-2-offline-installer-for-windows",
@@ -808,7 +808,7 @@ CheckDatagram(
 	// datagrams on through.
 	//
 
-	if (ValidateReceiveDatagram == nullptr)
+	if (ValidateReceiveDatagram == NULL)
 		return true;
 
 	if (ValidateReceiveDatagram( (const unsigned char *) Data, DataSize ) == FALSE)
@@ -988,7 +988,7 @@ SendMessageToPlayer(
 
 					Name = GetPlayerAccountName( Player );
 
-					if (Name != nullptr)
+					if (Name != NULL)
 						TrackPlayerAccountName( Name );
 				}
 
@@ -1273,7 +1273,7 @@ FrameReceive(
 	// anyway so this is ok.
 	//
 
-	if (NetLayerInternal == nullptr)
+	if (NetLayerInternal == NULL)
 		return TRUE;
 
 	//
@@ -1499,7 +1499,7 @@ OnNetLayerWindowReceive(
 	// Call the message validator, if one was registered.
 	//
 
-	if (ValidateReceiveProtocolMessage != nullptr)
+	if (ValidateReceiveProtocolMessage != NULL)
 	{
 		if (ValidateReceiveProtocolMessage(
 			PlayerId,
@@ -1535,7 +1535,7 @@ OnNetLayerWindowReceive(
 
 			NWN::CNWSPlayer * PlayerObject = BugFix::GetClientObjectByPlayerId( PlayerId );
 
-			if (PlayerObject == nullptr)
+			if (PlayerObject == NULL)
 			{
 				DebugPrint("No player for Login.InitiateModuleForPlayer?\n");
 				if (IsDebuggerPresent( ))
@@ -1577,7 +1577,7 @@ OnNetLayerWindowReceive(
 
 			NWN::CNWSPlayer * PlayerObject = BugFix::GetClientObjectByPlayerId( PlayerId );
 
-			if (PlayerObject == nullptr)
+			if (PlayerObject == NULL)
 			{
 				DebugPrint("No player for Login.LoadCharacterFinish?\n");
 				if (IsDebuggerPresent( ))
@@ -1618,7 +1618,7 @@ OnNetLayerWindowReceive(
 					NWN::CGameObject * CreatureObj;
 					NWN::CNWSPlayer  * PlayerObject = BugFix::GetClientObjectByPlayerId( PlayerId );
 
-					if (PlayerObject == nullptr)
+					if (PlayerObject == NULL)
 					{
 						DebugPrint("No player for Input.Rest\n");
 						if (IsDebuggerPresent( ))
@@ -1628,7 +1628,7 @@ OnNetLayerWindowReceive(
 					}
 
 					CreatureObj = BugFix::GetGameObject(PlayerObject->m_oidPCObject);
-					if ((CreatureObj == nullptr) || (CreatureObj->AsCreature() == nullptr))
+					if ((CreatureObj == NULL) || (CreatureObj->AsCreature() == NULL))
 					{
 						DebugPrint("No creature for Input.Rest\n");
 						if (IsDebuggerPresent( ))
@@ -1681,7 +1681,7 @@ OnNetLayerWindowSend(
 	// anyway so this is ok.
 	//
 
-	if (NetLayerInternal == nullptr)
+	if (NetLayerInternal == NULL)
 		return true;
 
 	Pinfo = &NetLayerInternal->Players[ PlayerId ];
@@ -1822,8 +1822,8 @@ SetGameObjUpdateSize2(
 	const unsigned long                  DefaultSize = 400;
 	AURORA_SERVER_QUERY_SEND_QUEUE_DEPTH QueryDepth;
 
-	if ((Connections[ PlayerId ] == nullptr)     ||
-	    (AuroraServerNetLayerQuery_ == nullptr))
+	if ((Connections[ PlayerId ] == NULL)     ||
+	    (AuroraServerNetLayerQuery_ == NULL))
 	{
 		return DefaultSize;
 	}
@@ -1836,7 +1836,7 @@ SetGameObjUpdateSize2(
 		Connections[ PlayerId ],
 		AuroraServerQuerySendQueueDepth,
 		sizeof( QueryDepth ),
-		nullptr,
+		NULL,
 		&QueryDepth))
 	{
 		return DefaultSize;

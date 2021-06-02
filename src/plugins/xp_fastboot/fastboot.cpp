@@ -113,7 +113,7 @@ void FastBoot::SetString(char* sFunction, char* sParam1, int nParam2, char* sVal
 char* FastBoot::GetString(char* sFunction, char* sParam1, int nParam2)
 {
 	logger->Trace("* Plugin GetString(0x%x, %s, %d)", 0x0, sParam1, nParam2);
-	return nullptr;
+	return NULL;
 }
 
 bool

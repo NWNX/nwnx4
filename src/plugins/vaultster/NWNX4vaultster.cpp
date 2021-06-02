@@ -241,8 +241,8 @@ bool NWNX4Vaultster::Init(char* nwnxhome)
 
 	// start up the server
 	if (startServer) {
-		hServer = CreateThread (nullptr, 0, CServer::thread, &server, 0, &serverId);
-		if (hServer == nullptr) {
+		hServer = CreateThread (NULL, 0, CServer::thread, &server, 0, &serverId);
+		if (hServer == NULL) {
 			// Failing starting up the server should not end
 			// VaultSTER, the client part can still run.
 			logger->Info("o Failed to start up the server.\n");
@@ -280,7 +280,7 @@ int NWNX4Vaultster::GetInt(char* sFunction, char* sParam1, int nParam2)
 	if (function == "")
 	{
 		logger->Info("* Function not specified.");
-		return nullptr;
+		return NULL;
 	}
 	else if ((function == "GET") || (function == "SEND"))
 	{
@@ -321,8 +321,8 @@ int NWNX4Vaultster::GetInt(char* sFunction, char* sParam1, int nParam2)
 		clients[i].setCommand (cmd);
 
 		// start up the client thread
-		clients[i].hThread = CreateThread (nullptr, 0, CClient::thread, &clients[i], 0, &id);
-		if (clients[i].hThread == nullptr) {
+		clients[i].hThread = CreateThread (NULL, 0, CClient::thread, &clients[i], 0, &id);
+		if (clients[i].hThread == NULL) {
 			logger->Info("o Failed to start client thread!\n");
 			returnInt = -1;
 		}

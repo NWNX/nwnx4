@@ -34,7 +34,7 @@ typedef struct hash_table
 } hash_table;
 /*
 ** This is used to construct the table. If it doesn't succeed, it sets
-** the table's size to 0, and the pointer to the table to nullptr.
+** the table's size to 0, and the pointer to the table to NULL.
 */
 hash_table *construct_table(hash_table *table,size_t size);
 /*
@@ -66,7 +66,7 @@ ub4 hash(char *key, register ub4 initval);
 void *insert(char *key,void *data,struct hash_table *table);
 /*
 ** Returns a pointer to the data associated with a key. If the key has
-** not been inserted in the table, returns nullptr.
+** not been inserted in the table, returns NULL.
 */
 void *lookup(char *key,struct hash_table *table);
 /*
@@ -89,8 +89,8 @@ void enumerate(struct hash_table *table,void (*func)(char *,void *));
 ** free the data. Typical usage would be:
 ** free_table(&table, free);
 ** if the data placed in the table was dynamically allocated, or:
-** free_table(&table, nullptr);
-** if not. ( If the parameter passed is nullptr, it knows not to call
+** free_table(&table, NULL);
+** if not. ( If the parameter passed is NULL, it knows not to call
 ** any function with the data. )
 */
 void free_table(hash_table *table, void (*func)(void *));

@@ -102,7 +102,7 @@ bool CSock::Create(int iPort)
 		int Error = WSAGetLastError ();
 		//char buffer[256];
 		//sprintf_s(buffer, 256, "Socket error: %d", Error);
-		//MessageBox (nullptr, buffer, "CSocket", MB_OK);
+		//MessageBox (NULL, buffer, "CSocket", MB_OK);
 		Log ("o Socket error: %d", Error);
 		return false;
 	}
@@ -121,7 +121,7 @@ bool CSock::Create(int iPort)
 			int Error = WSAGetLastError ();
 			//char buffer[256];
 			//sprintf_s (buffer, 256, "Socket error: %d", Error);
-			//MessageBox (nullptr, buffer, "CSocket", MB_OK);
+			//MessageBox (NULL, buffer, "CSocket", MB_OK);
 			Log ("o Socket error: %d", Error);
 			return false;
 		}
@@ -141,7 +141,7 @@ bool CSock::Connect(LPCSTR sServer, UINT iPort)
 	if (server.sin_addr.s_addr == INADDR_NONE)
 	{
 		hostent *host_info = gethostbyname (sServer);
-		if (host_info == nullptr)
+		if (host_info == NULL)
 			return FALSE;
 		memcpy (&server.sin_addr, host_info->h_addr, host_info->h_length);
 	}
@@ -192,7 +192,7 @@ int CSock::Send (const void *Data, UINT nSize)
    m_TV.tv_sec = 5;
    m_TV.tv_usec = 0;
 
-   if (select (m_iSocket+1, nullptr, &fd, nullptr, &m_TV) > 0)
+   if (select (m_iSocket+1, NULL, &fd, NULL, &m_TV) > 0)
 	   return send (m_iSocket, (char*)Data, nSize, 0);
    else
       return 0;
@@ -207,7 +207,7 @@ int CSock::Receive(void *lpBuf, UINT nSize, int Flags)
    m_TV.tv_sec = 5;
    m_TV.tv_usec = 0;
 
-   if (select (m_iSocket+1, &fd, nullptr, nullptr, &m_TV) > 0)
+   if (select (m_iSocket+1, &fd, NULL, NULL, &m_TV) > 0)
 	   return recv (m_iSocket, (char*)lpBuf, nSize, Flags);
    else
       return 0;
@@ -220,13 +220,13 @@ typedef unsigned long ulong;
 
 bool CSock::SendFile (char* File, BOOL bCompress)
 {
-	uchar* sendData = nullptr;
+	uchar* sendData = NULL;
 	int actualDataSize = 0, nSend, code;
 
 	// try to open the file
-	FILE* f = nullptr;
+	FILE* f = NULL;
 	fopen_s (&f, File, "rb");
-	if (f == nullptr)
+	if (f == NULL)
 		return false;
 
 	// determine file size
@@ -325,23 +325,23 @@ bool CSock::ReceiveFile (char* File, BOOL bCompressed)
 	Log ("o Receiving file: %s\n", File);
 
    // try to open the file
-   FILE* f = nullptr;
+   FILE* f = NULL;
    fopen_s (&f, File, "wb");
-   if (f == nullptr) {
+   if (f == NULL) {
       // try to create the directory
       char* pos = strrchr (File, '\\');
       pos[0] = 0;
 
 	  Log ("o Trying to create dir: %s\n", File);
 
-      if (!CreateDirectory (File, nullptr)) {
+      if (!CreateDirectory (File, NULL)) {
          Send (0);
 		   return false;
       }
       
       pos[0] = '\\';
       fopen_s (&f, File, "wb");
-      if (f == nullptr) {
+      if (f == NULL) {
          Send (0);
          return false;
       }

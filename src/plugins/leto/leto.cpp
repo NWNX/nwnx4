@@ -77,7 +77,7 @@ Leto::~Leto()
 	/*if (lpfnOnRelease)
 		lpfnOnRelease();*/
 	logger->Info("* Freeing the library...");
-	if (hDLL != nullptr)
+	if (hDLL != NULL)
 		FreeLibrary(hDLL);
 
 	logger->Info("* Plugin unloaded.");
@@ -91,13 +91,13 @@ LPCSTR Leto::sTimeReport(LARGE_INTEGER c1, LARGE_INTEGER c2)
 		sprintf(sTime,"%I64dns",ValueNS);
 	else
 		if (ValueNS<10000)
-			sprintf(sTime,"%0.3fï¿½s",(float)(ValueNS/1000.0));
+			sprintf(sTime,"%0.3fµs",(float)(ValueNS/1000.0));
 		else
 			if (ValueNS<100000)
-				sprintf(sTime,"%0.2fï¿½s",(float)(ValueNS/1000.0));
+				sprintf(sTime,"%0.2fµs",(float)(ValueNS/1000.0));
 			else
 				if (ValueNS<1000000)
-					sprintf(sTime,"%0.1fï¿½s",(float)(ValueNS/1000.0));
+					sprintf(sTime,"%0.1fµs",(float)(ValueNS/1000.0));
 				else
 					if (ValueNS<10000000)
 						sprintf(sTime,"%0.3fms",(float)(ValueNS/1000000.0));
@@ -140,7 +140,7 @@ bool Leto::Init(char* nwnxhome)
 	logger->Info("* Loading LetoScript.dll...");
 	// attempt to load LetoScript.Dll
 	hDLL = LoadLibrary("LetoScript.dll");
-	if (hDLL == nullptr) {
+	if (hDLL == NULL) {
 		logger->Info("* Failed loading LetoScript.dll! Our bridges are burned! Run away, run away!\n");
 		return FALSE;
 	}
@@ -212,11 +212,11 @@ const char* Leto::DoRequest(char *gameObject, char* request, char* parameters)
 	// else
 	// {
 	// 	logger->Info("* Function not specified.");
-	// 	return nullptr;
+	// 	return NULL;
 	// }
 
 	if (!lpfnOnRequest)
-		return nullptr;
+		return NULL;
 	if (iDebug==1)
 		logger->Info("Req:\"%s\", Param:\"%s\"",request, parameters);
 	if (iDebug<=1) return lpfnOnRequest(gameObject, request, parameters);
@@ -232,6 +232,6 @@ const char* Leto::DoRequest(char *gameObject, char* request, char* parameters)
 
 	// ProcessQueryFunction(function.c_str(), parameters);
 
-	// return nullptr;
+	// return NULL;
 }
 

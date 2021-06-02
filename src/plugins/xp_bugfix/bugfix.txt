@@ -469,7 +469,7 @@ Skip:
  *   returns false, the [out] pointer is uninitialized, but
  *   CNetLayerWindow::UnpacketizeFullMessages (incorrectly) assumes that
  *   CExoNetExtendableBuffer::GetFrameData signals a failure condition by
- *   setting the [out] pointer to nullptr.  Thus, we use an uninitialized
+ *   setting the [out] pointer to NULL.  Thus, we use an uninitialized
  *   buffer pointer (stack based) in this case.
  *
  * - The actual fix for this problem should be:

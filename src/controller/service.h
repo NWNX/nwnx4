@@ -19,9 +19,8 @@
 ***************************************************************************/
 
 #include "stdafx.h"
-#include "tchar.h"
-#include "../misc/log.h"
 #include "controller.h"
+#include "../misc/log.h"
 
 extern int serviceNo;
 extern void start_worker(void);

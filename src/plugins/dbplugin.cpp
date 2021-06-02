@@ -129,7 +129,7 @@ char* DBPlugin::GetString(char* sFunction, char* sParam1, int nParam2)
 	if (function == "")
 	{
 		logger->Info("* Function not specified.");
-		return nullptr;
+		return NULL;
 	}
 
 	if (function == "GETDATA")
@@ -151,7 +151,7 @@ char* DBPlugin::GetString(char* sFunction, char* sParam1, int nParam2)
 		else
 		{
 			logger->Info("* Unknown function '%s' called.", function.c_str());
-			return nullptr;
+			return NULL;
 		}
 	}
 
@@ -185,7 +185,7 @@ int DBPlugin::GetErrno()
 
 const char *DBPlugin::GetErrorMessage()
 {
-	return nullptr;
+	return NULL;
 }
 
 void DBPlugin::GetEscapeString(char* str, char* buffer)
@@ -199,7 +199,7 @@ bool DBPlugin::WriteScorcoData(BYTE* pData, int Length)
 
 BYTE* DBPlugin::ReadScorcoData(char *param, int *size)
 {
-	return nullptr;
+	return NULL;
 }
 
 void DBPlugin::SetScorcoSQL(char *request)
