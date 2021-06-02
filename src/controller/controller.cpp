@@ -89,8 +89,8 @@ void NWNXController::setupTempDirectories() {
         SetEnvironmentVariable(L"TEMP", wTempPath);
         SetEnvironmentVariable(L"TMP", wTempPath);
     }
-}
 
+}
 /***************************************************************************
     NWNServer related functions
 ***************************************************************************/
