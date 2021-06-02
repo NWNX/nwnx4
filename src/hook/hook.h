@@ -95,6 +95,4 @@ static int (WINAPI * TrueWinMain)(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow) = nullptr;
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
 
-#define _f(x, ...) (wxString) fmt::format(x, __VA_ARGS__)
-
 #endif
