@@ -76,6 +76,8 @@ private:
 	bool initialized;
 	bool shuttingDown;
 
+	void setupTempDirectories();
+
 	bool startServerProcessInternal();
 	bool checkProcessActive();
 	void runProcessWatchdog();

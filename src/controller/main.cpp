@@ -189,19 +189,6 @@ int main(int argc,char *argv[])
 	logger->Trace("Reading ini file '%s'", inifile.c_str());
 	auto config = new SimpleIniConfig(inifile);
 	logger->Configure(config);
-
-	// Setup temporary directories
-	std::string tempPath;
-	if (config->Read("nwn2temp", &tempPath))
-	{
-	    wchar_t wTempPath[MAX_PATH];
-	    memset(wTempPath, 0, MAX_PATH);
-	    mbstowcs(wTempPath, tempPath.c_str(), tempPath.length());
-
-		SetEnvironmentVariable(L"TEMP", wTempPath);
-		SetEnvironmentVariable(L"TMP", wTempPath);
-	}
-
 	controller = new NWNXController(config);
 
 	if (STARTUP_ACTION == run_interactive)

@@ -27,6 +27,9 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 {
     this->config = config;
 
+    // Setup temporary directories.
+    this->setupTempDirectories();
+
     tick = 0;
 	initialized = false;
 	shuttingDown = false;
@@ -75,6 +78,18 @@ NWNXController::~NWNXController()
 		delete udp;
 }
 
+void NWNXController::setupTempDirectories() {
+    std::string tempPath;
+    if (config->Read("nwn2temp", &tempPath))
+    {
+        wchar_t wTempPath[MAX_PATH];
+        memset(wTempPath, 0, MAX_PATH);
+        mbstowcs(wTempPath, tempPath.c_str(), tempPath.length());
+
+        SetEnvironmentVariable(L"TEMP", wTempPath);
+        SetEnvironmentVariable(L"TMP", wTempPath);
+    }
+}
 
 /***************************************************************************
     NWNServer related functions
