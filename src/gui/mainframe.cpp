@@ -180,12 +180,12 @@ void MainFrame::CreateControls()
 
     wxMenuBar* menuBar = new wxMenuBar;
     wxMenu* itemMenu47 = new wxMenu;
-    itemMenu47->Append(wxID_EXIT, _("Exit"), _T(""), wxITEM_NORMAL);
+    itemMenu47->Append(wxID_EXIT, _("Exit"), _(""), wxITEM_NORMAL);
     menuBar->Append(itemMenu47, _("&File"));
     wxMenu* itemMenu49 = new wxMenu;
-    itemMenu49->Append(ID_HELP, _("Online Help"), _T(""), wxITEM_NORMAL);
-    itemMenu49->Append(ID_FORUM, _("Open Forum"), _T(""), wxITEM_NORMAL);
-    itemMenu49->Append(wxID_ABOUT, _("About..."), _T(""), wxITEM_NORMAL);
+    itemMenu49->Append(ID_HELP, _("Online Help"), _(""), wxITEM_NORMAL);
+    itemMenu49->Append(ID_FORUM, _("Open Forum"), _(""), wxITEM_NORMAL);
+    itemMenu49->Append(wxID_ABOUT, _("About..."), _(""), wxITEM_NORMAL);
     menuBar->Append(itemMenu49, _("&Help"));
     itemFrame1->SetMenuBar(menuBar);
 
@@ -208,14 +208,14 @@ void MainFrame::CreateControls()
     wxStaticText* itemStaticText7 = new wxStaticText( itemPanel2, wxID_STATIC, _("Started at:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer6->Add(itemStaticText7, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
-    m_startedAt = new wxTextCtrl( itemPanel2, ID_TEXTCTRL1, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
+    m_startedAt = new wxTextCtrl( itemPanel2, ID_TEXTCTRL1, _(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_startedAt->Enable(false);
     itemFlexGridSizer6->Add(m_startedAt, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText9 = new wxStaticText( itemPanel2, wxID_STATIC, _("Command line:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer6->Add(itemStaticText9, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
-    m_CmdLine = new wxTextCtrl( itemPanel2, ID_TEXTCTRL2, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
+    m_CmdLine = new wxTextCtrl( itemPanel2, ID_TEXTCTRL2, _(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_CmdLine->Enable(false);
     itemFlexGridSizer6->Add(m_CmdLine, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
@@ -236,7 +236,7 @@ void MainFrame::CreateControls()
     wxStaticText* itemStaticText15 = new wxStaticText( itemPanel2, wxID_STATIC, _("Enabled"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer14->Add(itemStaticText15, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
-    m_PWEnabled = new wxCheckBox( itemPanel2, ID_PW_ENABLED, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
+    m_PWEnabled = new wxCheckBox( itemPanel2, ID_PW_ENABLED, _(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_PWEnabled->SetValue(true);
     itemFlexGridSizer14->Add(m_PWEnabled, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
@@ -245,7 +245,7 @@ void MainFrame::CreateControls()
     wxStaticText* itemStaticText18 = new wxStaticText( itemPanel2, wxID_STATIC, _("Interval:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer14->Add(itemStaticText18, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
-    m_PWInterval = new wxTextCtrl( itemPanel2, ID_TEXTCTRL3, _T(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
+    m_PWInterval = new wxTextCtrl( itemPanel2, ID_TEXTCTRL3, _(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_PWInterval->Enable(false);
     itemFlexGridSizer14->Add(m_PWInterval, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
@@ -272,7 +272,7 @@ void MainFrame::CreateControls()
     wxStaticText* itemStaticText26 = new wxStaticText( itemPanel2, wxID_STATIC, _("Enabled"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer25->Add(itemStaticText26, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
-    m_GWEnabled = new wxCheckBox( itemPanel2, ID_GW_ENABLED, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
+    m_GWEnabled = new wxCheckBox( itemPanel2, ID_GW_ENABLED, _(""), wxDefaultPosition, wxDefaultSize, 0 );
     m_GWEnabled->SetValue(true);
     itemFlexGridSizer25->Add(m_GWEnabled, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
@@ -285,14 +285,14 @@ void MainFrame::CreateControls()
     wxStaticText* itemStaticText31 = new wxStaticText( itemPanel2, wxID_STATIC, _("Interval:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer25->Add(itemStaticText31, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
-    m_GWInterval = new wxTextCtrl( itemPanel2, ID_TEXTCTRL, _T(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
+    m_GWInterval = new wxTextCtrl( itemPanel2, ID_TEXTCTRL, _(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_GWInterval->Enable(false);
     itemFlexGridSizer25->Add(m_GWInterval, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     wxStaticText* itemStaticText33 = new wxStaticText( itemPanel2, wxID_STATIC, _("seconds"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer25->Add(itemStaticText33, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
-    m_GWRetries = new wxTextCtrl( itemPanel2, ID_TEXTCTRL6, _T(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
+    m_GWRetries = new wxTextCtrl( itemPanel2, ID_TEXTCTRL6, _(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(26, -1)), 0 );
     m_GWRetries->Enable(false);
     itemFlexGridSizer25->Add(m_GWRetries, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
@@ -316,7 +316,7 @@ void MainFrame::CreateControls()
     wxStaticText* itemStaticText40 = new wxStaticText( itemPanel2, wxID_STATIC, _("lockups"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer25->Add(itemStaticText40, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxFIXED_MINSIZE, 5);
 
-    m_log = new wxTextCtrl( itemPanel2, ID_TEXTCTRL_LOG, _T(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(-1, 46)), wxTE_MULTILINE );
+    m_log = new wxTextCtrl( itemPanel2, ID_TEXTCTRL_LOG, _(""), wxDefaultPosition, itemPanel2->ConvertDialogToPixels(wxSize(-1, 46)), wxTE_MULTILINE );
     itemBoxSizer3->Add(m_log, 0, wxGROW|wxALL, 10);
 
     wxBoxSizer* itemBoxSizer42 = new wxBoxSizer(wxHORIZONTAL);
@@ -356,7 +356,7 @@ wxBitmap MainFrame::GetBitmapResource( const wxString& name )
     // Bitmap retrieval
 ////@begin MainFrame bitmap retrieval
     wxUnusedVar(name);
-    if (name == _T("res/nwnx4_logo.xpm"))
+    if (name == _("res/nwnx4_logo.xpm"))
     {
         wxBitmap bitmap(nwnx4_logo_xpm);
         return bitmap;
@@ -374,7 +374,7 @@ wxIcon MainFrame::GetIconResource( const wxString& name )
     // Icon retrieval
 ////@begin MainFrame icon retrieval
     wxUnusedVar(name);
-    if (name == _T("res/nwnx4_icon.xpm"))
+    if (name == _("res/nwnx4_icon.xpm"))
     {
         wxIcon icon(nwnx4_icon_xpm);
         return icon;

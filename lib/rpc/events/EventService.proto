@@ -1,5 +1,0 @@
-import "SendRequest.proto";
-
-service EventService {
-  rpc Send(SendRequest) returns (SendResponse);
-}

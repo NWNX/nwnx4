@@ -25,6 +25,8 @@ extern LogNWNX* logger;
 
 NWNXController::NWNXController(SimpleIniConfig* config)
 {
+    this->config = config;
+
     tick = 0;
 	initialized = false;
 	shuttingDown = false;
