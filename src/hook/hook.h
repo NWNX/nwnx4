@@ -23,8 +23,6 @@
 
 #include <windows.h>
 #include <unordered_map>
-#include <chrono>
-#include <thread>
 #include "detours/detours.h"
 #include "crashdump.h"
 #include "../misc/ini.h"

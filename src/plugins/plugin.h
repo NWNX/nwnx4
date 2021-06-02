@@ -42,7 +42,7 @@ public:
 	virtual void SetInt(char* sFunction, char* sParam1, int nParam2, int nValue) { return; }
 	virtual float GetFloat(char* sFunction, char* sParam1, int nParam2) { return 0.0; }
 	virtual void SetFloat(char* sFunction, char* sParam1, int nParam2, float fValue) { return; }
-	virtual char* GetString(char* sFunction, char* sParam1, int nParam2) { return nullptr; }
+	virtual char* GetString(char* sFunction, char* sParam1, int nParam2) { return NULL; }
 	virtual void SetString(char* sFunction, char* sParam1, int nParam2, char* sValue) { return; }
 
 	// Process query functions like GET_VERSION, ...
