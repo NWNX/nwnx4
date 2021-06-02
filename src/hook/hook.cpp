@@ -799,6 +799,8 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
             memset(tmp, 0, MAX_PATH);
 			wcstombs(tmp, shmem->nwnx_home, wcslen(shmem->nwnx_home));
 			legacyNwnxHome = new std::string(tmp);
+
+			// Initialize hook.
 			init();
 			break;
 		}
