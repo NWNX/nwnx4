@@ -38,6 +38,11 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 
 	config->Read("restartDelay", &restartDelay, 5L);
 	config->Read("processWatchdog", &processWatchdog, true);
+	config->Read("gamespyWatchdog", &gamespyWatchdog, true);
+	config->Read("gamespyInterval", &gamespyInterval, 30);
+	config->Read("gamespyRetries", &gamespyRetries, 0);
+	config->Read("gamespyTolerance", &gamespyTolerance, 5);
+	config->Read("gamespyDelay", &gamespyDelay, 30L);
 	config->Read("gracefulShutdownTimeout", &gracefulShutdownTimeout, 10);
 	config->Read("gracefulShutdownMessage", &gracefulShutdownMessage, std::string(""));
 	config->Read("gracefulShutdownMessageWait", &gracefulShutdownMessageWait, 5);
@@ -89,7 +94,6 @@ void NWNXController::setupTempDirectories() {
         SetEnvironmentVariable(L"TEMP", wTempPath);
         SetEnvironmentVariable(L"TMP", wTempPath);
     }
-
 }
 /***************************************************************************
     NWNServer related functions
