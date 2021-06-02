@@ -25,6 +25,4 @@
 /src/plugins/*/Release/
 
 .idea
-
 cmake-build-debug
-lib/x86-windows-static-md
