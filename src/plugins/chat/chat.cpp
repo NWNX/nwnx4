@@ -234,7 +234,7 @@ char* Chat::GetString(char* sFunction, char* sParam1, int nParam2)
 
 int Chat::ChatProc(const int mode, const int id, const char **msg, const int to)
 {
-	if ( !msg || !*msg ) return 0; // don't process null-string
+	if ( !msg || !*msg ) return 0; // don't process nullptr-string
 	int cmode = mode & 0xFF;
 	logger->Info("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX", cmode, id, *(char **)msg, to);
 	//Log("o CHAT: mode=%lX, from_oID=%08lX, msg='%s', to_ID=%08lX\n", cmode, id, (char *)msg, to);

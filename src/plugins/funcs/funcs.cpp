@@ -109,13 +109,13 @@ int Funcs::GetInt(char* sFunction, char* sParam1, int nParam2)
 	if (function == "")
 	{
 		logger->Info("* Function not specified.");
-		return NULL;
+		return nullptr;
 	}
 	else if(function == "GETSOUNDSET")
 	{
 		objid_t creature_oid = nParam2;
-		void *cre = CServerExoApp__GetCreatureByGameObjectID(*pCAppManager, NULL, creature_oid);
-		if(cre != NULL)
+		void *cre = CServerExoApp__GetCreatureByGameObjectID(*pCAppManager, nullptr, creature_oid);
+		if(cre != nullptr)
 		{
 			return CNWSCreature__GetSoundSet(cre);
 		}

@@ -41,8 +41,8 @@ public:
 	static bool StartWSA ();
 
 	void Listen (int ConnectionBacklog = 5);
-	bool Accept (CSock& Client, SOCKADDR* SockAddr = NULL);
-	int Select (int MaxFd, FD_SET* Read, FD_SET* Write, FD_SET* Except, timeval* tv = NULL);
+	bool Accept (CSock& Client, SOCKADDR* SockAddr = nullptr);
+	int Select (int MaxFd, FD_SET* Read, FD_SET* Write, FD_SET* Except, timeval* tv = nullptr);
 
 	int Receive (void* Buf, UINT Size, int Flags = 0);
 	int Send (const void* Data, UINT Size);

@@ -186,7 +186,7 @@ void CClient::createPattern (char* pattern, int patternLen)
 {
 	// make sure there is no dot in the filename
 	char* dot = strchr (character, '.');
-	if (dot != NULL)
+	if (dot != nullptr)
 		dot[0] = 0;
 
 	// determine the length of the current pattern
@@ -254,7 +254,7 @@ void CClient::generatePassword (char pwd[128])
 	strcpy_s (pwd, 128, password);
 	
 	// build the dummy part of the password
-	srand ((unsigned)time(NULL));
+	srand ((unsigned)time(nullptr));
 	for (int i = strlen(password); i < 128; i++)
 		pwd[i] = 33 + (rand() % 90);
 }

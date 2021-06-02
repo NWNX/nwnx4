@@ -190,7 +190,7 @@ namespace NWN2
 	// Protocol message structures, generic to all message functions.
 	//
 
-	enum { NULL_OBJID  = 0x7F000000 };
+	enum { nullptr_OBJID  = 0x7F000000 };
 
 	typedef unsigned long OBJECT_ID;
 	typedef unsigned long PLAYER_ID;

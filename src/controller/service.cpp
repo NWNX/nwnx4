@@ -18,7 +18,6 @@
 
 ***************************************************************************/
 
-#include "stdwx.h"
 #include "service.h"
 
 extern LogNWNX* logger;
@@ -29,11 +28,11 @@ SC_HANDLE getSCManager()
 {
 	// Return a handle to the SC Manager database.
  	SC_HANDLE schSCManager = OpenSCManager(
-    NULL,                    // local machine
-    NULL,                    // ServicesActive database
+    nullptr,                    // local machine
+    nullptr,                    // ServicesActive database
     SC_MANAGER_ALL_ACCESS);  // full access rights
 
-	if (schSCManager == NULL)
+	if (schSCManager == nullptr)
 		logger->Err("* Failed to connect to service manager (%d)", GetLastError());
 
 	return schSCManager;
@@ -51,19 +50,19 @@ BOOL installservice(int serviceNo)
 	logger->Info("* Installing NWNX Service %d...", serviceNo);
 
 	schSCManager = getSCManager();
-	if (NULL == schSCManager)
+	if (nullptr == schSCManager)
 		return FALSE;
 
-    if(!GetModuleFileName(NULL, szPath, MAX_PATH ) )
+    if(!GetModuleFileName(nullptr, szPath, MAX_PATH ) )
     {
 		logger->Err("* GetModuleFileName failed (%d)", GetLastError());
         return FALSE;
     }
 
-	_stprintf_s(serviceName, 64, _T("NWNX4-%d"), serviceNo);
-	_stprintf_s(displayName, 64, _T("NWNX4 Service %d"), serviceNo);
-	_stprintf_s(cmdLine, MAX_PATH, _T("%s -serviceno %d -runservice"), szPath, serviceNo);
-	sdBuf.lpDescription = _T("Neverwinter Nights Extender 4 service instance");
+	swprintf(serviceName, 64, L"NWNX4-%d", serviceNo);
+	swprintf(displayName, 64, L"NWNX4 Service %d", serviceNo);
+	swprintf(cmdLine, MAX_PATH, L"%s -serviceno %d -runservice", szPath, serviceNo);
+	sdBuf.lpDescription = L"Neverwinter Nights Extender 4 service instance";
 
     schService = CreateService(
         schSCManager,              // SCManager database
@@ -74,13 +73,13 @@ BOOL installservice(int serviceNo)
         SERVICE_DEMAND_START,      // start type
         SERVICE_ERROR_NORMAL,      // error control type
         cmdLine,                   // path to service's binary
-        NULL,                      // no load ordering group
-        NULL,                      // no tag identifier
-        NULL,                      // no dependencies
-        NULL,                      // LocalSystem account
-        NULL);                     // no password
+        nullptr,                      // no load ordering group
+        nullptr,                      // no tag identifier
+        nullptr,                      // no dependencies
+        nullptr,                      // LocalSystem account
+        nullptr);                     // no password
 
-    if (schService == NULL)
+    if (schService == nullptr)
     {
 		logger->Err("* CreateService failed (%d)", GetLastError());
         return FALSE;
@@ -105,11 +104,11 @@ BOOL uninstallservice(int serviceNo)
 	SC_HANDLE schSCManager, schService;
     wchar_t serviceName[64];
 
-    _stprintf_s(serviceName, 64, wxT("NWNX4-%d"), serviceNo);
+    swprintf(serviceName, 64, L"NWNX4-%d", serviceNo);
 	logger->Info("* Uninstalling NWNX Service %d...", serviceNo);
 
 	schSCManager = getSCManager();
-	if (NULL == schSCManager)
+	if (nullptr == schSCManager)
 		return FALSE;
 
     schService = OpenService(
@@ -117,7 +116,7 @@ BOOL uninstallservice(int serviceNo)
         serviceName,        // name of service
         DELETE);            // only need DELETE access
 
-    if (schService == NULL)
+    if (schService == nullptr)
     {
         logger->Err("* OpenService failed (%d)", GetLastError());
         return FALSE;
@@ -135,8 +134,7 @@ BOOL uninstallservice(int serviceNo)
     return TRUE;
 }
 
-void WINAPI NWNXServiceStart(DWORD argc, LPTSTR *argv)
-{
+void WINAPI NWNXServiceStart(DWORD argc, LPTSTR *argv) {
     DWORD status;
     DWORD specificError;
     wchar_t serviceName[64];
@@ -149,21 +147,19 @@ void WINAPI NWNXServiceStart(DWORD argc, LPTSTR *argv)
     NWNXServiceStatus.dwCheckPoint = 0;
     NWNXServiceStatus.dwWaitHint = 0;
 
-    _stprintf_s(serviceName, 64, L"NWNX4-%d", serviceNo);
+    swprintf(serviceName, L"NWNX4-%d", serviceNo);
     NWNXServiceStatusHandle = RegisterServiceCtrlHandler(serviceName, NWNXServiceCtrlHandler);
 
-    if (NWNXServiceStatusHandle == (SERVICE_STATUS_HANDLE)0)
-    {
-		logger->Err("* RegisterServiceCtrlHandler failed %d", GetLastError());
+    if (NWNXServiceStatusHandle == (SERVICE_STATUS_HANDLE) 0) {
+        logger->Err("* RegisterServiceCtrlHandler failed %d", GetLastError());
         return;
     }
 
     // Initialization code goes here.
-    status = NWNXServiceInitialization(argc,argv, &specificError);
+    status = NWNXServiceInitialization(argc, argv, &specificError);
 
     // Handle error condition
-    if (status != NO_ERROR)
-    {
+    if (status != NO_ERROR) {
         NWNXServiceStatus.dwCurrentState = SERVICE_STOPPED;
         NWNXServiceStatus.dwCheckPoint = 0;
         NWNXServiceStatus.dwWaitHint = 0;
@@ -179,16 +175,13 @@ void WINAPI NWNXServiceStart(DWORD argc, LPTSTR *argv)
     NWNXServiceStatus.dwCheckPoint = 0;
     NWNXServiceStatus.dwWaitHint = 0;
 
-    if (!SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus))
-    {
+    if (!SetServiceStatus(NWNXServiceStatusHandle, &NWNXServiceStatus)) {
         status = GetLastError();
-		logger->Err("* SetServiceStatus error %ld", status);
+        logger->Err("* SetServiceStatus error %ld", status);
     }
 
     // This is where the service does its work.
-	start_worker();
-
-    return;
+    start_worker();
 }
 
 // Stub initialization function.
@@ -270,16 +263,16 @@ BOOL StartNWNXService(int serviceNo)
 	wchar_t serviceName[64];
 
 	schSCManager = getSCManager();
-	if (NULL == schSCManager)
+	if (nullptr == schSCManager)
 		return FALSE;
 
-	_stprintf_s(serviceName, 64, L"NWNX4-%d", serviceNo);
+	swprintf(serviceName, L"NWNX4-%d", serviceNo);
     schService = OpenService(
         schSCManager,           // SCManager database
         serviceName,            // name of service
         SERVICE_ALL_ACCESS);
 
-    if (schService == NULL)
+    if (schService == nullptr)
     {
 		logger->Err("* OpenService failed (%d)", GetLastError());
         return FALSE;
@@ -288,7 +281,7 @@ BOOL StartNWNXService(int serviceNo)
     if (!StartService(
             schService,  // handle to service
             0,           // number of arguments
-            NULL) )      // no arguments
+            nullptr) )      // no arguments
     {
         return 0;
     }
@@ -392,10 +385,10 @@ DWORD StopNWNXService(int serviceNo)
 	DWORD dwTimeout = 10000; //msec
 	wchar_t serviceName[64];
 
-    _stprintf_s(serviceName, 64, L"NWNX4-%d", serviceNo);
+    swprintf(serviceName, L"NWNX4-%d", serviceNo);
 
 	schSCManager = getSCManager();
-	if (NULL == schSCManager)
+	if (nullptr == schSCManager)
 		return FALSE;
 
     schService = OpenService(
@@ -403,7 +396,7 @@ DWORD StopNWNXService(int serviceNo)
         serviceName,
         SERVICE_ALL_ACCESS);
 
-    if (schService == NULL)
+    if (schService == nullptr)
     {
 		logger->Err("* OpenService failed (%d)", GetLastError());
         return FALSE;

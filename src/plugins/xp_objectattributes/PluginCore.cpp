@@ -80,53 +80,53 @@ Environment:
 	if ((ObjectId & NWN::INVALIDOBJID) != 0)
 		ObjectId &= ~(NWN::LISTTYPE_MASK);
 
-	if ((Object = m_ObjectManager.GetGameObject( ObjectId )) == NULL)
+	if ((Object = m_ObjectManager.GetGameObject( ObjectId )) == nullptr)
 		return;
 
 	Creature = Object->AsCreature( );
 
-	if ((!strcmp( Function, "SetHeadVariation" )) && (Creature != NULL))
+	if ((!strcmp( Function, "SetHeadVariation" )) && (Creature != nullptr))
 	{
 		XPObjectAttributesSetHeadVariation(
 			Creature,
-			strtoul( Value, 0, NULL ));
+			strtoul( Value, 0, nullptr ));
 
 		return;
 	}
-	else if ((!strcmp( Function, "SetHairVariation" )) && (Creature != NULL))
+	else if ((!strcmp( Function, "SetHairVariation" )) && (Creature != nullptr))
 	{
 		XPObjectAttributesSetHairVariation(
 			Creature,
-			strtoul( Value, 0, NULL ));
+			strtoul( Value, 0, nullptr ));
 
 		return;
 	}
-	else if ((!strcmp( Function, "SetTailVariation" )) && (Creature != NULL))
+	else if ((!strcmp( Function, "SetTailVariation" )) && (Creature != nullptr))
 	{
 		XPObjectAttributesSetTailVariation(
 			Creature,
-			strtoul( Value, 0, NULL ));
+			strtoul( Value, 0, nullptr ));
 
 		return;
 	}
-	else if ((!strcmp( Function, "SetWingVariation" )) && (Creature != NULL))
+	else if ((!strcmp( Function, "SetWingVariation" )) && (Creature != nullptr))
 	{
 		XPObjectAttributesSetWingVariation(
 			Creature,
-			strtoul( Value, 0, NULL ));
+			strtoul( Value, 0, nullptr ));
 
 		return;
 	}
-	else if ((!strcmp( Function, "SetFacialHairVariation" )) && (Creature != NULL))
+	else if ((!strcmp( Function, "SetFacialHairVariation" )) && (Creature != nullptr))
 	{
 		XPObjectAttributesSetFacialHairVariation(
 			Creature,
-			strtoul( Value, 0, NULL ));
+			strtoul( Value, 0, nullptr ));
 
 		return;
 	}
 	else if ((!strcmp( Function, "SetBodyTint" )) &&
-	         (Creature != NULL)                   && 
+	         (Creature != nullptr)                   &&
 	         (XPObjectAttributesParseTintSetString( Value, &TintSet )))
 	{
 		XPObjectAttributesSetBodyTint( Creature, &TintSet );
@@ -134,7 +134,7 @@ Environment:
 		return;
 	}
 	else if ((!strcmp( Function, "SetHeadTint" )) &&
-	         (Creature != NULL)                   && 
+	         (Creature != nullptr)                   &&
 	         (XPObjectAttributesParseTintSetString( Value, &TintSet )))
 	{
 		XPObjectAttributesSetHeadTint( Creature, &TintSet );
@@ -142,7 +142,7 @@ Environment:
 		return;
 	}
 	else if ((!strcmp( Function, "SetHairTint" )) &&
-	         (Creature != NULL)                   && 
+	         (Creature != nullptr)                   &&
 	         (XPObjectAttributesParseTintSetString( Value, &TintSet )))
 	{
 		XPObjectAttributesSetHairTint( Creature, &TintSet );
@@ -150,11 +150,11 @@ Environment:
 		return;
 	}
 	else if ((!strcmp( Function, "SetRace" )) &&
-	         (Creature != NULL))
+	         (Creature != nullptr))
 	{
 		XPObjectAttributesSetRace(
 			Creature,
-			(unsigned short) strtoul( Value, 0, NULL ));
+			(unsigned short) strtoul( Value, 0, nullptr ));
 
 		return;
 	}

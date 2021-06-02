@@ -69,7 +69,7 @@ SQLite::SQLite()
 	version = "1.1.0";
 
 	firstfetch = false;
-	pStmt = NULL;
+	pStmt = nullptr;
 }
 
 SQLite::~SQLite()
@@ -112,14 +112,14 @@ bool SQLite::Connect()
 	{
 		logger->Info("* Could not open database: %s", sqlite3_errmsg(sdb));
 	    sqlite3_close(sdb);
-		sdb = NULL;
+		sdb = nullptr;
 		return FALSE;
 	}
 
 	sqlite3_extended_result_codes(sdb, true);
 
 	// begin implicit transaction
-	rc = sqlite3_prepare(sdb, "BEGIN", -1, &pStmt, NULL);
+	rc = sqlite3_prepare(sdb, "BEGIN", -1, &pStmt, nullptr);
 	if (rc != SQLITE_OK)
 		logger->Info("* %s", sqlite3_errmsg(sdb));
 	else
@@ -141,7 +141,7 @@ void SQLite::Disconnect()
 
 	// end implicit transaction
 	SafeFinalize(&pStmt);
-	rc = sqlite3_prepare(sdb, "COMMIT", -1, &pStmt, NULL);
+	rc = sqlite3_prepare(sdb, "COMMIT", -1, &pStmt, nullptr);
 	if (rc != SQLITE_OK)
 		logger->Info("* %s", sqlite3_errmsg(sdb));
 	else
@@ -161,7 +161,7 @@ bool SQLite::Execute(char* query)
 
 	// prepare query
 	logger->Info("* Executing: %s", query);
-	rc = sqlite3_prepare(sdb, (const char*) query, -1, &pNewStmt, NULL);
+	rc = sqlite3_prepare(sdb, (const char*) query, -1, &pNewStmt, nullptr);
 	if (rc != SQLITE_OK)
 	{
 		logger->Err("! SQL Error: %s", sqlite3_errmsg(sdb));
@@ -179,7 +179,7 @@ bool SQLite::Execute(char* query)
 	{
 		case SQLITE_DONE:
 			logger->Trace("* Step: SQLITE_DONE");
-			if (sqlite3_column_name(pNewStmt,0) != NULL)
+			if (sqlite3_column_name(pNewStmt,0) != nullptr)
 			{
 				// pNewStmt returned an empty resultset (as opposed
 				// to a query that returns no result set at all, like
@@ -203,7 +203,7 @@ bool SQLite::Execute(char* query)
 			{
 				logger->Trace("* Closing open resultset.");
 				SafeFinalize(&pStmt);
-				rc = sqlite3_prepare(sdb, (const char*) query, -1, &pNewStmt, NULL);
+				rc = sqlite3_prepare(sdb, (const char*) query, -1, &pNewStmt, nullptr);
 				rc = sqlite3_step(pNewStmt) & 0xff;
 				SafeFinalize(&pNewStmt);
 			}
@@ -286,13 +286,13 @@ void SQLite::SafeFinalize(sqlite3_stmt** pStmt)
 	if (*pStmt)
 	{
 		sqlite3_finalize(*pStmt);
-		*pStmt = NULL;
+		*pStmt = nullptr;
 	}
 }
 
 void SQLite::GetEscapeString(char* str, char* buffer)
 {
-	if (*str == NULL)
+	if (*str == nullptr)
 	{
 		nwnxcpy(buffer, "");
 		return;

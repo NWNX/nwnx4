@@ -125,7 +125,7 @@ char *Ruby::Eval(char *value)
 		if(nError)
 		{
 			Log(0, "Error %d while evaluating a Ruby expression: %s\n", nError, value);
-			return NULL;
+			return nullptr;
 		}
 		if(retval!=Qnil)
 		{
@@ -138,12 +138,12 @@ char *Ruby::Eval(char *value)
 				return buf;
 			}
 		}
-		return NULL;
+		return nullptr;
 	}
 	catch(...)
 	{
 		Log(0, "Caught a C++ exception while evaluating a Ruby expression: %s\n", value);
-		return NULL;
+		return nullptr;
 	}
 	/*else
 	return RSTRING(rb_cvar_get(cNWScript, rb_intern(RUBY_RETVAL)))->ptr;*/
@@ -158,7 +158,7 @@ const char* Ruby::DoRequest(char *gameObject, char* request, char* parameters)
 	{
 		return Eval(parameters);
 	}
-	return NULL;
+	return nullptr;
 }
 
 void Ruby::GetFunctionClass(char* fClass)

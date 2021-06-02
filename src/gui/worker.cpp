@@ -85,7 +85,7 @@ void *NWNXWorker::Entry()
 
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void NWNXWorker::startServer()

@@ -288,7 +288,7 @@ private:
 		NWN::CGameObject * Object;
 	};
 
-	static GameObjCacheEntry GameObjectCache[ 1 + GAME_OBJ_CACHE_SIZE ]; // [0] is always NWN::INVALIDOBJID -> NULL
+	static GameObjCacheEntry GameObjectCache[ 1 + GAME_OBJ_CACHE_SIZE ]; // [0] is always NWN::INVALIDOBJID -> nullptr
 	static ULONG GameObjectCacheIndex;
 	static ULONG GameObjectCacheHits;
 	static ULONG GameObjectCacheMisses;

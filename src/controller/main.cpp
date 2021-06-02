@@ -18,7 +18,6 @@
 
 ***************************************************************************/
 
-#include "stdwx.h"
 #include "controller.h"
 #include "service.h"
 
@@ -43,7 +42,7 @@ void start_worker()
 	logger->Trace("Starting worker...");
 
 	// Start the worker thread
-	hThread = CreateThread(NULL, 0, workerProcessThread, NULL, 0, &dwThreadId);
+	hThread = CreateThread(nullptr, 0, workerProcessThread, nullptr, 0, &dwThreadId);
 }
 
 // The thread that does the actual work
@@ -70,7 +69,7 @@ void process_command_line(int argc,char *argv[])
 
 	// decide on log target (depending on whether
 	// we run interactive or as a service).
-	logger = NULL;
+	logger = nullptr;
 	for (int i = 0; i < argc; i++)
 	{
 		if (
@@ -169,9 +168,7 @@ void process_command_line(int argc,char *argv[])
 
 int main(int argc,char *argv[])
 {
-    USES_CONVERSION;
-
-	// init
+    // init
 	STARTUP_ACTION = no_action;
 	serviceNo = 1;
 
@@ -179,9 +176,9 @@ int main(int argc,char *argv[])
 	wchar_t path_buffer[_MAX_PATH];
 	wchar_t drive[_MAX_DRIVE];
 	wchar_t dir[_MAX_DIR];
-	GetModuleFileName(NULL, path_buffer, MAX_PATH);
-	_wsplitpath( path_buffer, drive, dir, NULL, NULL );
-	_wmakepath(path_buffer, drive, dir, NULL, NULL);
+	GetModuleFileName(nullptr, path_buffer, MAX_PATH);
+	_wsplitpath( path_buffer, drive, dir, nullptr, nullptr);
+	_wmakepath(path_buffer, drive, dir, nullptr, nullptr);
 	SetCurrentDirectory(path_buffer);
 
 	// set up logging and process command line parameters
@@ -197,8 +194,12 @@ int main(int argc,char *argv[])
 	std::string tempPath;
 	if (config->Read("nwn2temp", &tempPath))
 	{
-		SetEnvironmentVariable(L"TEMP", A2T(tempPath.c_str()));
-		SetEnvironmentVariable(L"TMP", A2T(tempPath.c_str()));
+	    wchar_t wTempPath[MAX_PATH];
+	    memset(wTempPath, 0, MAX_PATH);
+	    mbstowcs(wTempPath, tempPath.c_str(), tempPath.length());
+
+		SetEnvironmentVariable(L"TEMP", wTempPath);
+		SetEnvironmentVariable(L"TMP", wTempPath);
 	}
 
 	controller = new NWNXController(config);
@@ -216,9 +217,9 @@ int main(int argc,char *argv[])
 	{
 		// start as service
 		wchar_t serviceName[64];
-		_stprintf_s(serviceName, 64, L"NWNX4-%d", serviceNo);
+		swprintf(serviceName, 64, L"NWNX4-%d", serviceNo);
 
-		SERVICE_TABLE_ENTRY DispatchTable[] = {{ serviceName, NWNXServiceStart}, { NULL, NULL }};
+		SERVICE_TABLE_ENTRY DispatchTable[] = {{ serviceName, NWNXServiceStart}, { nullptr, nullptr }};
 		if (!StartServiceCtrlDispatcher(DispatchTable))
 		{
 			logger->Err("* StartServiceCtrlDispatcher (%d)", GetLastError());

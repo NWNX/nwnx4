@@ -235,7 +235,7 @@ LocateConnection(
 
 	if (AllowCreate == FALSE)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (High < Low)
@@ -268,7 +268,7 @@ LocateConnection(
 
 	if (ConnectionTableSize == CONNECTIONS_MAX)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	//
@@ -305,7 +305,7 @@ GetGatewayByPlayer(
 	for (PlayerId = 0; PlayerId < MAX_PLAYERS; PlayerId += 1)
 	{
 		const char * Name = GetPlayerAccountName( PlayerId );
-		if (Name == NULL || strcmp( Name, PlayerName ) != 0)
+		if (Name == nullptr || strcmp( Name, PlayerName ) != 0)
 			continue;
 
 		break;
@@ -322,7 +322,7 @@ GetGatewayByPlayer(
 	SearchEntry.Port      = Sin.sin_port;
 
 	ConnEntry = LocateConnection( SearchEntry, FALSE, FALSE );
-	if (ConnEntry == NULL)
+	if (ConnEntry == nullptr)
 		return FALSE;
 
 	GwInfo->ClientIP    = Sin.sin_addr.s_addr;
@@ -594,7 +594,7 @@ int __stdcall ReflectorSendto(__in SOCKET s, __in const char *buf, __in int len,
 	SearchEntry.RecvTick = Now;
 
 	Entry = LocateConnection( SearchEntry, TRUE, FALSE );
-	if ((Entry == NULL) || (Entry->Gateway == INADDR_NONE))
+	if ((Entry == nullptr) || (Entry->Gateway == INADDR_NONE))
 	{
 		//
 		// No route to send, drop the message.
@@ -845,7 +845,7 @@ int __stdcall ReflectorRecvfrom(__in SOCKET s, __out char *buf, __in int len, __
 	SearchEntry.RecvTick = Now;
 
 	Entry = LocateConnection( SearchEntry, TRUE, TRUE );
-	if (Entry == NULL)
+	if (Entry == nullptr)
 	{
 		//
 		// No space for new connections, drop the message.

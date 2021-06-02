@@ -69,8 +69,8 @@ MySQL::MySQL()
 	subClass = "MySQL";
 	version = "1.1.0-dev";
 
-	result = NULL;
-	row = NULL;
+	result = nullptr;
+	row = nullptr;
 }
 
 MySQL::~MySQL()
@@ -114,8 +114,8 @@ bool MySQL::Connect()
 		return FALSE;
 
 	// try to connect to the mysql server
-	connection = mysql_real_connect(&mysql, server.c_str(), user.c_str(), password.c_str(), schema.c_str(), port, NULL, CLIENT_MULTI_STATEMENTS);
-	if (connection == NULL)
+	connection = mysql_real_connect(&mysql, server.c_str(), user.c_str(), password.c_str(), schema.c_str(), port, nullptr, CLIENT_MULTI_STATEMENTS);
+	if (connection == nullptr)
 	{
 		mysql_close(&mysql);
 		return false;
@@ -185,8 +185,8 @@ bool MySQL::Execute(char* query)
 		if (_strnicmp(query, "SELECT", 6) == 0)
 		{
 			mysql_free_result(result);
-			result = NULL;
-			row = NULL;
+			result = nullptr;
+			row = nullptr;
 			num_fields = 0;
 		}
 
@@ -204,15 +204,15 @@ bool MySQL::Execute(char* query)
 
 	// store the resultset in local memory
 	newResult = mysql_store_result(&mysql);
-	if (newResult == NULL)
+	if (newResult == nullptr)
 	{
 		if (mysql_field_count(&mysql) != 0)
 		{
 			// SELECT with an empty result set
 			logger->Trace("* Retrieved an empty resultset (mysql_query)");
 			mysql_free_result(result);
-			result = NULL;
-			row = NULL;
+			result = nullptr;
+			row = nullptr;
 			num_fields = 0;
 		}
 		else
@@ -228,7 +228,7 @@ bool MySQL::Execute(char* query)
 			{
 				mysql_free_result(result);
 				result = newResult;
-				row = NULL;
+				row = nullptr;
 				num_fields = mysql_num_fields(result);
 			}
 		}
@@ -244,7 +244,7 @@ bool MySQL::Execute(char* query)
 		// successfully retrieved the resultset
 		mysql_free_result(result);
 		result = newResult;
-		row = NULL;
+		row = nullptr;
 		num_fields = mysql_num_fields(result);
 	}
 	
@@ -268,7 +268,7 @@ int MySQL::Fetch(char* buffer)
 		logger->Trace("* Trying to fetch the next resultset");
 
 		mysql_free_result(result);
-		result = NULL;
+		result = nullptr;
 		num_fields = 0;
 
 		result = AdvanceToNextValidResultset();
@@ -288,7 +288,7 @@ int MySQL::Fetch(char* buffer)
 		}
 	}
 
-	row = NULL;
+	row = nullptr;
 	logger->Trace("* Fetch returns no row.");
 	nwnxcpy(buffer, "");
 	return 0;
@@ -328,14 +328,14 @@ MYSQL_RES* MySQL::AdvanceToNextValidResultset()
 		logger->Trace("* Got a resultset");
 		mysql_next_result(&mysql);
 		newResult = mysql_store_result(&mysql);
-		if (newResult == NULL)
+		if (newResult == nullptr)
 		{
 			logger->Trace("* Empty resultset");
 			if (mysql_field_count(&mysql) != 0)
 			{
 				// SELECT with an empty result set
 				logger->Trace("* Retrieved an empty resultset");
-				return NULL;
+				return nullptr;
 			}
 			else
 			{
@@ -352,7 +352,7 @@ MYSQL_RES* MySQL::AdvanceToNextValidResultset()
 	}
 
 	// no non-empty resultset found
-	return NULL;
+	return nullptr;
 }
 
 int MySQL::GetAffectedRows()
@@ -425,19 +425,19 @@ BYTE* MySQL::ReadScorcoData(char *param, int *size)
 		if (mysql_query(&mysql, (const char *) scorcoSQL) != 0)
 		{
 			pSqlError = true;
-			return NULL;
+			return nullptr;
 		}
 
 		/*if (result)
 		{
 		mysql_free_result(result);
-		result = NULL;
+		result = nullptr;
 		}*/
 		rcoresult = mysql_store_result (&mysql);
 		if (!rcoresult)
 		{
 			pSqlError = true;
-			return NULL;
+			return nullptr;
 		}
 	}
 	else rcoresult=result;
@@ -454,7 +454,7 @@ BYTE* MySQL::ReadScorcoData(char *param, int *size)
 		NWN2_Heap *pHeap = pHeapMgr->GetDefaultHeap();
 		char* buf = (char *) pHeap->Allocate(*length);
 
-		if (!buf) return NULL;
+		if (!buf) return nullptr;
 
 		memcpy(buf, row[0], length[0]);
 		*size = length[0];
@@ -465,6 +465,6 @@ BYTE* MySQL::ReadScorcoData(char *param, int *size)
 	{
 		logger->Info("* Empty RCO resultset");
 		mysql_free_result(rcoresult);
-		return NULL;
+		return nullptr;
 	}
 }
