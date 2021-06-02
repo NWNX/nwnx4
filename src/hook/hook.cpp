@@ -31,7 +31,8 @@ PluginHashMap plugins;
 LegacyPluginHashMap legacyplugins;
 
 LogNWNX* logger;
-std::wstring* nwnxhome;
+std::string* legacyNwnxHome;
+std::wstring* nwnxHome;
 SimpleIniConfig* config;
 
 char returnBuffer[MAX_BUFFER];
@@ -418,13 +419,13 @@ void init()
 {
     unsigned char* hookAt;
 
-	auto logfile = std::wstring(*nwnxhome) + L"\\nwnx.txt";
+	auto logfile = std::wstring(*nwnxHome) + L"\\nwnx.txt";
 	logger = new LogNWNX(logfile);
 	logger->Info("NWN Extender 4 V.1.1.0");
 	logger->Info("(c) 2008 by Ingmar Stieger (Papillon)");
 	logger->Info("visit us at http://www.nwnx.org");
 
-    logger->Info("NWNX Home: %s", nwnxhome);
+    logger->Info("NWNX Home: %s", nwnxHome);
 
     // signal controller that we are ready
 	if (!SetEvent(shmem->ready_event))
@@ -435,7 +436,7 @@ void init()
 	CloseHandle(shmem->ready_event);
 
 	// open ini file
-	auto inifile = *nwnxhome + L"\\nwnx.ini";
+	auto inifile = *nwnxHome + L"\\nwnx.ini";
 	logger->Trace("Reading inifile %s", inifile.c_str());
 	config = new SimpleIniConfig(inifile);
 	logger->Configure(config);
@@ -572,7 +573,7 @@ void loadPlugins()
 	char fClass[128];
     std::string filename;
 	std::string pattern("xp_*.dll");
-	auto dir = std::filesystem::directory_entry(*nwnxhome);
+	auto dir = std::filesystem::directory_entry(*nwnxHome);
 
     logger->Debug("Enumerating plugins in current directory");
 
@@ -602,7 +603,7 @@ void loadPlugins()
 					Plugin* pPlugin = pGetPluginPointer();
 					if (pPlugin)
 					{
-						if (!pPlugin->Init((char*)nwnxhome->c_str()))
+						if (!pPlugin->Init(legacyNwnxHome->data()))
 							logger->Info("* Loading plugin %s: Error during plugin initialization.", filename.c_str());
 						else
 						{
@@ -632,7 +633,7 @@ void loadPlugins()
 						LegacyPlugin* pPlugin = pGetPluginPointer();
 						if (pPlugin)
 						{
-							if (!pPlugin->Init((char*)nwnxhome->c_str()))
+							if (!pPlugin->Init(legacyNwnxHome->data()))
 								logger->Info("* Loading plugin %s: Error during plugin initialization.", filename.c_str());
 							else
 							{
@@ -694,7 +695,7 @@ void loadPlugins()
 		// 		Plugin* pPlugin = pGetPluginPointer();
 		// 		if (pPlugin)
 		// 		{
-		// 			if (!pPlugin->Init((char*)nwnxhome->c_str()))
+		// 			if (!pPlugin->Init((char*)nwnxHome->c_str()))
 		// 				logger->Info("* Loading plugin %s: Error during plugin initialization.", filename);
 		// 			else
 		// 			{
@@ -724,7 +725,7 @@ void loadPlugins()
 		// 			LegacyPlugin* pPlugin = pGetPluginPointer();
 		// 			if (pPlugin)
 		// 			{
-		// 				if (!pPlugin->Init((char*)nwnxhome->c_str()))
+		// 				if (!pPlugin->Init((char*)nwnxHome->c_str()))
 		// 					logger->Info("* Loading plugin %s: Error during plugin initialization.", filename);
 		// 				else
 		// 				{
@@ -791,7 +792,13 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			// Initialize plugins and load configuration data.
 			//
 
-			nwnxhome = new std::wstring(shmem->nwnx_home);
+            nwnxHome = new std::wstring(shmem->nwnx_home);
+
+            // For legacy.
+            char tmp[MAX_PATH];
+            memset(tmp, 0, MAX_PATH);
+			wcstombs(tmp, shmem->nwnx_home, wcslen(shmem->nwnx_home));
+			legacyNwnxHome = new std::string(tmp);
 			init();
 			break;
 		}

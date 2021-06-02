@@ -70,7 +70,8 @@ extern PluginHashMap plugins;
 extern LegacyPluginHashMap legacyplugins;
 
 extern LogNWNX* logger;
-extern std::wstring* nwnxhome;
+extern std::string* legacyNwnxHome;
+extern std::wstring* nwnxHome;
 extern SimpleIniConfig* config;
 
 extern char returnBuffer[MAX_BUFFER];
