@@ -75,7 +75,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 ***************************************************************************/
 
 SrvAdmin::SrvAdmin()
-: mainGuiWindow( NULL )
+: mainGuiWindow( nullptr )
 {
 	header =
 		"NWNX SrvAdmin Plugin " PLUGIN_VERSION "\n"  \
@@ -192,7 +192,7 @@ void SrvAdmin::SetString(char* sFunction, char* sParam1, int nParam2, char* sVal
 char* SrvAdmin::GetString(char* sFunction, char* sParam1, int nParam2)
 {
 	logger->Trace("* Plugin GetString(0x%x, %s, %d)", 0x0, sParam1, nParam2);
-	return NULL;
+	return nullptr;
 }
 
 /*

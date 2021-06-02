@@ -70,7 +70,7 @@ unsigned char* FindPattern(const unsigned char* pattern)
 			ptr++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int NWNXGetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2)
@@ -200,13 +200,13 @@ char* NWNXGetString(char* sPlugin, char* sFunction, char* sParam1, int nParam2)
 						return returnBuffer;
 					}
 				}
-				return NULL;
+				return nullptr;
 			}
 		}
 		else
 			logger->Info("* NWNXGetString: Function class '%s' not provided by any plugin. Check your installation.", plugin.c_str());
 	}
-	return NULL;
+	return nullptr;
 }
 
 void NWNXSetString(char* sPlugin, char* sFunction, char* sParam1, int nParam2, char* sValue)
@@ -583,13 +583,13 @@ void loadPlugins()
         	logger->Debug("Trying to load plugin %s", filename.c_str());
 
 			HINSTANCE hDLL = LoadLibrary(file.path().string().c_str());
-			if (hDLL == NULL)
+			if (hDLL == nullptr)
 			{
 				LPVOID lpMsgBuf;
 				DWORD dw = GetLastError();
 				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM| FORMAT_MESSAGE_MAX_WIDTH_MASK ,
-					NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-					(LPTSTR) &lpMsgBuf,	0, NULL);
+					nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+					(LPTSTR) &lpMsgBuf,	0, nullptr);
 
 				logger->Info("* Loading plugin %s: Error %d. %s", filename.c_str(), dw, lpMsgBuf);
 			}
@@ -675,13 +675,13 @@ void loadPlugins()
   //       logger->Debug("Trying to load plugin %s", filename);
 
 		// HINSTANCE hDLL = LoadLibrary(dir.GetName() + wxT("\\") + filename);
-		// if (hDLL == NULL)
+		// if (hDLL == nullptr)
 		// {
 		// 	LPVOID lpMsgBuf;
 		// 	DWORD dw = GetLastError();
 		// 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM| FORMAT_MESSAGE_MAX_WIDTH_MASK ,
-		// 		NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		// 		(LPTSTR) &lpMsgBuf,	0, NULL);
+		// 		nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		// 		(LPTSTR) &lpMsgBuf,	0, nullptr);
 
 		// 	logger->Info("* Loading plugin %s: Error %d. %s", filename, dw, lpMsgBuf);
 		// }
@@ -824,7 +824,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// We are doing a lazy initialization here to increase the robustness of the
 		// hooking DLL because it is not performed while the loader lock is held.
 		// We hook the app entry point.
-        TrueWinMain = (int (WINAPI *)(HINSTANCE, HINSTANCE, LPSTR, int)) DetourGetEntryPoint(NULL);
+        TrueWinMain = (int (WINAPI *)(HINSTANCE, HINSTANCE, LPSTR, int)) DetourGetEntryPoint(nullptr);
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
         DetourAttach(&(PVOID&)TrueWinMain, NWNXWinMain);

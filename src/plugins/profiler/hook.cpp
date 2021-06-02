@@ -137,7 +137,7 @@ void StopTimer()
 
 void myRunScript(char *str)
 {
-	if (str != NULL)
+	if (str != nullptr)
 	{
 		if (iCallDepth < MAX_CALLDEPTH - 1)
 			iCallDepth++;
@@ -164,7 +164,7 @@ void myRunScript(char *str)
 
 void myRunScriptPart(char *str)
 {
-	if (str != NULL)
+	if (str != nullptr)
 	{
 		if (iCallDepth < MAX_CALLDEPTH - 1)
 			iCallDepth++;
@@ -313,7 +313,7 @@ DWORD FindHookRunScript()
 			ptr++;
 
 	}
-	return NULL;
+	return nullptr;
 }
 
 void Release()
@@ -375,14 +375,14 @@ int HookFunctions()
 		logger->Info(wxT("GetPlayerObj NOT FOUND!"));
 
 	if(!org_Get || !org_GetPlayerObj)
-		return NULL;
+		return nullptr;
 
 	pServThis = *(dword*)(org_GetPlayerObj + 0x5);
 
 	if (!(pServThis))
 	{
 		logger->Info(wxT("Error initializing variables"));
-		return NULL;
+		return nullptr;
 	}
 	return true;
 }*/

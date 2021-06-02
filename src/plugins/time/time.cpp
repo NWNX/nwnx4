@@ -121,7 +121,7 @@ void Timer::SetString(char* sFunction, char* sParam1, int nParam2, char* sValue)
 	else if (function == "STOP")
 	{
 		LONGLONG result = StopTimer(timerName);
-		logger->Info("o Stopping timer %s: %I64i µs / %.3f msec / %.3f sec\n", timerName.c_str(), result, (float) result / 1000, (float) result / 1000 / 1000);
+		logger->Info("o Stopping timer %s: %I64i ï¿½s / %.3f msec / %.3f sec\n", timerName.c_str(), result, (float) result / 1000, (float) result / 1000 / 1000);
 	}
 }
 
@@ -135,7 +135,7 @@ char* Timer::GetString(char* sFunction, char* sParam1, int nParam2)
 	if (function == "")
 	{
 		logger->Info("* Function not specified.");
-		return NULL;
+		return nullptr;
 	}
 
 	if (timerName == "")
@@ -146,13 +146,13 @@ char* Timer::GetString(char* sFunction, char* sParam1, int nParam2)
 	if (function == "QUERY")
 	{
 		LONGLONG result = PeekTimer(timerName);
-		logger->Info("o Elapsed timer %s: %I64i µs / %.3f msec / %.3f sec\n", timerName.c_str(), result, (float) result / 1000, (float) result / 1000 / 1000);
+		logger->Info("o Elapsed timer %s: %I64i ï¿½s / %.3f msec / %.3f sec\n", timerName.c_str(), result, (float) result / 1000, (float) result / 1000 / 1000);
 		sprintf_s(returnBuffer, MAX_BUFFER, "%I64i", result);
 	}
 	else if (function == "STOP")
 	{
 		LONGLONG result = StopTimer(timerName);
-		logger->Info("o Stopping timer %s: %I64i µs / %.3f msec / %.3f sec\n", timerName.c_str(), result, (float) result / 1000, (float) result / 1000 / 1000);
+		logger->Info("o Stopping timer %s: %I64i ï¿½s / %.3f msec / %.3f sec\n", timerName.c_str(), result, (float) result / 1000, (float) result / 1000 / 1000);
 		sprintf_s(returnBuffer, MAX_BUFFER, "%I64i", result);
 	}
 	else
@@ -166,7 +166,7 @@ char* Timer::GetString(char* sFunction, char* sParam1, int nParam2)
 		else
 		{
 			logger->Info("* Unknown function '%s' called.", function.c_str());
-			return NULL;
+			return nullptr;
 		}
 	}
 

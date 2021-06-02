@@ -22,8 +22,8 @@
 
 Plugin::Plugin()
 {
-	pluginFileName = NULL;
-	pluginFullPath = NULL;
+	pluginFileName = nullptr;
+	pluginFullPath = nullptr;
 }
 
 Plugin::~Plugin()
@@ -49,7 +49,7 @@ string Plugin::ProcessQueryFunction(string function)
 
 void Plugin::GetFunctionClass(char* fClass)
 {
-	fClass = NULL;
+	fClass = nullptr;
 }
 
 char* Plugin::GetPluginFileName()

@@ -22,8 +22,8 @@
 
 LegacyPlugin::LegacyPlugin()
 {
-	pluginFileName = NULL;
-	pluginFullPath = NULL;
+	pluginFileName = nullptr;
+	pluginFullPath = nullptr;
 }
 
 LegacyPlugin::~LegacyPlugin()
@@ -47,7 +47,7 @@ void LegacyPlugin::ProcessQueryFunction(string function, char* buffer)
 
 void LegacyPlugin::GetFunctionClass(char* fClass)
 {
-	fClass = NULL;
+	fClass = nullptr;
 }
 
 char* LegacyPlugin::GetPluginFileName()

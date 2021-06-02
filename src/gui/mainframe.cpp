@@ -131,7 +131,7 @@ bool MainFrame::Create(wxWindow* parent, wxWindowID id, const wxString& caption,
 	{
 		wxLogError(wxT("Can't create worker thread!"));
 		worker->Delete();
-		worker = NULL;
+		worker = nullptr;
 	}
 	else
 	{
@@ -150,22 +150,22 @@ bool MainFrame::Create(wxWindow* parent, wxWindowID id, const wxString& caption,
 void MainFrame::Init()
 {
 ////@begin MainFrame member initialisation
-    m_startedAt = NULL;
-    m_CmdLine = NULL;
-    m_PWEnabled = NULL;
-    m_PWInterval = NULL;
-    m_PWRestarts = NULL;
-    m_GWEnabled = NULL;
-    m_GWInterval = NULL;
-    m_GWRetries = NULL;
-    m_GWRestarts = NULL;
-    m_GWLockups = NULL;
-    m_log = NULL;
-    m_BtnStart = NULL;
-    m_BtnStop = NULL;
-    m_BtnRestart = NULL;
+    m_startedAt = nullptr;
+    m_CmdLine = nullptr;
+    m_PWEnabled = nullptr;
+    m_PWInterval = nullptr;
+    m_PWRestarts = nullptr;
+    m_GWEnabled = nullptr;
+    m_GWInterval = nullptr;
+    m_GWRetries = nullptr;
+    m_GWRestarts = nullptr;
+    m_GWLockups = nullptr;
+    m_log = nullptr;
+    m_BtnStart = nullptr;
+    m_BtnStop = nullptr;
+    m_BtnRestart = nullptr;
 ////@end MainFrame member initialisation
-	worker = NULL;
+	worker = nullptr;
 }
 /*!
  * Control creation for MainFrame

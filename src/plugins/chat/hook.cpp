@@ -96,7 +96,7 @@ DWORD FindChat()
 		else
 			ptr++;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -122,7 +122,7 @@ DWORD FindRunScript()
 		else
 			ptr++;
 	}
-	return NULL;
+	return nullptr;
 }
 
 DWORD FindGetPCobjByOID()
@@ -146,7 +146,7 @@ DWORD FindGetPCobjByOID()
 		else
 			ptr++;
 	}
-	return NULL;
+	return nullptr;
 }
 
 void ChatHookProc(const int mode, const int id, const char **msg, const int to)
@@ -268,7 +268,7 @@ int HookFunctions()
 	// 	wxLogMessage("GetPCobjByOID NOT FOUND!");
 
 	if(!(org_Chat&&org_Run&&org_Get))
-		return NULL;
+		return nullptr;
 
 	*(dword*)&ChatNextHook = org_Chat;
 	//success = HookCode((PVOID) org_Chat, ChatHookProc, (PVOID*) &ChatNextHook);
@@ -281,7 +281,7 @@ int HookFunctions()
 	if (!(pServThis&&pScriptThis))
 	{
 		// wxLogMessage("Error initializing variables");
-		return NULL;
+		return nullptr;
 	}
 
 	// if (success)
@@ -290,7 +290,7 @@ int HookFunctions()
 	if(!success)
 	{
 		// wxLogMessage("Failed to hook Chat function.");
-		return NULL;
+		return nullptr;
 	}
 
 	return true;

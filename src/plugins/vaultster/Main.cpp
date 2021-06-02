@@ -63,8 +63,8 @@ void main(int argc, char **argv) {
 
 	// start up the server
 	if (startServer) {
-		HANDLE hServer = CreateThread (NULL, 0, CServer::thread, &server, 0, &serverId);
-		if (hServer == NULL) {
+		HANDLE hServer = CreateThread (nullptr, 0, CServer::thread, &server, 0, &serverId);
+		if (hServer == nullptr) {
 			// Failing starting up the server should not end
 			// VaultSTER, the client part can still run.
 			Log ("o Failed to start up the server.\n");

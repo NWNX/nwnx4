@@ -89,7 +89,7 @@ record_time(
 	__out PTIME_STATE timestate
 	)
 {
-	gettimeofday(timestate, NULL);
+	gettimeofday(timestate, nullptr);
 }
 
 unsigned long
@@ -99,7 +99,7 @@ diff_time(
 {
 	struct timeval now;
 
-	gettimeofday(&now, NULL);
+	gettimeofday(&now, nullptr);
 
    return ((now.tv_sec - then->tv_sec)*1000000 + now.tv_usec - then->tv_usec) / 1000;
 }
@@ -372,7 +372,7 @@ main(
 		}
 
 #ifdef _WIN32
-		HANDLE event = CreateEvent( NULL, TRUE, FALSE, NULL );
+		HANDLE event = CreateEvent( nullptr, TRUE, FALSE, nullptr );
 
 		if (!event)
 		{

@@ -19,8 +19,8 @@
 
 ***************************************************************************/
 
-#include "stdwx.h"
 #include "controller.h"
+
 extern LogNWNX* logger;
 
 NWNXController::NWNXController(SimpleIniConfig* config)
@@ -33,11 +33,6 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 
 	config->Read("restartDelay", &restartDelay, 5L);
 	config->Read("processWatchdog", &processWatchdog, true);
-	config->Read("gamespyWatchdog", &gamespyWatchdog, true);
-	config->Read("gamespyInterval", &gamespyInterval, 30);
-	config->Read("gamespyRetries", &gamespyRetries, 0);
-	config->Read("gamespyTolerance", &gamespyTolerance, 5);
-	config->Read("gamespyDelay", &gamespyDelay, 30L);
 	config->Read("gracefulShutdownTimeout", &gracefulShutdownTimeout, 10);
 	config->Read("gracefulShutdownMessage", &gracefulShutdownMessage, std::string(""));
 	config->Read("gracefulShutdownMessageWait", &gracefulShutdownMessageWait, 5);
@@ -57,7 +52,7 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 		}
 		catch (std::bad_alloc)
 		{
-			udp = NULL;
+			udp = nullptr;
 		}
 	}
 
@@ -102,8 +97,6 @@ void NWNXController::notifyServiceShutdown()
 
 bool NWNXController::startServerProcessInternal()
 {
-    USES_CONVERSION;
-
     SHARED_MEMORY shmem;
 	std::string nwnexe("\\nwn2server.exe");
 	LPWSTR pszHookDLLPath = L"NWNx4Hook.dll";
@@ -115,7 +108,7 @@ bool NWNXController::startServerProcessInternal()
 	auto exePath = nwnhome + nwnexe;
 	logger->Trace("Starting server executable %s in %s", exePath.c_str(), nwnhome.c_str());
 
-	TCHAR szDllPath[MAX_PATH];
+	wchar_t szDllPath[MAX_PATH];
 	LPWSTR pszFilePart = nullptr;
 
     if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart))
@@ -129,7 +122,7 @@ bool NWNXController::startServerProcessInternal()
 	SecurityAttributes.bInheritHandle = TRUE;
 	SecurityAttributes.lpSecurityDescriptor = 0;
 
-	shmem.ready_event = CreateEvent(&SecurityAttributes, TRUE, FALSE, 0);
+	shmem.ready_event = CreateEvent(&SecurityAttributes, TRUE, FALSE, nullptr);
 	if(!shmem.ready_event)
 	{
 		logger->Info("CreateEvent failed (%d)", GetLastError());
@@ -142,14 +135,28 @@ bool NWNXController::startServerProcessInternal()
 	DWORD dwFlags = CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED;
 	SetLastError(0);
 
-    auto wexecutable = A2T((nwnhome + nwnexe).c_str());
-    auto wparameters = A2T(parameters.c_str());
-    auto wnwnhome = A2T(nwnhome.c_str());
-    auto dllPath = T2A(szDllPath);
+	// TODO: Fix this to better accomodate wstr.
+	auto exeStr = nwnhome + nwnexe;
+    auto nwnExecutable = std::wstring(exeStr.begin(), exeStr.end());
 
-	if (!DetourCreateProcessWithDll(wexecutable, wparameters,
-                                    NULL, NULL, TRUE, dwFlags, NULL, wnwnhome,
-                                    &si, &pi, dllPath, NULL))
+    auto len = wcslen(szDllPath) + 1;
+	char nwnDllPath[MAX_PATH];
+	memset(nwnDllPath, 0, MAX_PATH);
+	wcstombs(nwnDllPath, szDllPath, len);
+
+	len = nwnhome.length() + 1;
+	wchar_t nwnHome[MAX_PATH];
+	memset(nwnHome, 0, MAX_PATH);
+    mbstowcs(nwnHome, nwnhome.c_str(), len);
+
+    len = parameters.length() + 1;
+	wchar_t nwnParameters[MAX_PATH];
+    memset(nwnParameters, 0, MAX_PATH);
+    mbstowcs(nwnParameters, parameters.c_str(), len);
+
+	if (!DetourCreateProcessWithDll(nwnExecutable.c_str(), nwnParameters,
+                                    nullptr, nullptr, TRUE, dwFlags, nullptr, nwnHome,
+                                    &si, &pi, nwnDllPath, nullptr))
 	{
 		auto err = GetLastError();
 		logger->Info("DetourCreateProcessWithDll failed: %d", err);
@@ -244,7 +251,7 @@ void NWNXController::restartServerProcess()
 		si.cb = sizeof(si);
 		logger->Info("* Starting maintenance file %s", restartCmd.c_str());
 		restartCmd = std::string("cmd.exe /c ") + restartCmd;
-		if (CreateProcess(NULL, (LPTSTR)restartCmd.c_str(), NULL, NULL,FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi))
+		if (CreateProcess(nullptr, (LPTSTR)restartCmd.c_str(), nullptr, nullptr,FALSE, NORMAL_PRIORITY_CLASS, nullptr, nullptr, &si, &pi))
 		{
 			WaitForSingleObject( pi.hProcess, INFINITE );
 			CloseHandle( pi.hProcess );
@@ -330,9 +337,7 @@ HWND NWNXController::findServerGuiWindow(ULONG processId)
 
 bool NWNXController::performGracefulShutdown()
 {
-    USES_CONVERSION;
-
-	HWND serverGuiWindow;
+    HWND serverGuiWindow;
 
 	// Can't perform a graceful shutdown without a process ID.
 	if (!pi.dwProcessId || !pi.hProcess)
@@ -349,7 +354,7 @@ bool NWNXController::performGracefulShutdown()
 	if (gracefulShutdownMessage != "")
 	{
 		logger->Info( "* Sending shutdown server message and waiting %d seconds.", gracefulShutdownMessageWait);
-		broadcastServerMessage(A2T(gracefulShutdownMessage.c_str()));
+		broadcastServerMessage(gracefulShutdownMessage.c_str());
 		Sleep(gracefulShutdownMessageWait * 1000);
 	}
 
@@ -363,7 +368,7 @@ bool NWNXController::performGracefulShutdown()
 	return (WaitForSingleObject(pi.hProcess, gracefulShutdownTimeout * 1000) == WAIT_OBJECT_0);
 }
 
-bool NWNXController::broadcastServerMessage(const TCHAR *message)
+bool NWNXController::broadcastServerMessage(const char* message)
 {
 	HWND srvWnd;
 	HWND sendMsgEdit;
