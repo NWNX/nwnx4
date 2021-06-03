@@ -47,10 +47,10 @@ This script will install vcpkg and its dependencies.
 ### Build Debug
 
 With the bootstrap completed, you only have to run cmake. The beauty of CMake is the cascading effect it has and takes 
-care of all the boilerplate out of it. Note my project might vary from your location. 
+care of all the boilerplate out of it. Just run the commands from the root of this project. 
 
 I would suggest running this from within the Developer Command Prompt from VS 2019, but you can (potentially) develop
-on other terminals.
+on other terminals (as I do).
 
 ```powershell
 cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - NMake Makefiles" ./
@@ -65,5 +65,8 @@ You build release exactly like debug but only with the build type and folder cha
 cmake.exe -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - NMake Makefiles" ./
 cmake.exe --build ./cmake-build-release --target all
 ```
+
+Then in cmake-build-debug or cmake-build-release, there will be a folder called "bin". This will include your applications.
+Copy this folder's contents to your NWN2 server (that has a nwnx.ini file), and it should run fine. 
 
 Happy dungeonin'!
