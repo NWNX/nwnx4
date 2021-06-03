@@ -1,0 +1,8 @@
+{
+    "name": "nwnx4",
+    "version-string": "0.1.0",
+    "dependencies": [
+      "detours",
+      "wxwidgets"
+    ]
+}

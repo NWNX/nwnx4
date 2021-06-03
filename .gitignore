@@ -24,5 +24,8 @@
 /src/plugins/*/Debug/
 /src/plugins/*/Release/
 
-.idea
-cmake-build-debug
+.idea/
+vcpkg/
+vcpkg_installed/
+cmake-build-debug/
+cmake-build-release/
