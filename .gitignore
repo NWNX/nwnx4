@@ -19,14 +19,10 @@
 /src/packages/
 /src/*/Debug/
 /src/*/Release/
-/lib/detours/*/Debug/
-/lib/detours/*/Release/
 /src/plugins/*/Debug/
 /src/plugins/*/Release/
 
 .idea/
 vcpkg/
 vcpkg_installed/
-cmake-build-debug/
-cmake-build-release/
-builddir/
+meson-*/

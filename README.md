@@ -44,29 +44,13 @@ takes out all the headache out of the process.
 
 This script will install vcpkg and its dependencies.
 
-### Build Debug
+### Build Debug/Release
 
-With the bootstrap completed, you only have to run cmake. The beauty of CMake is the cascading effect it has and takes 
-care of all the boilerplate out of it. Just run the commands from the root of this project. 
-
-I would suggest running this from within the Developer Command Prompt from VS 2019, but you can (potentially) develop
-on other terminals (as I do).
+With the bootstrap completed, you only have to run Meson. Good thing is that I took out the headache out of this too.
+From a VS Command Prompt, enter the following command:
 
 ```powershell
-cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - NMake Makefiles" ./
-cmake.exe --build ./cmake-build-debug --target all
+pwsh ./build.ps1
 ```
 
-### Build Release
-
-You build release exactly like debug but only with the build type and folder changed.
-
-```powershell
-cmake.exe -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - NMake Makefiles" ./
-cmake.exe --build ./cmake-build-release --target all
-```
-
-Then in cmake-build-debug or cmake-build-release, there will be a folder called "bin". This will include your applications.
-Copy this folder's contents to your NWN2 server (that has a nwnx.ini file), and it should run fine. 
-
-Happy dungeonin'!
+You should find two folders: meson-build-debug and meson-build-release. They are the built version of the codebase respectively divided upon environments.

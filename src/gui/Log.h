@@ -1,6 +1,7 @@
 #ifndef MAIN_LOG_H
 #define MAIN_LOG_H
 
+#include "stdwx.h"
 #include "../misc/log.h"
 
 class Log: public LogNWNX {
