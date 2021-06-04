@@ -13,7 +13,7 @@ set(VCPKG_TARGET_TRIPLET x86-windows-static-md)
 
 include(vcpkg/scripts/buildsystems/vcpkg.cmake)
 
-set(VCPKG_DIR $ENV{VCPKG_DIR}/installed/${VCPKG_TARGET_TRIPLET})
+set(VCPKG_DIR ${CMAKE_HOME_DIRECTORY}/vcpkg_installed/${VCPKG_TARGET_TRIPLET})
 
 set(VCPKG_INCLUDE_DIR ${VCPKG_DIR}/include/)
 set(VCPKG_LIB_DIR_DEBUG ${VCPKG_DIR}/debug/lib/)
