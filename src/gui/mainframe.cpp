@@ -333,9 +333,7 @@ void MainFrame::CreateControls()
 
 ////@end MainFrame content construction
 
-	itemBoxSizer3->Fit(this);
-	itemBoxSizer3->SetSizeHints(this);
-
+    SetClientSize(600, 450);
 }
 
 /*!
