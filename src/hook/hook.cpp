@@ -31,7 +31,8 @@ PluginHashMap plugins;
 LegacyPluginHashMap legacyplugins;
 
 LogNWNX* logger;
-std::string* nwnxhome;
+std::string* legacyNwnxHome;
+std::wstring* nwnxHome;
 SimpleIniConfig* config;
 
 char returnBuffer[MAX_BUFFER];
@@ -70,7 +71,7 @@ unsigned char* FindPattern(const unsigned char* pattern)
 			ptr++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int NWNXGetInt(char* sPlugin, char* sFunction, char* sParam1, int nParam2)
@@ -196,17 +197,17 @@ char* NWNXGetString(char* sPlugin, char* sFunction, char* sParam1, int nParam2)
 					i++;
 					if (i == nParam2)
 					{
-						sprintf_s(returnBuffer, MAX_BUFFER, "%s", it->first);
+						// sprintf_s(returnBuffer, MAX_BUFFER, "%s", it->first);
 						return returnBuffer;
 					}
 				}
-				return NULL;
+				return nullptr;
 			}
 		}
 		else
 			logger->Info("* NWNXGetString: Function class '%s' not provided by any plugin. Check your installation.", plugin.c_str());
 	}
-	return NULL;
+	return nullptr;
 }
 
 void NWNXSetString(char* sPlugin, char* sFunction, char* sParam1, int nParam2, char* sValue)
@@ -315,12 +316,12 @@ void PayLoad(char *gameObject, char* nwnName, char* nwnValue)
 			size_t resultLength = strlen(pRes);
 			if (valueLength < resultLength)
 			{
-				strncpy(nwnValue, pRes, valueLength);
+				strncpy_s(nwnValue, valueLength, pRes, valueLength);
 				*(nwnValue+valueLength) = 0x0;
 			}
 			else
 			{
-				strncpy(nwnValue, pRes, resultLength);
+				strncpy_s(nwnValue, resultLength, pRes, resultLength);
 				*(nwnValue+resultLength) = 0x0;
 			}
 		}
@@ -418,13 +419,15 @@ void init()
 {
     unsigned char* hookAt;
 
-	std::string logfile = std::string(*nwnxhome) + "\\nwnx.txt";
+	auto logfile = std::wstring(*nwnxHome) + L"\\nwnx.txt";
 	logger = new LogNWNX(logfile);
 	logger->Info("NWN Extender 4 V.1.1.0");
 	logger->Info("(c) 2008 by Ingmar Stieger (Papillon)");
 	logger->Info("visit us at http://www.nwnx.org");
 
-	// signal controller that we are ready
+    logger->Info("NWNX Home: %s", nwnxHome);
+
+    // signal controller that we are ready
 	if (!SetEvent(shmem->ready_event))
 	{
 		logger->Info("* SetEvent failed (%d)", GetLastError());
@@ -433,7 +436,7 @@ void init()
 	CloseHandle(shmem->ready_event);
 
 	// open ini file
-	std::string inifile = *nwnxhome + "\\nwnx.ini";
+	auto inifile = *nwnxHome + L"\\nwnx.ini";
 	logger->Trace("Reading inifile %s", inifile.c_str());
 	config = new SimpleIniConfig(inifile);
 	logger->Configure(config);
@@ -570,7 +573,7 @@ void loadPlugins()
 	char fClass[128];
     std::string filename;
 	std::string pattern("xp_*.dll");
-	auto dir = std::filesystem::directory_entry(*nwnxhome);
+	auto dir = std::filesystem::directory_entry(*nwnxHome);
 
     logger->Debug("Enumerating plugins in current directory");
 
@@ -581,13 +584,13 @@ void loadPlugins()
         	logger->Debug("Trying to load plugin %s", filename.c_str());
 
 			HINSTANCE hDLL = LoadLibrary(file.path().string().c_str());
-			if (hDLL == NULL)
+			if (hDLL == nullptr)
 			{
 				LPVOID lpMsgBuf;
 				DWORD dw = GetLastError();
 				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM| FORMAT_MESSAGE_MAX_WIDTH_MASK ,
-					NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-					(LPTSTR) &lpMsgBuf,	0, NULL);
+					nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+					(LPTSTR) &lpMsgBuf,	0, nullptr);
 
 				logger->Info("* Loading plugin %s: Error %d. %s", filename.c_str(), dw, lpMsgBuf);
 			}
@@ -600,7 +603,7 @@ void loadPlugins()
 					Plugin* pPlugin = pGetPluginPointer();
 					if (pPlugin)
 					{
-						if (!pPlugin->Init((char*)nwnxhome->c_str()))
+						if (!pPlugin->Init(legacyNwnxHome->data()))
 							logger->Info("* Loading plugin %s: Error during plugin initialization.", filename.c_str());
 						else
 						{
@@ -630,7 +633,7 @@ void loadPlugins()
 						LegacyPlugin* pPlugin = pGetPluginPointer();
 						if (pPlugin)
 						{
-							if (!pPlugin->Init((char*)nwnxhome->c_str()))
+							if (!pPlugin->Init(legacyNwnxHome->data()))
 								logger->Info("* Loading plugin %s: Error during plugin initialization.", filename.c_str());
 							else
 							{
@@ -673,13 +676,13 @@ void loadPlugins()
   //       logger->Debug("Trying to load plugin %s", filename);
 
 		// HINSTANCE hDLL = LoadLibrary(dir.GetName() + wxT("\\") + filename);
-		// if (hDLL == NULL)
+		// if (hDLL == nullptr)
 		// {
 		// 	LPVOID lpMsgBuf;
 		// 	DWORD dw = GetLastError();
 		// 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM| FORMAT_MESSAGE_MAX_WIDTH_MASK ,
-		// 		NULL, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		// 		(LPTSTR) &lpMsgBuf,	0, NULL);
+		// 		nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		// 		(LPTSTR) &lpMsgBuf,	0, nullptr);
 
 		// 	logger->Info("* Loading plugin %s: Error %d. %s", filename, dw, lpMsgBuf);
 		// }
@@ -692,7 +695,7 @@ void loadPlugins()
 		// 		Plugin* pPlugin = pGetPluginPointer();
 		// 		if (pPlugin)
 		// 		{
-		// 			if (!pPlugin->Init((char*)nwnxhome->c_str()))
+		// 			if (!pPlugin->Init((char*)nwnxHome->c_str()))
 		// 				logger->Info("* Loading plugin %s: Error during plugin initialization.", filename);
 		// 			else
 		// 			{
@@ -722,7 +725,7 @@ void loadPlugins()
 		// 			LegacyPlugin* pPlugin = pGetPluginPointer();
 		// 			if (pPlugin)
 		// 			{
-		// 				if (!pPlugin->Init((char*)nwnxhome->c_str()))
+		// 				if (!pPlugin->Init((char*)nwnxHome->c_str()))
 		// 					logger->Info("* Loading plugin %s: Error during plugin initialization.", filename);
 		// 				else
 		// 				{
@@ -770,9 +773,9 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		{0xb6, 0xd7, 0x00, 0x60, 0x97, 0xb0, 0x10, 0xe3}
 	};
 
-	shmem = NULL;
+	shmem = nullptr;
 
-    for (HINSTANCE hinst = NULL; (hinst = DetourEnumerateModules(hinst)) != NULL;)
+	for (HINSTANCE hinst = nullptr; (hinst = DetourEnumerateModules(hinst)) != nullptr;)
 	{
 	    shmem = (SHARED_MEMORY*) DetourFindPayload(hinst, my_guid, &cbData);
 
@@ -789,8 +792,15 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			// Initialize plugins and load configuration data.
 			//
 
-			nwnxhome = new std::string(shmem->nwnx_home);
+            nwnxHome = new std::wstring(shmem->nwnx_home);
 
+            // For legacy.
+            char tmp[MAX_PATH];
+            memset(tmp, 0, MAX_PATH);
+			wcstombs(tmp, shmem->nwnx_home, wcslen(shmem->nwnx_home));
+			legacyNwnxHome = new std::string(tmp);
+
+			// Initialize hook.
 			init();
 			break;
 		}
@@ -799,12 +809,11 @@ int WINAPI NWNXWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	/*
 	 * If we didn't connect to the controller then bail out here.
 	 */
-
-	//if (!shmem)
-	//{
-	//	//DebugPrint( "NWNXWinMain(): Failed to connect to controller!\n" );
-	//	ExitProcess( ERROR_DEVICE_NOT_CONNECTED );
-	//}
+	if (!shmem)
+	{
+		//DebugPrint( "NWNXWinMain(): Failed to connect to controller!\n" );
+		ExitProcess(ERROR_DEVICE_NOT_CONNECTED);
+	}
 
 	/*
 	 * Call the original entrypoint of the process now that we have done our
@@ -824,7 +833,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// We are doing a lazy initialization here to increase the robustness of the
 		// hooking DLL because it is not performed while the loader lock is held.
 		// We hook the app entry point.
-        TrueWinMain = (int (WINAPI *)(HINSTANCE, HINSTANCE, LPSTR, int)) DetourGetEntryPoint(NULL);
+        TrueWinMain = (int (WINAPI *)(HINSTANCE, HINSTANCE, LPSTR, int)) DetourGetEntryPoint(nullptr);
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
         DetourAttach(&(PVOID&)TrueWinMain, NWNXWinMain);

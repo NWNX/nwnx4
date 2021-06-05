@@ -42,6 +42,7 @@ class LogNWNX
 {
 public:
     LogNWNX(LogLevel level = LogLevel::info);
+    LogNWNX(std::wstring, LogLevel level = LogLevel::info);
     LogNWNX(std::string, LogLevel level = LogLevel::info);
 
     void SetLogLevel(LogLevel level) {
@@ -90,8 +91,8 @@ protected:
     std::ofstream m_ofStream;
     LogLevel m_level;
 
-    void Log(LogLevel level, const char* format, va_list args);
-    void LogStr(const char* message);
+    virtual void Log(LogLevel level, const char* format, va_list args);
+    virtual void LogStr(const char* message);
 };
 
 

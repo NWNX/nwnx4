@@ -22,10 +22,8 @@
 #define HOOK_H_INCLUDED
 
 #include <windows.h>
-#include <stdio.h>
-#include <tchar.h>
 #include <unordered_map>
-#include "detours.h"
+#include "detours/detours.h"
 #include "crashdump.h"
 #include "../misc/ini.h"
 #include "../misc/log.h"
@@ -72,7 +70,8 @@ extern PluginHashMap plugins;
 extern LegacyPluginHashMap legacyplugins;
 
 extern LogNWNX* logger;
-extern std::string* nwnxhome;
+extern std::string* legacyNwnxHome;
+extern std::wstring* nwnxHome;
 extern SimpleIniConfig* config;
 
 extern char returnBuffer[MAX_BUFFER];
@@ -93,7 +92,7 @@ void loadPlugins();
 void init();
 
 static int (WINAPI * TrueWinMain)(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine, int nCmdShow) = NULL;
+	LPSTR lpCmdLine, int nCmdShow) = nullptr;
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
 
 #endif

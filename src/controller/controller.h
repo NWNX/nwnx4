@@ -22,10 +22,10 @@
 #if !defined(CONTROLLER_H_INCLUDED)
 #define CONTROLLER_H_INCLUDED
 
-#include <windows.h>
-#include <stdio.h>
-#include <string>
-#include "detours.h"
+#include "stdafx.h"
+#include <cstring>
+#include <cwchar>
+#include "detours/detours.h"
 #include "udp.h"
 #include "../misc/log.h"
 #include "../misc/shmem.h"
@@ -76,6 +76,8 @@ private:
 	bool initialized;
 	bool shuttingDown;
 
+	void setupTempDirectories();
+
 	bool startServerProcessInternal();
 	bool checkProcessActive();
 	void runProcessWatchdog();
@@ -90,7 +92,7 @@ private:
 	static BOOL CALLBACK findServerGuiWindowEnumProc(HWND hwnd, LPARAM lParam);
 	static HWND findServerGuiWindow(ULONG processId);
 	bool performGracefulShutdown();
-	bool broadcastServerMessage(const char *message);
+	bool broadcastServerMessage(const char* message);
 };
 
 #endif

@@ -35,6 +35,7 @@
 
 
 struct SimpleIniConfig {
+    SimpleIniConfig(std::wstring filePath): SimpleIniConfig(std::string(filePath.begin(), filePath.end())) {}
 
     SimpleIniConfig(std::string filePath) {
         std::string data;

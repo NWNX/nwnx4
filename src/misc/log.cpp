@@ -54,6 +54,7 @@ LogNWNX::LogNWNX(LogLevel level)
 {
     m_level = level;
 }
+LogNWNX::LogNWNX(std::wstring filePath, LogLevel level): LogNWNX(std::string(filePath.begin(), filePath.end()), level) {}
 LogNWNX::LogNWNX(std::string filePath, LogLevel level)
 {
     m_level = level;
@@ -66,8 +67,6 @@ LogNWNX::LogNWNX(std::string filePath, LogLevel level)
         std::cerr << "Canot open log file: " << filePath << std::endl;
     }
 }
-
-
 
 void LogNWNX::Log(LogLevel level, const char* format, va_list a){
     if(level > m_level)

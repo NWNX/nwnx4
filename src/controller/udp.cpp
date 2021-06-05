@@ -18,6 +18,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  ***************************************************************************/
 
+#include "stdafx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +36,9 @@ CUDP::CUDP(char *szAddress, int port)
 	// Error?
 	if(s == SOCKET_ERROR)
 	{
-		MessageBox(NULL, "Error while creating UDP socket.", "NWNX2 Watchdog", NULL);
+		MessageBox(
+                nullptr,
+                L"Error while creating UDP socket.", L"NWNX2 Watchdog", NULL);
 		return;
 	}
 
@@ -62,15 +65,15 @@ void CUDP::setPort(int port)
 
 void CUDP::setAddress(char *szAddress)
 {
-	addr.sin_addr.s_addr = inet_addr(szAddress);
+    inet_pton(AF_INET, szAddress, (PVOID) addr.sin_addr.s_addr);
 
 	if(addr.sin_addr.s_addr == INADDR_NONE) 	// The address wasn't in numeric form, resolve it
 	{
-		host = NULL;
+		host = nullptr;
 		host = gethostbyname(szAddress);	// Get the IP address of the server and store it in host
-		if(host == NULL)
+		if(host == nullptr)
 		{
-			MessageBox(NULL, "Unknown host.", "NWNX2 Watchdog", NULL);
+			MessageBox(nullptr, L"Unknown host.", L"NWNX2 Watchdog", NULL);
 			return;
 		}
 		memcpy(&addr.sin_addr, host->h_addr_list[0], host->h_length);
@@ -85,7 +88,7 @@ void CUDP::sendMessage(char* message)
 int CUDP::getMessage(char* message, int len)
 {
 	int ret;
-	ret = recvfrom(s, message, len, 0, NULL, NULL);
+	ret = recvfrom(s, message, len, 0, nullptr, nullptr);
 
 	if (ret == SOCKET_ERROR)
 		return 0;

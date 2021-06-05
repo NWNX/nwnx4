@@ -20,7 +20,6 @@
 
 #include "controller.h"
 #include "service.h"
-#include "../misc/ini.h"
 
 enum actions { no_action, run_interactive, run_service };
 BOOL STARTUP_ACTION;
@@ -43,7 +42,7 @@ void start_worker()
 	logger->Trace("Starting worker...");
 
 	// Start the worker thread
-	hThread = CreateThread(NULL, 0, workerProcessThread, NULL, 0, &dwThreadId);
+	hThread = CreateThread(nullptr, 0, workerProcessThread, nullptr, 0, &dwThreadId);
 }
 
 // The thread that does the actual work
@@ -70,7 +69,7 @@ void process_command_line(int argc,char *argv[])
 
 	// decide on log target (depending on whether
 	// we run interactive or as a service).
-	logger = NULL;
+	logger = nullptr;
 	for (int i = 0; i < argc; i++)
 	{
 		if (
@@ -169,17 +168,17 @@ void process_command_line(int argc,char *argv[])
 
 int main(int argc,char *argv[])
 {
-	// init
+    // init
 	STARTUP_ACTION = no_action;
 	serviceNo = 1;
 
 	// Set the current working directory to the executeables base directory
-	char path_buffer[_MAX_PATH];
-	char drive[_MAX_DRIVE];
-	char dir[_MAX_DIR];
-	GetModuleFileName(NULL, path_buffer, MAX_PATH);
-	_splitpath( path_buffer, drive, dir, NULL, NULL );
-	_makepath(path_buffer, drive, dir, NULL, NULL);
+	wchar_t path_buffer[_MAX_PATH];
+	wchar_t drive[_MAX_DRIVE];
+	wchar_t dir[_MAX_DIR];
+	GetModuleFileName(nullptr, path_buffer, MAX_PATH);
+	_wsplitpath( path_buffer, drive, dir, nullptr, nullptr);
+	_wmakepath(path_buffer, drive, dir, nullptr, nullptr);
 	SetCurrentDirectory(path_buffer);
 
 	// set up logging and process command line parameters
@@ -190,15 +189,6 @@ int main(int argc,char *argv[])
 	logger->Trace("Reading ini file '%s'", inifile.c_str());
 	auto config = new SimpleIniConfig(inifile);
 	logger->Configure(config);
-
-	// Setup temporary directories
-	std::string tempPath;
-	if (config->Read("nwn2temp", &tempPath))
-	{
-		SetEnvironmentVariable("TEMP", tempPath.c_str());
-		SetEnvironmentVariable("TMP", tempPath.c_str());
-	}
-
 	controller = new NWNXController(config);
 
 	if (STARTUP_ACTION == run_interactive)
@@ -213,10 +203,10 @@ int main(int argc,char *argv[])
 	else if (STARTUP_ACTION == run_service)
 	{
 		// start as service
-		char serviceName[64];
-		snprintf(serviceName, 64, "NWNX4-%d", serviceNo);
+		wchar_t serviceName[64];
+		swprintf(serviceName, 64, L"NWNX4-%d", serviceNo);
 
-		SERVICE_TABLE_ENTRY DispatchTable[] = {{ serviceName, NWNXServiceStart}, { NULL, NULL }};
+		SERVICE_TABLE_ENTRY DispatchTable[] = {{ serviceName, NWNXServiceStart}, { nullptr, nullptr }};
 		if (!StartServiceCtrlDispatcher(DispatchTable))
 		{
 			logger->Err("* StartServiceCtrlDispatcher (%d)", GetLastError());

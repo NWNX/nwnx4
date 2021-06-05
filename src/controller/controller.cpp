@@ -20,13 +20,17 @@
 ***************************************************************************/
 
 #include "controller.h"
+
 extern LogNWNX* logger;
 
 NWNXController::NWNXController(SimpleIniConfig* config)
 {
-	this->config = config;
+    this->config = config;
 
-	tick = 0;
+    // Setup temporary directories.
+    this->setupTempDirectories();
+
+    tick = 0;
 	initialized = false;
 	shuttingDown = false;
 	ZeroMemory(&si, sizeof(si));
@@ -58,7 +62,7 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 		}
 		catch (std::bad_alloc)
 		{
-			udp = NULL;
+			udp = nullptr;
 		}
 	}
 
@@ -79,7 +83,18 @@ NWNXController::~NWNXController()
 		delete udp;
 }
 
+void NWNXController::setupTempDirectories() {
+    std::string tempPath;
+    if (config->Read("nwn2temp", &tempPath))
+    {
+        wchar_t wTempPath[MAX_PATH];
+        memset(wTempPath, 0, MAX_PATH);
+        mbstowcs(wTempPath, tempPath.c_str(), tempPath.length());
 
+        SetEnvironmentVariable(L"TEMP", wTempPath);
+        SetEnvironmentVariable(L"TMP", wTempPath);
+    }
+}
 /***************************************************************************
     NWNServer related functions
 ***************************************************************************/
@@ -105,7 +120,7 @@ bool NWNXController::startServerProcessInternal()
 {
     SHARED_MEMORY shmem;
 	std::string nwnexe("\\nwn2server.exe");
-	char* pszHookDLLPath = "NWNX4_Hook.dll";
+	LPWSTR pszHookDLLPath = L"NWNx4Hook.dll";
 
 	ZeroMemory(&si, sizeof(si));
 	ZeroMemory(&pi, sizeof(pi));
@@ -114,10 +129,10 @@ bool NWNXController::startServerProcessInternal()
 	auto exePath = nwnhome + nwnexe;
 	logger->Trace("Starting server executable %s in %s", exePath.c_str(), nwnhome.c_str());
 
-	char szDllPath[MAX_PATH];
-	char* pszFilePart = NULL;
+	wchar_t szDllPath[MAX_PATH];
+	LPWSTR pszFilePart = nullptr;
 
-	if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart))
+    if (!GetFullPathName(pszHookDLLPath, arrayof(szDllPath), szDllPath, &pszFilePart))
 	{
 		logger->Info("Error: %s could not be found.", pszHookDLLPath);
 		return false;
@@ -128,7 +143,7 @@ bool NWNXController::startServerProcessInternal()
 	SecurityAttributes.bInheritHandle = TRUE;
 	SecurityAttributes.lpSecurityDescriptor = 0;
 
-	shmem.ready_event = CreateEvent(&SecurityAttributes, TRUE, FALSE, 0);
+	shmem.ready_event = CreateEvent(&SecurityAttributes, TRUE, FALSE, nullptr);
 	if(!shmem.ready_event)
 	{
 		logger->Info("CreateEvent failed (%d)", GetLastError());
@@ -141,9 +156,28 @@ bool NWNXController::startServerProcessInternal()
 	DWORD dwFlags = CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED;
 	SetLastError(0);
 
-	if (!DetourCreateProcessWithDll(exePath.c_str(), (char*)parameters.c_str(),
-                                    NULL, NULL, TRUE, dwFlags, NULL, nwnhome.c_str(),
-                                    &si, &pi, szDllPath, NULL))
+	// TODO: Fix this to better accomodate wstr.
+	auto exeStr = nwnhome + nwnexe;
+    auto nwnExecutable = std::wstring(exeStr.begin(), exeStr.end());
+
+    auto len = wcslen(szDllPath) + 1;
+	char nwnDllPath[MAX_PATH];
+	memset(nwnDllPath, 0, MAX_PATH);
+	wcstombs(nwnDllPath, szDllPath, len);
+
+	len = nwnhome.length() + 1;
+	wchar_t nwnHome[MAX_PATH];
+	memset(nwnHome, 0, MAX_PATH);
+    mbstowcs(nwnHome, nwnhome.c_str(), len);
+
+    len = parameters.length() + 1;
+	wchar_t nwnParameters[MAX_PATH];
+    memset(nwnParameters, 0, MAX_PATH);
+    mbstowcs(nwnParameters, parameters.c_str(), len);
+
+	if (!DetourCreateProcessWithDll(nwnExecutable.c_str(), nwnParameters,
+                                    nullptr, nullptr, TRUE, dwFlags, nullptr, nwnHome,
+                                    &si, &pi, nwnDllPath, nullptr))
 	{
 		auto err = GetLastError();
 		logger->Info("DetourCreateProcessWithDll failed: %d", err);
@@ -166,7 +200,10 @@ bool NWNXController::startServerProcessInternal()
 	GetCurrentDirectory(MAX_PATH, shmem.nwnx_home);
 	logger->Trace("NWNX home directory set to %s", shmem.nwnx_home);
 
-	DetourCopyPayloadToProcess(pi.hProcess, my_guid, &shmem, sizeof(SHARED_MEMORY));
+	if (!DetourCopyPayloadToProcess(pi.hProcess, my_guid, &shmem, sizeof(SHARED_MEMORY))) {
+	    logger->Err("! Error: Could no copy payload to process.", GetLastError());
+	    return false;
+	}
 
 	// Start the main thread running and wait for it to signal that it has read
 	// configuration data and started up it's end of any IPC mechanisms that we
@@ -233,9 +270,9 @@ void NWNXController::restartServerProcess()
 
 		ZeroMemory(&si,sizeof(si));
 		si.cb = sizeof(si);
-		logger->Info("* Starting maintenance file %s", restartCmd);
+		logger->Info("* Starting maintenance file %s", restartCmd.c_str());
 		restartCmd = std::string("cmd.exe /c ") + restartCmd;
-		if (CreateProcess(NULL, (LPTSTR)restartCmd.c_str(), NULL, NULL,FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi))
+		if (CreateProcess(nullptr, (LPTSTR)restartCmd.c_str(), nullptr, nullptr,FALSE, NORMAL_PRIORITY_CLASS, nullptr, nullptr, &si, &pi))
 		{
 			WaitForSingleObject( pi.hProcess, INFINITE );
 			CloseHandle( pi.hProcess );
@@ -321,7 +358,7 @@ HWND NWNXController::findServerGuiWindow(ULONG processId)
 
 bool NWNXController::performGracefulShutdown()
 {
-	HWND serverGuiWindow;
+    HWND serverGuiWindow;
 
 	// Can't perform a graceful shutdown without a process ID.
 	if (!pi.dwProcessId || !pi.hProcess)
@@ -352,7 +389,7 @@ bool NWNXController::performGracefulShutdown()
 	return (WaitForSingleObject(pi.hProcess, gracefulShutdownTimeout * 1000) == WAIT_OBJECT_0);
 }
 
-bool NWNXController::broadcastServerMessage(const char *message)
+bool NWNXController::broadcastServerMessage(const char* message)
 {
 	HWND srvWnd;
 	HWND sendMsgEdit;
@@ -465,7 +502,7 @@ void NWNXController::runGamespyWatchdog()
 	if (gamespyRetries > gamespyTolerance)
 	{
 		// Restart server
-		logger->Info("* Server did not answer the last %d gamespy queries.", gamespyTolerance);
+		logger->Warn("* Server did not answer the last %d gamespy queries.", gamespyTolerance);
 		gamespyRetries = 0;
 		restartServerProcess();
 	}

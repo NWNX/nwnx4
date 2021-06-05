@@ -34,7 +34,12 @@ AboutDialog::AboutDialog(
 	: wxDialog(parent, id, title, position, size, style)
 {
 	wxString aboutText;
-	aboutText.append(wxT("NWNX4 GUI Version 0.0.9\n"));
+
+    aboutText.append(wxT("NWNx4 GUI Version 0.1.0\n"));
+    aboutText.append(wxT("Neverwinter Nights Extender and Message Broker for NWN2\n\n"));
+    aboutText.append(wxT("Copyright (C) 2021 Crom, ihatemundays (Scott Munday)\n\n"));
+
+	aboutText.append(wxT("Built (respectfully) from NWNX4 GUI Version 0.0.9\n"));
 	aboutText.append(wxT("Neverwinter Nights Extender for NWN2\n\n"));
 	aboutText.append(wxT("Copyright (C) 2008 Ingmar Stieger (Papillon)\n"));
 	aboutText.append(wxT("Visit us at http://www.nwnx.org/\n\n"));

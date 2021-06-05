@@ -18,9 +18,9 @@
 
 ***************************************************************************/
 
-#include "windows.h"
-#include "../misc/log.h"
+#include "stdafx.h"
 #include "controller.h"
+#include "../misc/log.h"
 
 extern int serviceNo;
 extern void start_worker(void);
