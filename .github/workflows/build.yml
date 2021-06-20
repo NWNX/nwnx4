@@ -1,0 +1,75 @@
+name: NWNX4
+on:
+  push:
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      # Setup MSVC
+      - name: Preparing msvc tools
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x86
+          # toolset: 14.XX
+
+      # Install python & meson
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install Python Dependencies
+        run: pip install meson ninja
+
+      - name: Restore cache or setup vcpkg
+        uses: lukka/run-vcpkg@v7
+        with:
+          setupOnly: true
+          vcpkgArguments: "--triplet=x86-windows-static-md --disable-metrics"
+          appendedCacheKey: ${{ hashFiles( 'vcpkg.json' ) }}
+          additionalCachedPaths: ${{ github.workspace }}/vcpkg_installed
+
+      # Install vcpkg dependencies
+      - name: Install & build dependencies
+        shell: bash
+        run: |
+          vcpkg/vcpkg.exe install --triplet=x86-windows-static-md --disable-metrics
+
+          if [ ! -d vcpkg_installed/nwn-lib-d-tools/ ]; then
+            curl -L 'https://github.com/CromFr/nwn-lib-d/releases/download/v1.0.2/nwn-lib-d-tools-windows-x86_64.zip' -o /tmp/nwn-lib-d-tools.zip
+            unzip -d vcpkg_installed/ /tmp/nwn-lib-d-tools.zip
+            rm /tmp/nwn-lib-d-tools.zip
+          fi
+
+      - name: Configure
+        run: |
+          meson setup builddir --backend=vs --buildtype=release --optimization=2 --strip
+
+      - name: Build
+        run: |
+          cd builddir
+          meson compile
+
+      - name: Install
+        shell: bash
+        run: |
+          cd builddir
+          meson install --destdir=$PWD/../nwnx4
+
+      - name: Package
+        run: |
+          rm nwnx4/*.lib
+          vcpkg_installed/nwn-lib-d-tools/nwn-erf create -o nwnx4/nwscript_includes.erf nwnx4/nwscript/
+          # zip nwnx4.zip nwnx4/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: nwnx4/
+          name: nwnx4-${{ github.ref }}.zip
