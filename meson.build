@@ -24,11 +24,9 @@ endif
 nwnx4_repo_path = meson.global_source_root()
 include_dirs = include_directories([
     'lib/NWN2/include',
-    'lib/mariadb/include',
     'vcpkg_installed/x86-windows-static-md/include',
 ])
 lib_dirs = [
-    nwnx4_repo_path + '/lib/mariadb/lib',
     nwnx4_repo_path + '/lib/NWN2',
     nwnx4_repo_path + '/vcpkg_installed/x86-windows-static-md/lib',
 ]
@@ -61,16 +59,6 @@ subdir('src/plugins/xp_fastboot')
 subdir('src/plugins/xp_objectattributes')
 subdir('src/plugins/xp_srvadmin')
 
-# message(plugins)
-# message(nwscript_includes)
-
-# # get_option('myfeature').enabled()
-# run_command(
-#     'vcpkg_installed/nwn-lib-d-tools/nwn-erf', 'create', '-o', get_option('datadir') + '/nwscript-includes.erf', get_option('datadir') + '/nwscript',
-#     check: true,
-#     install : true,
-# )
-
 
 custom_target(
     'nwscript-includes.erf',
@@ -80,9 +68,3 @@ custom_target(
     install: true,
     install_dir: '.',
 )
-
-# install_subdir(
-#     out_root + '/subdir_name',
-#     install_dir: 'NWNX4_UnitTestMod/',
-#     strip_directory: true,
-# )
