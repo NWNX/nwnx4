@@ -58,13 +58,3 @@ subdir('src/plugins/xp_bugfix')
 subdir('src/plugins/xp_fastboot')
 subdir('src/plugins/xp_objectattributes')
 subdir('src/plugins/xp_srvadmin')
-
-
-custom_target(
-    'nwscript-includes.erf',
-    command: ['vcpkg_installed/nwn-lib-d-tools/nwn-erf', 'create', '-o', get_option('datadir') + '/nwscript-includes.erf', get_option('datadir') + '/nwscript'],
-    output: 'nwscript-includes.erf',
-    # depend_files: nwscript_includes,
-    install: true,
-    install_dir: '.',
-)
