@@ -121,7 +121,7 @@ void Timer::SetString(char* sFunction, char* sParam1, int nParam2, char* sValue)
 	else if (function == "STOP")
 	{
 		LONGLONG result = StopTimer(timerName);
-		logger->Info("o Stopping timer %s: %I64i �s / %.3f msec / %.3f sec\n", timerName.c_str(), result, (float) result / 1000, (float) result / 1000 / 1000);
+		logger->Info("o Stopping timer %s: %I64i µs / %.3f msec / %.3f sec\n", timerName.c_str(), result, (float) result / 1000, (float) result / 1000 / 1000);
 	}
 }
 
