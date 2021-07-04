@@ -24,7 +24,6 @@ else
     ]
 endif
 
-
 NWNx4Controller_exe = executable('NWNX4_Gui',
     [
         'stdwx.cpp',
@@ -36,7 +35,7 @@ NWNx4Controller_exe = executable('NWNX4_Gui',
         'worker.cpp',
         'main.cpp',
         '../misc/log.cpp',
-        'Log.cpp',
+        'GuiLog.cpp',
     ],
     win_subsystem: 'windows',
     cpp_args: wx_args,

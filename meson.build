@@ -27,9 +27,9 @@ include_dirs = include_directories([
     'vcpkg_installed/x86-windows-static-md/include',
 ])
 lib_dirs = [
-    nwnx4_repo_path + '/lib/NWN2',
-    nwnx4_repo_path + '/vcpkg_installed/x86-windows-static-md/lib',
+    nwnx4_repo_path + '/lib/NWN2'
 ]
+
 if get_option('buildtype') == 'release'
     lib_dirs += nwnx4_repo_path + '/vcpkg_installed/x86-windows-static-md/lib'
 else

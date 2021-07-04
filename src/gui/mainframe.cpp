@@ -90,10 +90,9 @@ MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& caption, c
 /*!
  * MainFrame creator
  */
-
 bool MainFrame::Create(wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style)
 {
-    logger = static_cast<LogNWNX*>(new Log());
+    logger = new GuiLog();
 
 ////@begin MainFrame creation
     wxFrame::Create( parent, id, caption, pos, size, style );
