@@ -66,6 +66,15 @@ DWORD WINAPI workerProcessThread(LPVOID lpParam)
 void process_command_line(int argc,char *argv[])
 {
 	std::string logfile = "nwnx_controller.txt";
+	LogLevel logLevel = LogLevel::info;
+
+	// Search for verbosity arg
+	for (int i = 1; i < argc; i++)
+	{
+		if (_stricmp(argv[i], "-verbose") == 0){
+			logLevel = LogLevel::trace;
+		}
+	}
 
 	// decide on log target (depending on whether
 	// we run interactive or as a service).
@@ -77,14 +86,14 @@ void process_command_line(int argc,char *argv[])
 			(_stricmp(argv[i], "-help") == 0)
 			)
 		{
-			logger = new LogNWNX();
+			logger = new LogNWNX(logLevel);
 			break;
 		}
 	}
 	if (argc == 1)
-		logger = new LogNWNX();
+		logger = new LogNWNX(logLevel);
 	if (!logger)
-		logger = new LogNWNX(logfile);
+		logger = new LogNWNX(logfile, logLevel);
 
 	logger->Info("");
 	logger->Info("NWN Extender 4 Server Controller V.0.0.9");
