@@ -66,12 +66,12 @@ NWNXController::NWNXController(SimpleIniConfig* config)
 		}
 	}
 
-	if (!config->Read("nwn2", &nwnhome))
+	if (!config->Read("nwn2", &nwninstalldir))
 	{
 		logger->Info("* NWN2 installation directory not found. Check your nwnx.ini file.");
 		return;
 	}
-	logger->Trace("NWN2 install dir: %s", nwnhome.c_str());
+	logger->Trace("NWN2 install dir: %s", nwninstalldir.c_str());
 	logger->Trace("NWN2 parameters: %s", parameters.c_str());
 }
 
@@ -126,8 +126,8 @@ bool NWNXController::startServerProcessInternal()
 	ZeroMemory(&pi, sizeof(pi));
 	si.cb = sizeof(si);
 
-	auto exePath = nwnhome + nwnexe;
-	logger->Trace("Starting server executable %s in %s", exePath.c_str(), nwnhome.c_str());
+	auto exePath = nwninstalldir + nwnexe;
+	logger->Trace("Starting server executable %s in %s", exePath.c_str(), nwninstalldir.c_str());
 
 	char szDllPath[MAX_PATH];
 	LPSTR pszFilePart = nullptr;
@@ -159,7 +159,7 @@ bool NWNXController::startServerProcessInternal()
 	std::string params = "nwn2server.exe " + parameters;
 
 	if (!DetourCreateProcessWithDllExA(exePath.c_str(), (LPSTR)params.c_str(),
-                                    nullptr, nullptr, TRUE, dwFlags, nullptr, nwnhome.c_str(),
+                                    nullptr, nullptr, TRUE, dwFlags, nullptr, nwninstalldir.c_str(),
                                     &si, &pi, szDllPath, nullptr))
 	{
 		auto err = GetLastError();

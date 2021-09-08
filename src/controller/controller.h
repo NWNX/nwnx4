@@ -72,7 +72,7 @@ private:
 	PROCESS_INFORMATION pi;
 
 	unsigned long tick;
-	std::string nwnhome;
+	std::string nwninstalldir;
 	bool initialized;
 	bool shuttingDown;
 
