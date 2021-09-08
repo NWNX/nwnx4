@@ -7,6 +7,11 @@ location lStart = GetStartingLocation();
 object oArea = GetAreaFromLocation(lStart);
 object oContainer = CreateObject(OBJECT_TYPE_PLACEABLE, "plc_mc_lbox01", lStart);
 
+void Shutdown(string sReason){
+	WriteTimestampedLogEntry("!! Shutting down server because of " + sReason);
+	NWNXSetString("SRVADMIN", "SHUTDOWNNWN2SERVER", "", 0, "");
+}
+
 void Assert(int bCond, string sFunction, int nLine, string sMessage=""){
 	if(!bCond){
 		WriteTimestampedLogEntry(sFunction + ":" + IntToString(nLine) + ": Assert failed" + (sMessage != "" ? ": " + sMessage : ""));
@@ -16,7 +21,7 @@ void Assert(int bCond, string sFunction, int nLine, string sMessage=""){
 			float fDelay = 6.0 - GetLocalFloat(oModule, "__timer");
 			if(fDelay < 0.0)
 				fDelay = 0.0;
-			DelayCommand(fDelay, NWNXSetString("SRVADMIN", "SHUTDOWNNWN2SERVER", "", 0, ""));
+			DelayCommand(fDelay, Shutdown("failed assert(s)"));
 		}
 	}
 }
@@ -129,6 +134,8 @@ void timer(){
 }
 void main()
 {
+	WriteTimestampedLogEntry("Execute " + __FILE__ + "================================");
+
 	Assert(GetIsObjectValid(oContainer), __FUNCTION__, __LINE__);
 	DelayCommand(0.1, timer());
 
@@ -136,4 +143,6 @@ void main()
 	xp_sql();
 	DelayCommand(1.0, xp_time());
 	xp_funcs();
+
+	WriteTimestampedLogEntry("Finished " + __FILE__ + "================================");
 }
