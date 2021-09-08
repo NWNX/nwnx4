@@ -20,6 +20,7 @@
 
 #include "controller.h"
 #include "service.h"
+#include "../nwnx_version.h"
 
 enum actions { no_action, run_interactive, run_service };
 BOOL STARTUP_ACTION;
@@ -96,7 +97,7 @@ void process_command_line(int argc,char *argv[])
 		logger = new LogNWNX(logfile, logLevel);
 
 	logger->Info("");
-	logger->Info("NWN Extender 4 Server Controller V.0.0.9");
+	logger->Info("NWNX4 Server Controller version " NWNX_VERSION_INFO);
 	logger->Info("(c) 2008 by Ingmar Stieger (Papillon)");
 	logger->Info("visit us at http://www.nwnx.org");
 
