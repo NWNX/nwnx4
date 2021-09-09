@@ -89,7 +89,7 @@ jobs:
         shell: bash
         run: |
           rm nwnx4/*.lib
-          /c/nwn-lib-d-tools/nwn-erf create -o nwnx4/nwscript_includes.erf nwnx4/nwscript/
+          /c/nwn-lib-d-tools/nwn-erf create -o nwnx4/nwscript/nwnx.erf nwnx4/nwscript/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
