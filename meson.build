@@ -38,6 +38,7 @@ endif
 
 
 # Target list
+subdir('src')
 subdir('src/hook')
 subdir('src/controller')
 subdir('src/gui')
