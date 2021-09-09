@@ -137,8 +137,6 @@ jobs:
       - name: "Install choco packages"
         run: |
           choco install vcredist2005 dotnet3.5 dotnet4.7 directx
-          # choco install vcredist2005 vcredist2010 vcredist2013 vcredist2015 dotnet3.5 dotnet4.0 dotnet4.5 dotnet4.7 directx
-
 
       # ------------- Run module
       - uses: actions/checkout@v2
@@ -148,26 +146,24 @@ jobs:
           name: nwnx4-${{ github.sha }}
           path: C:/nwnx4/
 
-      - name: "Prepare test module"
+      - name: "Copy NWN2 home"
         shell: bash
         run: |
-          MODULEDIR="/c/Users/$(whoami)/Documents/Neverwinter Nights 2/Modules"
-
-          # Install unittest module
-          mkdir -p "$MODULEDIR"
-          cp -R test/NWNX4UnitTests "$MODULEDIR/"
-
+          cp -r test/ /c/nwn2home
 
       - name: "Configure NWNX4"
         shell: bash
         run: |
           # Configure nwnx.ini to load the module
           sed -i -E 's|^nwn2\s*=.*$|nwn2 = ../nwnx4_nwn2server|g' /c/nwnx4/nwnx.ini
-          sed -i -E 's|^\s*#?\s*parameters\s*=.*$|parameters = -moduledir NWNX4UnitTests|g' /c/nwnx4/nwnx.ini
+          sed -i -E 's|^\s*#?\s*parameters\s*=.*$|parameters = -moduledir NWNX4UnitTests -home C:/nwn2home|g' /c/nwnx4/nwnx.ini
           sed -i -E 's|^\s*#?\s*nwn2temp\s*=.*$|nwn2temp = C:/nwn2temp|g' /c/nwnx4/nwnx.ini
+          sed -i -E 's|^restartDelay\s*=.*$|restartDelay = 60|g' /c/nwnx4/nwnx.ini
 
           # Use xp_mysql instead if xp_sqlite
           mv /c/nwnx4/xp_sqlite.dll /c/nwnx4/xp_sqlite.dll_
+
+          cp /c/nwnx4/nwn2server-dll/* /c/nwnx4_nwn2server/
 
           echo "======================================== nwnx.ini"
           cat /c/nwnx4/nwnx.ini
@@ -177,9 +173,6 @@ jobs:
       #   run: |
       #     Add-MpPreference -ExclusionProcess "NWNX4_Controller.exe"
       #     Add-MpPreference -ExclusionProcess "nwn2server.exe"
-      #     Add-MpPreference -ExclusionPath "C:\nwnx4"
-      #     Add-MpPreference -ExclusionPath "C:\nwnx4_nwn2server"
-      #     Get-Service WinDefend
 
       - name: "Start server and wait for test success"
         shell: bash
@@ -193,7 +186,7 @@ jobs:
           powershell -Command "Start-Process NWNX4_Controller.exe -ArgumentList '-verbose','-interactive' -Verb RunAs"
           # powershell -Command "Start-Process NWNX4_Gui.exe -Verb RunAs"
 
-          sleep 8
+          sleep 10
           echo "> $(date --rfc-3339=seconds --utc) Check NWNX4"
 
           # Check if nwn2server is online
