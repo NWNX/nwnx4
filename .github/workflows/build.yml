@@ -268,7 +268,7 @@ jobs:
 
       - name: Compress release
         run: |
-          Compress-Archive -LiteralPath nwnx4\ -DestinationPath nwnx4.zip
+          zip -r nwnx4.zip nwnx4/
 
       - name: Upload Release Asset (if on tag)
         id: upload-release-asset
