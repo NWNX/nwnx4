@@ -37,26 +37,7 @@ int ApproxEquals(float a, float b, float delta=0.01){
 void xp_sql(){
 	StartTimer(oModule, "nwnxtest_sqlperf");
 
-	SQLExecDirect("CREATE TABLE IF NOT EXISTS `pwdata` ("
-		+ "  `player` varchar(64) NOT NULL DEFAULT '~',"
-		+ "  `tag` varchar(64) NOT NULL DEFAULT '~',"
-		+ "  `name` varchar(64) NOT NULL DEFAULT '~',"
-		+ "  `val` text DEFAULT NULL,"
-		+ "  `expire` int(11) DEFAULT NULL,"
-		+ "  `last` timestamp NOT NULL DEFAULT current_timestamp(),"
-		+ "  PRIMARY KEY (`player`,`tag`,`name`)"
-		+ ") ENGINE=MyISAM DEFAULT CHARSET=utf8;"
-	);
-	SQLExecDirect("CREATE TABLE IF NOT EXISTS `pwdata` ("
-		+ "  `player` varchar(64) NOT NULL DEFAULT '~',"
-		+ "  `tag` varchar(64) NOT NULL DEFAULT '~',"
-		+ "  `name` varchar(64) NOT NULL DEFAULT '~',"
-		+ "  `val` blob DEFAULT NULL,"
-		+ "  `expire` int(11) DEFAULT NULL,"
-		+ "  `last` timestamp NOT NULL DEFAULT current_timestamp(),"
-		+ "  PRIMARY KEY (`player`,`tag`,`name`)"
-		+ ") ENGINE=MyISAM DEFAULT CHARSET=utf8;"
-	);
+	SQLCreateTables();
 
 	// Simple var storage
 	SetPersistentString(oModule, "nwnxtest_string", "Café");
